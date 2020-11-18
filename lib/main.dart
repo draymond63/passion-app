@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import './globals.dart';
+
+import './widgets/navbar.dart';
+import './pages/bookshelf.dart';
 
 void main() => runApp(MyApp());
 
@@ -10,7 +12,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// ! stful & stless
 class Page extends StatefulWidget {
   @override
   _PageState createState() => _PageState();
@@ -24,11 +25,10 @@ class _PageState extends State<Page> {
   //   fontWeight: FontWeight.bold
   // );
 
-  // ! CHANGE
-  static const List<Widget> _widgetOptions = <Widget>[
-    Text('Index 0: Home'),
-    Text('Index 1: Business'),
-    Text('Index 2: School'),
+  List<Widget> _pages = <Widget>[
+    Text('Index 0: Settings'),
+    BookShelfPage(),
+    Text('Index 2: Search'),
   ];
 
   // Update page function
@@ -36,7 +36,6 @@ class _PageState extends State<Page> {
     setState(() {
       _pageIndex = i;
     });
-    print(_pageIndex);
   }
 
   @override
@@ -46,46 +45,10 @@ class _PageState extends State<Page> {
         home: Scaffold(
             // * PAGE
             body: Center(
-              child: _widgetOptions.elementAt(_pageIndex),
+              child: _pages.elementAt(_pageIndex),
             ),
 
             // * NAV BAR
             bottomNavigationBar: NavBar(_pageIndex, _onNavBarTapped)));
-  }
-}
-
-class NavBar extends StatefulWidget {
-  int index;
-  Function(int) callback;
-  NavBar(this.index, this.callback);
-
-  @override
-  _NavBarState createState() => _NavBarState();
-}
-
-class _NavBarState extends State<NavBar> {
-  @override
-  Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      backgroundColor: Color(MAIN_COLOR),
-      unselectedItemColor: Color(SECOND_ACCENT_COLOR),
-      items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: Icon(Icons.settings),
-          label: 'Settings',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.collections_bookmark),
-          label: 'Bookshelf',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.search),
-          label: 'Search',
-        ),
-      ],
-      currentIndex: widget.index,
-      selectedItemColor: Color(MAIN_ACCENT_COLOR),
-      onTap: widget.callback,
-    );
   }
 }
