@@ -1,3 +1,4 @@
+import 'package:PassionApp/globals.dart';
 import 'package:flutter/material.dart';
 
 import './widgets/navbar.dart';
@@ -18,7 +19,7 @@ class Page extends StatefulWidget {
 }
 
 class _PageState extends State<Page> {
-  int _pageIndex = 0;
+  int _pageIndex = 2;
   // static const TextStyle navText = TextStyle(
   //   color: Color(MAIN_ACCENT_COLOR),
   //   fontSize: 30,
@@ -42,6 +43,9 @@ class _PageState extends State<Page> {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: 'PassionFruit',
+        theme: ThemeData(
+            primaryColor: Color(MAIN_COLOR),
+            accentColor: Color(SECOND_ACCENT_COLOR)),
         home: Scaffold(
             // * PAGE
             body: Center(

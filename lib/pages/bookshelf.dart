@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../globals.dart';
+import '../widgets/item.dart';
+// import 'package:path_provider/path_provider.dart';
 
 class BookShelfPage extends StatefulWidget {
   @override
@@ -7,6 +9,13 @@ class BookShelfPage extends StatefulWidget {
 }
 
 class _BookShelfPageState extends State<BookShelfPage> {
+  // Future<String> get _localPath async {
+  //   final directory = await getApplicationDocumentsDirectory();
+
+  //   return directory.path;
+  // }
+
+  // For list vue
   bool _isList = true;
   _switchView() {
     setState(() => _isList = !_isList);
@@ -15,10 +24,10 @@ class _BookShelfPageState extends State<BookShelfPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _isList ? BookShelfList() : Text('hi'),
+      body: _isList ? BookShelfList() : BookShelfMain(),
       floatingActionButton: IconButton(
         onPressed: _switchView,
-        tooltip: 'Switch view',
+        tooltip: 'Switch View',
         icon: Icon(
           _isList
               ? Icons.featured_play_list
@@ -27,6 +36,18 @@ class _BookShelfPageState extends State<BookShelfPage> {
         ),
       ),
     );
+  }
+}
+
+class BookShelfMain extends StatefulWidget {
+  @override
+  _BookShelfMainState createState() => _BookShelfMainState();
+}
+
+class _BookShelfMainState extends State<BookShelfMain> {
+  @override
+  Widget build(BuildContext context) {
+    return Item('LeBron James');
   }
 }
 
