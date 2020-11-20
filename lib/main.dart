@@ -1,14 +1,33 @@
-import 'package:PassionApp/globals.dart';
 import 'package:flutter/material.dart';
+import 'package:PassionFruit/globals.dart';
 
 import './widgets/navbar.dart';
 import './pages/bookshelf.dart';
+import './pages/settings.dart';
 
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
+  void initUser() {
+    // ! MOVE TO NEW USER PAGE
+    writeUserFile({
+      'settings': {
+        'People': true,
+        'History': true,
+        'Geography': true,
+        'Arts': true,
+        'Social Sciences': true,
+        'Biology': true,
+        'Physical Sciences': true,
+        'Technology': true,
+        'Mathematics': true,
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    initUser();
     return MaterialApp(title: 'PassionFruit', home: Page());
   }
 }
@@ -27,7 +46,7 @@ class _PageState extends State<Page> {
   // );
 
   List<Widget> _pages = <Widget>[
-    Text('Index 0: Settings'),
+    SettingsPage(),
     BookShelfPage(),
     Text('Index 2: Search'),
   ];
@@ -45,7 +64,22 @@ class _PageState extends State<Page> {
         title: 'PassionFruit',
         theme: ThemeData(
             primaryColor: Color(MAIN_COLOR),
-            accentColor: Color(SECOND_ACCENT_COLOR)),
+            accentColor: Color(SECOND_ACCENT_COLOR),
+            fontFamily: 'Roboto',
+            textTheme: TextTheme(
+              headline1: TextStyle(
+                  fontSize: 36,
+                  color: Color(MAIN_COLOR),
+                  fontWeight: FontWeight.w500),
+              headline2: TextStyle(
+                  fontSize: 20,
+                  color: Color(MAIN_COLOR),
+                  fontWeight: FontWeight.w500),
+              bodyText1: TextStyle(
+                  fontSize: 14.0,
+                  color: Color(TEXT_COLOR),
+                  fontWeight: FontWeight.w300),
+            )),
         home: Scaffold(
             // * PAGE
             body: Center(

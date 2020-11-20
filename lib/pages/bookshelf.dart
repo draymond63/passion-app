@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../globals.dart';
 import '../widgets/item.dart';
-// import 'package:path_provider/path_provider.dart';
 
 class BookShelfPage extends StatefulWidget {
   @override
@@ -9,11 +8,7 @@ class BookShelfPage extends StatefulWidget {
 }
 
 class _BookShelfPageState extends State<BookShelfPage> {
-  // Future<String> get _localPath async {
-  //   final directory = await getApplicationDocumentsDirectory();
-
-  //   return directory.path;
-  // }
+  final items = ['Basketball', 'LeBron James'];
 
   // For list vue
   bool _isList = true;
@@ -24,7 +19,7 @@ class _BookShelfPageState extends State<BookShelfPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _isList ? BookShelfList() : BookShelfMain(),
+      body: _isList ? BookShelfList(items) : BookShelfMain(items),
       floatingActionButton: IconButton(
         onPressed: _switchView,
         tooltip: 'Switch View',
@@ -39,31 +34,37 @@ class _BookShelfPageState extends State<BookShelfPage> {
   }
 }
 
-class BookShelfMain extends StatefulWidget {
-  @override
-  _BookShelfMainState createState() => _BookShelfMainState();
-}
+class BookShelfMain extends StatelessWidget {
+  final items;
+  BookShelfMain(this.items);
 
-class _BookShelfMainState extends State<BookShelfMain> {
-  @override
+  List<Widget> constructedItems() {
+    List<Widget> widgItems = [];
+    for (final i in items) {
+      widgItems.add(Item(i));
+    }
+    return widgItems;
+  }
+
   Widget build(BuildContext context) {
-    return Item('LeBron James');
+    return ListView(
+        scrollDirection: Axis.horizontal, children: constructedItems());
   }
 }
 
 class BookShelfList extends StatelessWidget {
-  // final List<String> _likedItems = ['1', '2', '3'];
-  final List<String> entries = <String>['A', 'B', 'C'];
+  final items;
+  BookShelfList(this.items);
 
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
       padding: const EdgeInsets.all(8),
-      itemCount: entries.length,
+      itemCount: items.length,
       itemBuilder: (BuildContext context, int index) {
         return Container(
           height: 50,
-          child: Center(child: Text('Entry ${entries[index]}')),
+          child: Center(child: Text(items[index])),
         );
       },
       separatorBuilder: (BuildContext context, int index) => const Divider(),
