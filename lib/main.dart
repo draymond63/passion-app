@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
         },
         'lesson-frequency': 5
       },
-      'liked': ['Basketball', 'LeBron James'],
+      'items': ['Basketball', 'LeBron James'],
       'preferences': {'list-view': true}
     });
   }

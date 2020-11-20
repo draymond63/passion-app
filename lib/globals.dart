@@ -18,7 +18,7 @@ const ItemSubtitle = const TextStyle(
     fontSize: 20, color: Color(MAIN_COLOR), fontWeight: FontWeight.w500);
 
 // * FUNCTIONS
-fetch(uri, {params = false}) async {
+fetch(uri) async {
   final http.Response resp = await http.get(BACKEND + uri);
   // print(jsonDecode(resp.body)['data']);
   if (resp.statusCode == 200)
@@ -46,9 +46,9 @@ Future<File> get _localFile async {
 }
 
 // Write to user file
-Future<File> writeUserFile(Map<String, dynamic> map) async {
+void writeUserFile(Map<String, dynamic> map) async {
   final file = await _localFile;
-  return file.writeAsString(jsonEncode(map));
+  file.writeAsString(jsonEncode(map));
 }
 
 // Read from user file
@@ -68,8 +68,4 @@ void editUserFile(void Function(Map<String, dynamic>) edit) {
     edit(data);
     writeUserFile(data);
   });
-}
-
-Widget fileBuilder(Widget Function(Map<String, dynamic>) widget) {
-  return futureBuilder(readUserFile(), widget);
 }

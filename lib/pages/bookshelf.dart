@@ -8,12 +8,11 @@ class BookShelfPage extends StatefulWidget {
 }
 
 class _BookShelfPageState extends State<BookShelfPage> {
-  List<String> items = [];
+  List items = [];
   bool _isList = true;
 
   @override
   _BookShelfPageState() : super() {
-    print(items.toString());
     readUserFile().then((data) {
       setState(() => items = data['items']);
       setState(() => _isList = data['preferences']['list-view']);
