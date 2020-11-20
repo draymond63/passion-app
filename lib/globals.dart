@@ -62,6 +62,14 @@ Future<Map<String, dynamic>> readUserFile() async {
   }
 }
 
+// Make a change to the user file
+void editUserFile(void Function(Map<String, dynamic>) edit) {
+  readUserFile().then((data) {
+    edit(data);
+    writeUserFile(data);
+  });
+}
+
 Widget fileBuilder(Widget Function(Map<String, dynamic>) widget) {
   return futureBuilder(readUserFile(), widget);
 }

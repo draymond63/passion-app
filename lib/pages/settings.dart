@@ -8,45 +8,43 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   Map<String, dynamic> settings = {
-    'People': true,
-    'History': true,
-    'Geography': true,
-    'Arts': true,
-    'Social Sciences': true,
-    'Biology': true,
-    'Physical Sciences': true,
-    'Technology': true,
-    'Mathematics': true,
+    'categories': {
+      'People': true,
+      'History': true,
+      'Geography': true,
+      'Arts': true,
+      'Social Sciences': true,
+      'Biology': true,
+      'Physical Sciences': true,
+      'Technology': true,
+      'Mathematics': true,
+    }
   };
 
   @override
-  _SettingsPageState() {
-    readUserFile().then((data) {
-      if (data == null)
-        throw Exception("Datafile doesn't exist");
-      else
-        setState(() => settings = data['settings']);
-    });
+  _SettingsPageState() : super() {
+    readUserFile().then((data) => setState(() => settings = data['settings']));
   }
 
   // Save setting
-  void saveSetting(String option, bool state) async {
-    print(option + state.toString() + settings[option].toString());
+  void saveSetting(String section, String option, bool state) async {
     // Write to state
-    setState(() => settings[option] = state);
+    setState(() => settings[section][option] = state);
     // Write to file
-    var obj = await readUserFile();
-    obj['settings'][option] = state;
-    writeUserFile(obj);
+    editUserFile((data) {
+      data['settings'][section][option] = state;
+    });
   }
 
-  List<Widget> buildSettings() {
+  List<Widget> buildCategorySettings() {
     List<Widget> widgList = [];
-    settings.forEach((opt, state) {
+    settings['categories'].forEach((opt, state) {
       widgList.add(Row(children: [
         Text(opt, style: Theme.of(context).textTheme.headline2),
         Expanded(child: SizedBox()), // Fils space inbetween
-        Switch(value: state, onChanged: (state) => saveSetting(opt, state))
+        Switch(
+            value: state,
+            onChanged: (state) => saveSetting('categories', opt, state))
       ]));
     });
     return widgList;
@@ -55,13 +53,13 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        padding: new EdgeInsets.all(20.0),
+        padding: new EdgeInsets.symmetric(horizontal: 20),
         child: ListView(
           children: [
             Text('Categories', style: Theme.of(context).textTheme.headline1),
             Text('Decide which type of topics can be suggested',
                 style: Theme.of(context).textTheme.bodyText1),
-            Column(children: buildSettings()),
+            Column(children: buildCategorySettings()),
             Text('Lesson Frequency',
                 style: Theme.of(context).textTheme.headline1),
             Text('How often should we suggest topics',

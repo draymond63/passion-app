@@ -8,12 +8,25 @@ class BookShelfPage extends StatefulWidget {
 }
 
 class _BookShelfPageState extends State<BookShelfPage> {
-  final items = ['Basketball', 'LeBron James'];
+  List<String> items = [];
+  bool _isList = true;
+
+  @override
+  _BookShelfPageState() : super() {
+    print(items.toString());
+    readUserFile().then((data) {
+      setState(() => items = data['items']);
+      setState(() => _isList = data['preferences']['list-view']);
+    });
+  }
 
   // For list vue
-  bool _isList = true;
-  _switchView() {
+  void _switchView() {
     setState(() => _isList = !_isList);
+    // Save preference
+    editUserFile((data) {
+      data['preferences']['list-view'] = _isList;
+    });
   }
 
   @override

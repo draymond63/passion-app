@@ -12,16 +12,21 @@ class MyApp extends StatelessWidget {
     // ! MOVE TO NEW USER PAGE
     writeUserFile({
       'settings': {
-        'People': true,
-        'History': true,
-        'Geography': true,
-        'Arts': true,
-        'Social Sciences': true,
-        'Biology': true,
-        'Physical Sciences': true,
-        'Technology': true,
-        'Mathematics': true,
-      }
+        'categories': {
+          'People': true,
+          'History': true,
+          'Geography': true,
+          'Arts': true,
+          'Social Sciences': true,
+          'Biology': true,
+          'Physical Sciences': true,
+          'Technology': true,
+          'Mathematics': true,
+        },
+        'lesson-frequency': 5
+      },
+      'liked': ['Basketball', 'LeBron James'],
+      'preferences': {'list-view': true}
     });
   }
 
