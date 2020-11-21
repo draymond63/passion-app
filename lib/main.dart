@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:PassionFruit/globals.dart';
 
 import './widgets/navbar.dart';
-import './pages/bookshelf.dart';
 import './pages/settings.dart';
+import './pages/bookshelf.dart';
+import './pages/search.dart';
 
 void main() => runApp(MyApp());
 
@@ -53,7 +54,7 @@ class _PageState extends State<Page> {
   List<Widget> _pages = <Widget>[
     SettingsPage(),
     BookShelfPage(),
-    Text('Index 2: Search'),
+    SearchPage(),
   ];
 
   // Update page function
