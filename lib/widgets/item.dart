@@ -44,6 +44,7 @@ class _ItemState extends State<Item> {
             onVerticalDragEnd: swipe));
   }
 
+  // ! USE HERO WIDGET
   Widget details(double width) {
     if (!showDetail) return Text(inputController.text);
 

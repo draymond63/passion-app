@@ -56,13 +56,19 @@ class BookShelfMain extends StatefulWidget {
 }
 
 class _BookShelfMainState extends State<BookShelfMain> {
-  List<Widget> itemWidgets = <Widget>[];
+  PageController _controller;
   int index = 0;
-  double _shift = 0; // How far along the
 
-  _BookShelfMainState() {
-    itemWidgets = List<Widget>.generate(
-        widget.items.length, (i) => Item(widget.items[i]));
+  @override
+  void initState() {
+    super.initState();
+    _controller = PageController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   tap(TapUpDetails details, context) {
@@ -76,25 +82,20 @@ class _BookShelfMainState extends State<BookShelfMain> {
     if (index >= widget.items.length)
       setState(() => index = widget.items.length - 1);
     else if (index < 0) setState(() => index = 0);
-
-    setState(() => _shift = index * division * 2);
+    // Animate to page
+    _controller.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+    );
   }
 
   Widget build(BuildContext context) {
     return GestureDetector(
-        child: TweenAnimationBuilder(
-            child: ListView(
-                children: itemWidgets,
-                physics: const NeverScrollableScrollPhysics()),
-            // Animation tracking
-            duration: widget.duration,
-            tween: Tween(begin: 0, end: _shift),
-            builder: (context, offset, child) {
-              return Transform.translate(
-                offset: Offset(_shift, 0),
-                child: child,
-              );
-            }),
+        child: PageView(
+            controller: _controller,
+            children: List<Widget>.generate(
+                widget.items.length, (i) => Item(widget.items[i]))),
         onTapUp: (d) => tap(d, context));
   }
 }
