@@ -66,7 +66,7 @@ class Page extends StatefulWidget {
 class _PageState extends State<Page> {
   int _pageIndex = 2;
 
-  static List<Widget> _pages = <Widget>[
+  final List<Widget> _pages = <Widget>[
     SettingsPage(),
     BookShelfPage(),
     SearchPage(),
@@ -84,9 +84,7 @@ class _PageState extends State<Page> {
             duration: const Duration(milliseconds: 500),
             child: IndexedStack(
                 children: _pages,
-                // This key causes the AnimatedSwitcher to interpret this as a "new"
-                // child each time the count changes, so that it will begin its animation
-                // when the count changes.
+                // This key causes the AnimatedSwitcher to interpret this as new
                 key: ValueKey<int>(_pageIndex),
                 index: _pageIndex)),
         // * NAV BAR
