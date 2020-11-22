@@ -38,6 +38,11 @@ Widget futureBuilder(Future<dynamic> future, Widget Function(dynamic) widget) {
       });
 }
 
+// * CSV READING
+// Future<String> loadAsset(String path) async {
+//   return await rootBundle.loadString(path);
+// }
+
 // * DATA PERSISTENCE
 // Help function to get user file
 Future<File> get _localFile async {

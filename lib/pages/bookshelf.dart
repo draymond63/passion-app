@@ -56,7 +56,14 @@ class BookShelfMain extends StatefulWidget {
 }
 
 class _BookShelfMainState extends State<BookShelfMain> {
+  List<Widget> itemWidgets = <Widget>[];
   int index = 0;
+  double _shift = 0; // How far along the
+
+  _BookShelfMainState() {
+    itemWidgets = List<Widget>.generate(
+        widget.items.length, (i) => Item(widget.items[i]));
+  }
 
   tap(TapUpDetails details, context) {
     final division = MediaQuery.of(context).size.width / 2;
@@ -69,25 +76,26 @@ class _BookShelfMainState extends State<BookShelfMain> {
     if (index >= widget.items.length)
       setState(() => index = widget.items.length - 1);
     else if (index < 0) setState(() => index = 0);
-  }
 
-  Widget itemTransition(Widget child, Animation<double> anim) {
-    return ScaleTransition(scale: anim, child: child);
+    setState(() => _shift = index * division * 2);
   }
 
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-        duration: widget.duration,
-        // transitionBuilder: itemTransition,
-        child: IndexedStack(
-          index: index,
-          key: ValueKey<int>(index),
-          children: List<Widget>.generate(
-              widget.items.length,
-              (i) => GestureDetector(
-                  child: Item(widget.items[i]),
-                  onTapUp: (d) => tap(d, context))),
-        ));
+    return GestureDetector(
+        child: TweenAnimationBuilder(
+            child: ListView(
+                children: itemWidgets,
+                physics: const NeverScrollableScrollPhysics()),
+            // Animation tracking
+            duration: widget.duration,
+            tween: Tween(begin: 0, end: _shift),
+            builder: (context, offset, child) {
+              return Transform.translate(
+                offset: Offset(_shift, 0),
+                child: child,
+              );
+            }),
+        onTapUp: (d) => tap(d, context));
   }
 }
 
