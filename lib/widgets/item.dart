@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../globals.dart';
-
-// import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class Item extends StatefulWidget {
   final String site;
@@ -32,14 +31,17 @@ class _ItemState extends State<Item> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
 
-    return GestureDetector(
-        child: IntrinsicHeight(
-            child: Column(children: [
-          ItemImage(widget.site),
-          Text(widget.site, style: Theme.of(context).textTheme.headline1),
-          details(width)
-        ])),
-        onVerticalDragEnd: swipe);
+    return SingleChildScrollView(
+        child: GestureDetector(
+            child: Container(
+                width: width,
+                child: Column(children: [
+                  ItemImage(widget.site),
+                  Text(widget.site,
+                      style: Theme.of(context).textTheme.headline1),
+                  details(width)
+                ])),
+            onVerticalDragEnd: swipe));
   }
 
   Widget details(double width) {
@@ -70,7 +72,7 @@ class ItemImage extends StatelessWidget {
 
     return Container(
         height: height / 2,
-        child: futureBuilder(fetch('images/${this.site}'),
+        child: futureBuilder(fetch('images/$site'),
             (data) => Image.network(data[0], width: width, fit: BoxFit.cover)));
   }
 }

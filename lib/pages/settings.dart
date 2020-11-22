@@ -18,7 +18,8 @@ class _SettingsPageState extends State<SettingsPage> {
       'Physical Sciences': true,
       'Technology': true,
       'Mathematics': true,
-    }
+    },
+    'lesson-frequency': 5
   };
 
   @override
@@ -62,8 +63,13 @@ class _SettingsPageState extends State<SettingsPage> {
             Column(children: buildCategorySettings()),
             Text('Lesson Frequency',
                 style: Theme.of(context).textTheme.headline1),
+            Text(settings['lesson-frequency'].toString()),
             Text('How often should we suggest topics',
                 style: Theme.of(context).textTheme.bodyText1),
+            IconButton(
+                icon: Icon(Icons.sanitizer),
+                onPressed: () => Navigator.push(
+                    context, MaterialPageRoute(builder: (_) => Text('hi'))))
           ],
         ));
   }

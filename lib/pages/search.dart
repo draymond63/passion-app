@@ -18,6 +18,7 @@ class _SearchPageState extends State<SearchPage> {
   void getSuggested() async {
     final response = await fetch('suggest/$_userId');
     setState(() => _suggestions = response);
+    print(_suggestions.toString());
   }
 
   @override
@@ -29,6 +30,7 @@ class _SearchPageState extends State<SearchPage> {
             icon: Icon(Icons.explore_outlined), onPressed: getSuggested));
   }
 
+  // * SEARCH BAR
   Widget buildSearchBar() {
     return AppBar(
       title: TextField(
@@ -48,10 +50,11 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
+  // * SCATTER MAP
   final isCardView = true;
   Widget buildMap() {
     return SfCartesianChart(
-        plotAreaBorderWidth: 0,
+        plotAreaBorderWidth: 1,
         title: ChartTitle(text: isCardView ? '' : 'Knowledge Map'),
         legend: Legend(isVisible: !isCardView),
         primaryXAxis: NumericAxis(isVisible: false),

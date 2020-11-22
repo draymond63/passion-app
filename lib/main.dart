@@ -34,38 +34,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     initUser();
-    return MaterialApp(title: 'PassionFruit', home: Page());
-  }
-}
-
-class Page extends StatefulWidget {
-  @override
-  _PageState createState() => _PageState();
-}
-
-class _PageState extends State<Page> {
-  int _pageIndex = 2;
-  // static const TextStyle navText = TextStyle(
-  //   color: Color(MAIN_ACCENT_COLOR),
-  //   fontSize: 30,
-  //   fontWeight: FontWeight.bold
-  // );
-
-  List<Widget> _pages = <Widget>[
-    SettingsPage(),
-    BookShelfPage(),
-    SearchPage(),
-  ];
-
-  // Update page function
-  void _onNavBarTapped(int i) {
-    setState(() {
-      _pageIndex = i;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return MaterialApp(
         title: 'PassionFruit',
         theme: ThemeData(
@@ -86,13 +54,42 @@ class _PageState extends State<Page> {
                   color: Color(TEXT_COLOR),
                   fontWeight: FontWeight.w300),
             )),
-        home: Scaffold(
-            // * PAGE
-            body: Center(
-              child: _pages.elementAt(_pageIndex),
-            ),
+        home: Page());
+  }
+}
 
-            // * NAV BAR
-            bottomNavigationBar: NavBar(_pageIndex, _onNavBarTapped)));
+class Page extends StatefulWidget {
+  @override
+  _PageState createState() => _PageState();
+}
+
+class _PageState extends State<Page> {
+  int _pageIndex = 2;
+
+  static List<Widget> _pages = <Widget>[
+    SettingsPage(),
+    BookShelfPage(),
+    SearchPage(),
+  ];
+
+  changePage(int i) => setState(() => _pageIndex = i);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        // * PAGE
+        // Indexed stack used to save page state
+        body: AnimatedSwitcher(
+            transitionBuilder: AnimatedSwitcher.defaultTransitionBuilder,
+            duration: const Duration(milliseconds: 500),
+            child: IndexedStack(
+                children: _pages,
+                // This key causes the AnimatedSwitcher to interpret this as a "new"
+                // child each time the count changes, so that it will begin its animation
+                // when the count changes.
+                key: ValueKey<int>(_pageIndex),
+                index: _pageIndex)),
+        // * NAV BAR
+        bottomNavigationBar: NavBar(_pageIndex, changePage));
   }
 }

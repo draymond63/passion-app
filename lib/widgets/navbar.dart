@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import '../globals.dart';
 
 class NavBar extends StatefulWidget {
-  final int index;
-  final Function(int) callback;
-  NavBar(this.index, this.callback);
-
+  final index;
+  final Function changePage;
+  NavBar(this.index, this.changePage);
   @override
   _NavBarState createState() => _NavBarState();
 }
@@ -36,7 +35,7 @@ class _NavBarState extends State<NavBar> {
       selectedItemColor: Color(MAIN_ACCENT_COLOR),
       unselectedFontSize: 0, // ! REMOVES LABELS
       selectedFontSize: 0,
-      onTap: widget.callback,
+      onTap: widget.changePage,
     );
   }
 }
