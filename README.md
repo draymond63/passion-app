@@ -1,4 +1,4 @@
-# PassionApp
+# PassionFruit
 
 A new Flutter project.
 

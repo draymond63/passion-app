@@ -78,12 +78,15 @@ class _SearchPageState extends State<SearchPage> {
   /// Returns the list of chart series
   List<ScatterSeries<MapPoint, double>> _formatPoints(csv) {
     List<List<dynamic>> map = CsvToListConverter().convert(csv);
-
     // ! SPLIT BY CATEGORY
     final List<MapPoint> chartData = List<MapPoint>.generate(map.length, (i) {
       final data = map[i];
-      return MapPoint(name: data[0], x: data[1], y: data[2]);
+      return MapPoint(
+          name: data[MapCol.name.index],
+          x: data[MapCol.x.index],
+          y: data[MapCol.y.index]);
     });
+
     final you = MapPoint(name: 'You', x: 5, y: 5);
 
     return <ScatterSeries<MapPoint, double>>[
@@ -117,3 +120,5 @@ class MapPoint {
   final double y;
   MapPoint({this.name, this.x, this.y});
 }
+
+enum MapCol { name, x, y, l0, l1, l2, l3, l4, site }
