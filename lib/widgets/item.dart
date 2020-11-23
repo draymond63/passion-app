@@ -11,39 +11,48 @@ class Item extends StatefulWidget {
 
 class _ItemState extends State<Item> {
   bool showDetail = false;
+  final _scroller = ScrollController();
   final _inputController = TextEditingController();
 
-  void swipe(DragEndDetails details, double height) {
-    if (details.primaryVelocity > 0) {
-      setState(() => showDetail = true);
-    } else if (details.primaryVelocity < 0) {
-      setState(() => showDetail = false);
-    }
+  @override
+  void initState() {
+    _scroller.addListener(swipe);
+    super.initState();
   }
 
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
+    _scroller.dispose();
     _inputController.dispose();
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
-    final width = MediaQuery.of(context).size.width;
-
-    return GestureDetector(
-        child: Column(children: [
-          ItemImage(widget.site, !showDetail),
-          Text(widget.site, style: Theme.of(context).textTheme.headline1),
-          details(width, height)
-        ]),
-        onVerticalDragEnd: (d) => swipe(d, height));
+  void swipe() {
+    // if (_scroller.position.isScrollingNotifier.value) {
+    //   setState(() => showDetail = true);
+    // }
+    if (_scroller.offset <= _scroller.position.minScrollExtent)
+      setState(() => showDetail = false);
   }
 
-  // ! USE HERO WIDGET
-  Widget details(double width, double height) {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+        child: ListView(
+            controller: _scroller,
+            physics: showDetail
+                ? AlwaysScrollableScrollPhysics()
+                : NeverScrollableScrollPhysics(),
+            children: [
+              ItemImage(widget.site, !showDetail),
+              Text(widget.site, style: Theme.of(context).textTheme.headline1),
+              details()
+            ]),
+        onTap: () => setState(() => showDetail = true));
+  }
+
+  Widget details() {
     return AnimatedOpacity(
         opacity: showDetail ? 1 : 0,
         duration: Duration(milliseconds: 200),
@@ -55,6 +64,8 @@ class _ItemState extends State<Item> {
           Text('Suggested Lessons',
               style: Theme.of(context).textTheme.headline2),
           Text('Related Topics', style: Theme.of(context).textTheme.headline2),
+          Text(
+              '\n\n\n\n\n\n\n\n\n\n\n\nhi\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nhi')
         ]));
   }
 }

@@ -56,47 +56,10 @@ class BookShelfMain extends StatefulWidget {
 }
 
 class _BookShelfMainState extends State<BookShelfMain> {
-  PageController _controller;
-  int index = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = PageController();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  tap(TapUpDetails details, context) {
-    final division = MediaQuery.of(context).size.width / 2;
-    // Move item in view
-    if (details.globalPosition.dx > division)
-      setState(() => index++);
-    else
-      setState(() => index--);
-    // Edge cases
-    if (index >= widget.items.length)
-      setState(() => index = widget.items.length - 1);
-    else if (index < 0) setState(() => index = 0);
-    // Animate to page
-    _controller.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeInOut,
-    );
-  }
-
   Widget build(BuildContext context) {
-    return GestureDetector(
-        child: PageView(
-            controller: _controller,
-            children: List<Widget>.generate(
-                widget.items.length, (i) => Item(widget.items[i]))),
-        onTapUp: (d) => tap(d, context));
+    return PageView(
+        children: List<Widget>.generate(
+            widget.items.length, (i) => Item(widget.items[i])));
   }
 }
 
