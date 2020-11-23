@@ -25,6 +25,7 @@ dependencies:
     sdk: flutter
   path_provider:
   cached_network_image: 2.3.3
+  csv:
   http:
   syncfusion_flutter_charts:
 
@@ -48,8 +49,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/sites.csv
-    - assets/vecs.csv
+    - assets/map.csv
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:PassionFruit/globals.dart';
 // ! To be qualified for the Syncfusion Community License Program you must have
 // ! a gross revenue of less than one (1) million U.S. dollars ($1,000,000.00 USD)
 // ! per year and have less than five (5) developers in your organization, and
 // ! agree to be bound by Syncfusion’s terms and conditions.
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:csv/csv.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -53,40 +55,60 @@ class _SearchPageState extends State<SearchPage> {
   // * SCATTER MAP
   final isCardView = true;
   Widget buildMap() {
-    return SfCartesianChart(
-        plotAreaBorderWidth: 1,
-        title: ChartTitle(text: isCardView ? '' : 'Knowledge Map'),
-        legend: Legend(isVisible: !isCardView),
-        primaryXAxis: NumericAxis(isVisible: false),
-        primaryYAxis: NumericAxis(isVisible: false),
-        tooltipBehavior: TooltipBehavior(enable: true),
-        // selectionType: SelectionType.point,
-        series: _getDefaultScatterSeries());
+    return FutureBuilder(
+        future: rootBundle.loadString('assets/map.csv'),
+        builder: (context, obj) => SfCartesianChart(
+            plotAreaBorderWidth: 1,
+            title: ChartTitle(text: isCardView ? '' : 'Knowledge Map'),
+            legend: Legend(isVisible: !isCardView),
+            // ! PROGRAMATICALLY SET RANGE
+            primaryXAxis:
+                NumericAxis(isVisible: false, minimum: 0, maximum: 10),
+            primaryYAxis:
+                NumericAxis(isVisible: false, minimum: 0, maximum: 10),
+            tooltipBehavior: TooltipBehavior(enable: true),
+            zoomPanBehavior: ZoomPanBehavior(enablePinching: true),
+            onSelectionChanged: (SelectionArgs info) {
+              print(info.pointIndex);
+            },
+            // selectionType: SelectionType.point,
+            series: obj.hasData ? _formatPoints(obj.data) : [<ChartSeries>[]]));
   }
 
   /// Returns the list of chart series
-  /// which need to render on the scatter chart.
-  List<ScatterSeries<MapPoint, double>> _getDefaultScatterSeries() {
-    final List<MapPoint> chartData = <MapPoint>[
-      MapPoint(name: 'hi', x: 1, y: 21)
-    ];
+  List<ScatterSeries<MapPoint, double>> _formatPoints(csv) {
+    List<List<dynamic>> map = CsvToListConverter().convert(csv);
+
+    // ! SPLIT BY CATEGORY
+    final List<MapPoint> chartData = List<MapPoint>.generate(map.length, (i) {
+      final data = map[i];
+      return MapPoint(name: data[0], x: data[1], y: data[2]);
+    });
+    final you = MapPoint(name: 'You', x: 5, y: 5);
 
     return <ScatterSeries<MapPoint, double>>[
-      ScatterSeries<MapPoint, double>(
-          dataSource: chartData,
-          opacity: 0.7,
-          xValueMapper: (MapPoint data, _) => data.x,
-          yValueMapper: (MapPoint data, _) => data.y,
-          dataLabelMapper: (MapPoint data, _) => data.name,
-          markerSettings: MarkerSettings(
-            height: 15,
-            width: 15,
-          ),
-          dataLabelSettings: DataLabelSettings(isVisible: true),
-          selectionBehavior: SelectionBehavior(enable: true),
-          name: 'People'),
+      getSeries(data: chartData, name: 'People'),
+      // ! STORE YOU VALUE
+      getSeries(data: [you], name: 'You', height: 20, width: 20),
     ];
   }
+}
+
+ScatterSeries<MapPoint, double> getSeries(
+    {List<MapPoint> data, String name, double width = 15, double height = 15}) {
+  return ScatterSeries<MapPoint, double>(
+      dataSource: data,
+      opacity: 0.7,
+      xValueMapper: (MapPoint p, _) => p.x,
+      yValueMapper: (MapPoint p, _) => p.y,
+      dataLabelMapper: (MapPoint p, _) => p.name,
+      markerSettings: MarkerSettings(
+        height: height,
+        width: width,
+      ),
+      dataLabelSettings: DataLabelSettings(isVisible: true),
+      selectionBehavior: SelectionBehavior(enable: true),
+      name: name);
 }
 
 class MapPoint {

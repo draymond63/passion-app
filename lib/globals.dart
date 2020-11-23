@@ -31,6 +31,7 @@ Widget futureBuilder(Future<dynamic> future, Widget Function(dynamic) widget) {
   return FutureBuilder<dynamic>(
       future: future,
       builder: (context, AsyncSnapshot<dynamic> obj) {
+        if (obj.hasError) print(obj.error);
         if (obj.hasData)
           return widget(obj.data);
         else
