@@ -3,88 +3,48 @@ import '../globals.dart';
 // import 'package:cached_network_image/cached_network_image.dart';
 
 class Item extends StatefulWidget {
-  final String site;
-  Item(this.site);
+  final String name;
+  final String image; // url
+  final String summary;
+  final double width;
+  Item({this.name, this.image = '', this.summary = '', this.width = 0.8});
   @override
   _ItemState createState() => _ItemState();
+
+  factory Item.fromMap(Map json) {
+    return Item(
+        name: json['title'], summary: json['content'], image: json['image']);
+  }
 }
 
 class _ItemState extends State<Item> {
-  bool showDetail = false;
-  final _scroller = ScrollController();
-  final _inputController = TextEditingController();
-
-  @override
-  void initState() {
-    _scroller.addListener(swipe);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    // Clean up the controller when the widget is disposed.
-    _scroller.dispose();
-    _inputController.dispose();
-    super.dispose();
-  }
-
-  void swipe() {
-    // if (_scroller.position.isScrollingNotifier.value) {
-    //   setState(() => showDetail = true);
-    // }
-    if (_scroller.offset <= _scroller.position.minScrollExtent)
-      setState(() => showDetail = false);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-        child: ListView(
-            controller: _scroller,
-            physics: showDetail
-                ? AlwaysScrollableScrollPhysics()
-                : NeverScrollableScrollPhysics(),
-            children: [
-              ItemImage(widget.site, !showDetail),
-              Text(widget.site, style: Theme.of(context).textTheme.headline1),
-              details()
-            ]),
-        onTap: () => setState(() => showDetail = true));
-  }
-
-  Widget details() {
-    return AnimatedOpacity(
-        opacity: showDetail ? 1 : 0,
-        duration: Duration(milliseconds: 200),
-        child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
-          TextField(
-              controller: _inputController,
-              decoration: InputDecoration(
-                  border: InputBorder.none, hintText: 'Enter notes here')),
-          Text('Suggested Lessons',
-              style: Theme.of(context).textTheme.headline2),
-          Text('Related Topics', style: Theme.of(context).textTheme.headline2),
-          Text(
-              '\n\n\n\n\n\n\n\n\n\n\n\nhi\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nhi')
-        ]));
-  }
-}
-
-class ItemImage extends StatelessWidget {
-  final String site;
-  final bool showImage;
-  ItemImage(this.site, this.showImage);
-
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
 
-    return AnimatedContainer(
-        duration: Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-        height: showImage ? (height / 2) : 0,
-        child: futureBuilder(fetch('images/$site'),
-            (data) => Image.network(data[0], width: width, fit: BoxFit.cover)));
+    return Container(
+      child: Column(
+        children: [
+          Container(
+              height: 256,
+              child: SizedBox.expand(
+                  child: Image.network(widget.image, fit: BoxFit.cover))),
+          Text(widget.name, style: ItemHeader),
+          Container(padding: EdgeInsets.all(8), child: Text(widget.summary))
+        ],
+      ),
+      width: width * widget.width,
+      margin: EdgeInsets.all(8),
+      decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+                color: Color(0xFFDDDDDD),
+                spreadRadius: 1,
+                offset: Offset(2, 2),
+                blurRadius: 2)
+          ],
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(16))),
+    );
   }
 }

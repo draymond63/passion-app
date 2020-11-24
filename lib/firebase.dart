@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class User {
-  List items;
+  List<String> items;
   User({this.items}) {
     if (items == null) items = [];
   }
@@ -17,8 +17,9 @@ class DBService {
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   login() async {
-    final result = await auth.signInAnonymously();
-    print(result);
+    await auth.signInAnonymously();
+    // final result = await auth.signInAnonymously();
+    // print(result);
     // final result = await auth.signInWithEmailAndPassword(
     //     email: 'dan@raymond.ch', password: '123456');
   }

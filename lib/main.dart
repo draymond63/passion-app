@@ -11,7 +11,9 @@ import 'package:provider/provider.dart';
 
 import './firebase.dart';
 import './widgets/navbar.dart';
-import './pages/settings.dart';
+
+import './pages/feed.dart';
+// import './pages/settings.dart';
 import './pages/bookshelf.dart';
 import './pages/search.dart';
 // import './pages/login.dart';
@@ -85,7 +87,7 @@ class _PageState extends State<Page> {
   DBService db = DBService();
 
   final List<Widget> _pages = <Widget>[
-    SettingsPage(),
+    FeedPage(),
     BookShelfPage(),
     SearchPage(),
   ];
@@ -99,7 +101,7 @@ class _PageState extends State<Page> {
     if (user == null) {
       db.login();
       return Scaffold(
-          body: Center(child: Text('Please wait', style: ItemHeader)));
+          body: Center(child: Text('Please wait', style: ItemSubtitle)));
     }
 
     return Scaffold(

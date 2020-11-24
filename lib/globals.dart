@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:csv/csv.dart';
 
 const MAIN_COLOR = 0xFF2B3A64;
 const MAIN_ACCENT_COLOR = 0xFFCFD1D8;
 const SECOND_ACCENT_COLOR = 0xFF8B92A2;
 const TEXT_COLOR = 0xFF6D7690;
 
-const BACKEND = 'http://10.0.2.2:5000/'; // FOR ANDROID
+enum MapCol { name, x, y, l0, l1, l2, l3, l4, site }
 
 // * STYLES
 const ItemHeader = const TextStyle(
@@ -18,13 +19,9 @@ const ItemSubtitle = const TextStyle(
     fontSize: 20, color: Color(MAIN_COLOR), fontWeight: FontWeight.w500);
 
 // * FUNCTIONS
-fetch(uri) async {
-  final http.Response resp = await http.get(BACKEND + uri);
-  // print(jsonDecode(resp.body)['data']);
-  if (resp.statusCode == 200)
-    return jsonDecode(resp.body)['data'];
-  else
-    throw Exception('Failed to fetch');
+Future<List<List<dynamic>>> loadVitals() async {
+  final csvString = await rootBundle.loadString('assets/map.csv');
+  return CsvToListConverter().convert(csvString);
 }
 
 Widget futureBuilder(Future<dynamic> future, Widget Function(dynamic) widget) {

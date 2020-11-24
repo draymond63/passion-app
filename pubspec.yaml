@@ -26,9 +26,10 @@ dependencies:
   path_provider:
   # cached_network_image: 2.3.3
   csv:
-  http:
   syncfusion_flutter_charts:
   provider: ^4.3.2+2
+  # http:
+  dartpedia: ^1.6.6
 
   firebase_core: ^0.4.0+9
   firebase_analytics: ^5.0.2

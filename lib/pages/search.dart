@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:PassionFruit/globals.dart';
 // ! To be qualified for the Syncfusion Community License Program you must have
 // ! a gross revenue of less than one (1) million U.S. dollars ($1,000,000.00 USD)
 // ! per year and have less than five (5) developers in your organization, and
 // ! agree to be bound by Syncfusion’s terms and conditions.
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:csv/csv.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -14,22 +12,9 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  final _userId = 'draymond63';
-  List _suggestions = [];
-
-  void getSuggested() async {
-    final response = await fetch('suggest/$_userId');
-    setState(() => _suggestions = response);
-    print(_suggestions.toString());
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: buildSearchBar(),
-        body: buildMap(),
-        floatingActionButton: IconButton(
-            icon: Icon(Icons.explore_outlined), onPressed: getSuggested));
+    return Scaffold(appBar: buildSearchBar(), body: buildMap());
   }
 
   // * SEARCH BAR
@@ -56,7 +41,7 @@ class _SearchPageState extends State<SearchPage> {
   final isCardView = true;
   Widget buildMap() {
     return FutureBuilder(
-        future: rootBundle.loadString('assets/map.csv'),
+        future: loadVitals(),
         builder: (context, obj) => SfCartesianChart(
             plotAreaBorderWidth: 1,
             title: ChartTitle(text: isCardView ? '' : 'Knowledge Map'),
@@ -76,8 +61,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   /// Returns the list of chart series
-  List<ScatterSeries<MapPoint, double>> _formatPoints(csv) {
-    List<List<dynamic>> map = CsvToListConverter().convert(csv);
+  List<ScatterSeries<MapPoint, double>> _formatPoints(List<List<dynamic>> map) {
     // ! SPLIT BY CATEGORY
     final List<MapPoint> chartData = List<MapPoint>.generate(map.length, (i) {
       final data = map[i];
@@ -95,23 +79,26 @@ class _SearchPageState extends State<SearchPage> {
       getSeries(data: [you], name: 'You', height: 20, width: 20),
     ];
   }
-}
 
-ScatterSeries<MapPoint, double> getSeries(
-    {List<MapPoint> data, String name, double width = 15, double height = 15}) {
-  return ScatterSeries<MapPoint, double>(
-      dataSource: data,
-      opacity: 0.7,
-      xValueMapper: (MapPoint p, _) => p.x,
-      yValueMapper: (MapPoint p, _) => p.y,
-      dataLabelMapper: (MapPoint p, _) => p.name,
-      markerSettings: MarkerSettings(
-        height: height,
-        width: width,
-      ),
-      dataLabelSettings: DataLabelSettings(isVisible: true),
-      selectionBehavior: SelectionBehavior(enable: true),
-      name: name);
+  ScatterSeries<MapPoint, double> getSeries(
+      {List<MapPoint> data,
+      String name,
+      double width = 15,
+      double height = 15}) {
+    return ScatterSeries<MapPoint, double>(
+        dataSource: data,
+        opacity: 0.7,
+        xValueMapper: (MapPoint p, _) => p.x,
+        yValueMapper: (MapPoint p, _) => p.y,
+        dataLabelMapper: (MapPoint p, _) => p.name,
+        markerSettings: MarkerSettings(
+          height: height,
+          width: width,
+        ),
+        dataLabelSettings: DataLabelSettings(isVisible: true),
+        // selectionBehavior: SelectionBehavior(enable: true),
+        name: name);
+  }
 }
 
 class MapPoint {
@@ -120,5 +107,3 @@ class MapPoint {
   final double y;
   MapPoint({this.name, this.x, this.y});
 }
-
-enum MapCol { name, x, y, l0, l1, l2, l3, l4, site }

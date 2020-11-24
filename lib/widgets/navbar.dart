@@ -19,11 +19,11 @@ class _NavBarState extends State<NavBar> {
       unselectedItemColor: Color(SECOND_ACCENT_COLOR),
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
-          icon: Icon(Icons.settings, size: _iconSize),
+          icon: Icon(Icons.home, size: _iconSize),
           label: '',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.collections_bookmark, size: _iconSize),
+          icon: Icon(Icons.bookmark_rounded, size: _iconSize),
           label: '',
         ),
         BottomNavigationBarItem(
