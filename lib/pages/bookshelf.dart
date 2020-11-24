@@ -1,5 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../globals.dart';
+import '../firebase.dart';
+
 import '../widgets/item.dart';
 
 class BookShelfPage extends StatefulWidget {
@@ -8,15 +12,13 @@ class BookShelfPage extends StatefulWidget {
 }
 
 class _BookShelfPageState extends State<BookShelfPage> {
-  List items = [];
   bool _isList = true;
+  final DBService db = DBService();
 
   @override
   _BookShelfPageState() : super() {
-    readUserFile().then((data) {
-      setState(() => items = data['items']);
-      setState(() => _isList = data['preferences']['list-view']);
-    });
+    readUserFile().then(
+        (data) => setState(() => _isList = data['preferences']['list-view']));
   }
 
   // For list vue
@@ -30,8 +32,21 @@ class _BookShelfPageState extends State<BookShelfPage> {
 
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<FirebaseUser>(context);
+
     return Scaffold(
-      body: _isList ? BookShelfList(items) : BookShelfMain(items),
+      body: StreamBuilder(
+          stream: db.getUserData(user),
+          initialData: [],
+          builder: (context, AsyncSnapshot snap) {
+            User data = User();
+            if (snap.data is User) data = snap.data;
+            print(data.items);
+            // Return one of the formats
+            return _isList
+                ? BookShelfList(data.items)
+                : BookShelfMain(data.items);
+          }),
       floatingActionButton: IconButton(
         onPressed: _switchView,
         tooltip: 'Switch View',
@@ -47,7 +62,7 @@ class _BookShelfPageState extends State<BookShelfPage> {
 }
 
 class BookShelfMain extends StatefulWidget {
-  final items;
+  final List items;
   BookShelfMain(this.items);
   // Swipe animation duration
   final duration = Duration(seconds: 1);
@@ -56,8 +71,10 @@ class BookShelfMain extends StatefulWidget {
 }
 
 class _BookShelfMainState extends State<BookShelfMain> {
+  // final PageController pageController = PageController(viewportFraction: 0.8);
   Widget build(BuildContext context) {
     return PageView(
+        // controller: pageController,
         children: List<Widget>.generate(
             widget.items.length, (i) => Item(widget.items[i])));
   }

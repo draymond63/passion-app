@@ -72,7 +72,7 @@ class _SearchPageState extends State<SearchPage> {
               print(info.pointIndex);
             },
             // selectionType: SelectionType.point,
-            series: obj.hasData ? _formatPoints(obj.data) : [<ChartSeries>[]]));
+            series: obj.hasData ? _formatPoints(obj.data) : <ScatterSeries>[]));
   }
 
   /// Returns the list of chart series

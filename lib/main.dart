@@ -1,12 +1,29 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:PassionFruit/globals.dart';
 
+import 'package:provider/provider.dart';
+// import 'package:firebase_core/firebase_core.dart';
+// import 'package:firebase_analytics/firebase_analytics.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:firebase_analytics/observer.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+
+import './firebase.dart';
 import './widgets/navbar.dart';
 import './pages/settings.dart';
 import './pages/bookshelf.dart';
 import './pages/search.dart';
+// import './pages/login.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Setup all firebase datastreams
+  runApp(MultiProvider(providers: [
+    StreamProvider<FirebaseUser>.value(
+        value: FirebaseAuth.instance.onAuthStateChanged)
+  ], child: MyApp()));
+}
 
 class MyApp extends StatelessWidget {
   void initUser() {
@@ -26,7 +43,7 @@ class MyApp extends StatelessWidget {
         },
         'lesson-frequency': 5
       },
-      'items': ['Basketball', 'LeBron James'],
+      // 'items': ['Basketball', 'LeBron James'],
       'preferences': {'list-view': true}
     });
   }
@@ -65,6 +82,7 @@ class Page extends StatefulWidget {
 
 class _PageState extends State<Page> {
   int _pageIndex = 2;
+  DBService db = DBService();
 
   final List<Widget> _pages = <Widget>[
     SettingsPage(),
@@ -76,17 +94,27 @@ class _PageState extends State<Page> {
 
   @override
   Widget build(BuildContext context) {
+    // If the user is not logged in, redirect to the login page
+    final user = Provider.of<FirebaseUser>(context);
+    if (user == null) {
+      db.login();
+      return Scaffold(
+          body: Center(child: Text('Please wait', style: ItemHeader)));
+    }
+
     return Scaffold(
         // * PAGE
         // Indexed stack used to save page state
-        body: AnimatedSwitcher(
-            transitionBuilder: AnimatedSwitcher.defaultTransitionBuilder,
-            duration: const Duration(milliseconds: 500),
-            child: IndexedStack(
-                children: _pages,
-                // This key causes the AnimatedSwitcher to interpret this as new
-                key: ValueKey<int>(_pageIndex),
-                index: _pageIndex)),
+        body: SafeArea(
+          child: AnimatedSwitcher(
+              transitionBuilder: AnimatedSwitcher.defaultTransitionBuilder,
+              duration: const Duration(milliseconds: 500),
+              child: IndexedStack(
+                  children: _pages,
+                  // This key causes the AnimatedSwitcher to interpret this as new
+                  key: ValueKey<int>(_pageIndex),
+                  index: _pageIndex)),
+        ),
         // * NAV BAR
         bottomNavigationBar: NavBar(_pageIndex, changePage));
   }
