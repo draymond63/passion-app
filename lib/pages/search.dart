@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:PassionFruit/globals.dart';
+import '../helpers/globals.dart';
 // ! To be qualified for the Syncfusion Community License Program you must have
 // ! a gross revenue of less than one (1) million U.S. dollars ($1,000,000.00 USD)
 // ! per year and have less than five (5) developers in your organization, and

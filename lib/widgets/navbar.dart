@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../globals.dart';
+import '../helpers/globals.dart';
 
 class NavBar extends StatefulWidget {
   final index;

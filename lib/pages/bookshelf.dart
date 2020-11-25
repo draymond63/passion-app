@@ -1,8 +1,8 @@
 // import 'package:PassionFruit/wikipedia.dart';
-import 'package:PassionFruit/wikipedia.dart';
+import '../helpers/wikipedia.dart';
 import 'package:flutter/material.dart';
-import '../globals.dart';
-import '../firebase.dart';
+import '../helpers/globals.dart';
+import '../helpers/firebase.dart';
 
 import '../widgets/item.dart';
 

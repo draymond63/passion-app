@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/item.dart';
-import '../wikipedia.dart';
+import '../helpers/wikipedia.dart';
 
 class FeedPage extends StatefulWidget {
   final buffer = 10; // How many items to preload
