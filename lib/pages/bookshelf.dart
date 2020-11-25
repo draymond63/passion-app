@@ -9,6 +9,10 @@ import '../widgets/item.dart';
 class BookShelfPage extends StatelessWidget {
   final DBService db = DBService();
 
+  BookShelfPage() {
+    print("CREATING BOOKSHELF");
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = db.getUser(context);
@@ -20,7 +24,6 @@ class BookShelfPage extends StatelessWidget {
             builder: (context, AsyncSnapshot snap) {
               User data = User();
               if (snap.data is User) data = snap.data;
-              print('data: ' + data.toString());
               // Show most recent
               return RecentItems(data.items);
             }));

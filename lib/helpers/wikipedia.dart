@@ -1,4 +1,4 @@
-// import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import './globals.dart';
 import 'dart:convert';
@@ -36,18 +36,21 @@ Future<Map> queryWiki(String name, String type) async {
     throw Exception('Failed to fetch');
 }
 
-Future<Map<String, String>> fetchItemData(String title) async {
+Future<Map<String, dynamic>> fetchItemData(String title) async {
   final images = queryWiki(title, 'images');
   final content = queryWiki(title, 'content');
   final data = await Future.wait([images, content]);
-  return {
-    'name': title,
-    'image': parseImage(data[0], title),
-    'content': parseContent(data[1])
-  };
+  final imageUrl = parseImageUrl(data[0], title);
+  dynamic image;
+
+  try {
+    image = Image.network(imageUrl, fit: BoxFit.cover);
+  } catch (e) {}
+
+  return {'name': title, 'image': image, 'content': parseContent(data[1])};
 }
 
-String parseImage(Map json, String title) {
+String parseImageUrl(Map json, String title) {
   final pages = json['query']['pages'];
 
   for (final obj in pages.values) {
@@ -61,5 +64,5 @@ String parseImage(Map json, String title) {
 
 String parseContent(Map json) {
   final String pageId = json['query']['pages'].keys.toList()[0];
-  return json['query']['pages'][pageId]['extract'].split('.')[0];
+  return json['query']['pages'][pageId]['extract'];
 }

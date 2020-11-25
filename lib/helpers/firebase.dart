@@ -36,12 +36,9 @@ class DBService {
   }
 
   Stream<User> getUserData(FirebaseUser user) {
-    print('User ID: ${user.uid}');
+    // print('User ID: ${user.uid}');
     final query = _getDoc(user.uid).snapshots();
     return query.map((doc) => User.fromMap(doc.data));
-    // return users
-    //     .snapshots()
-    //     .map((doc) => doc.documents.map((d) => {d.documentID: d.data}));
   }
 
   void writeItem(FirebaseUser user, String newItem) {

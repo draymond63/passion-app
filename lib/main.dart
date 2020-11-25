@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 // import 'package:firebase_analytics/observer.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'package:PassionFruit/helpers/globals.dart';
+import './helpers/globals.dart';
 import './helpers/firebase.dart';
 import './widgets/navbar.dart';
 

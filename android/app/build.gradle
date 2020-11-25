@@ -44,7 +44,6 @@ android {
         targetSdkVersion 29
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
-        multiDexEnabled true
     }
 
     buildTypes {
@@ -65,5 +64,4 @@ dependencies {
     implementation "com.google.android.gms:play-services-auth:19.0.0"
     implementation "com.google.android.gms:play-services-identity:17.0.0"
     implementation "com.google.android.gms:play-services-analytics:17.0.0"
-    implementation "com.android.support:multindex:1.0.3"
 }
