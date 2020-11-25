@@ -20,8 +20,8 @@ class _FeedPageState extends State<FeedPage> {
         ),
         body: ListView.builder(itemBuilder: (BuildContext context, i) {
           if (i >= items.length - widget.buffer) {
-            fetchItemData('Basketball')
-                .then((json) => setState(() => items.add(Item.fromMap(json))));
+            fetchItemData('Basketball').then(
+                (json) => setState(() => items.add(Item.fromMap(map: json))));
 
             return Item(name: 'Loading');
           }

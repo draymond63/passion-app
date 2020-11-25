@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 
 class User {
   List<String> items;
@@ -8,30 +9,62 @@ class User {
   }
 
   factory User.fromMap(Map data) {
-    return User(items: data['items'] ?? []);
+    // ? Ready data['items'] directly freezes the function ?
+    final vals =
+        List<String>.generate(data['items'].length, (i) => data['items'][i]);
+    final temp = User(items: vals ?? []);
+    return temp;
+  }
+
+  @override
+  String toString() {
+    return '{items: $items}';
   }
 }
 
 class DBService {
-  final Firestore db = Firestore.instance;
-  final FirebaseAuth auth = FirebaseAuth.instance;
+  final db = Firestore.instance;
+  final auth = FirebaseAuth.instance;
 
-  login() async {
+  // ! SHOULD THIS BE CALLED IN THE GET/WRITE FUNCTIONS?
+  FirebaseUser getUser(context) {
+    return Provider.of<FirebaseUser>(context);
+  }
+
+  void login() async {
     await auth.signInAnonymously();
-    // final result = await auth.signInAnonymously();
-    // print(result);
-    // final result = await auth.signInWithEmailAndPassword(
-    //     email: 'dan@raymond.ch', password: '123456');
   }
 
-  // user = Provider.of<FirebaseUser>(context)
   Stream<User> getUserData(FirebaseUser user) {
-    final query = db.collection('users').document(user.uid).snapshots();
+    print('User ID: ${user.uid}');
+    final query = _getDoc(user.uid).snapshots();
     return query.map((doc) => User.fromMap(doc.data));
+    // return users
+    //     .snapshots()
+    //     .map((doc) => doc.documents.map((d) => {d.documentID: d.data}));
   }
 
-  writeItems(FirebaseUser user, List<String> items) {
-    db.collection('user').document(user.uid).updateData({'items': items});
+  void writeItem(FirebaseUser user, String newItem) {
+    final doc = _getDoc(user.uid);
+    try {
+      // CHANGE THIS TO RIGHT ON ALL APP CLOSE?
+      doc.updateData({
+        'items': FieldValue.arrayUnion([newItem])
+      });
+      // CREATE USER DATA
+    } catch (e) {
+      initUser(doc, newItem);
+    }
+  }
+
+  DocumentReference _getDoc(String id) {
+    return db.collection('users').document(id);
+  }
+
+  void initUser(doc, String item) {
+    doc.setData({
+      'items': [item]
+    });
   }
 
   // addUser(FirebaseUser user) {

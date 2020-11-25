@@ -97,7 +97,7 @@ class _PageState extends State<Page> {
   @override
   Widget build(BuildContext context) {
     // If the user is not logged in, redirect to the login page
-    final user = Provider.of<FirebaseUser>(context);
+    final user = db.getUser(context);
     if (user == null) {
       db.login();
       return Scaffold(

@@ -41,7 +41,7 @@ Future<Map<String, String>> fetchItemData(String title) async {
   final content = queryWiki(title, 'content');
   final data = await Future.wait([images, content]);
   return {
-    'title': title,
+    'name': title,
     'image': parseImage(data[0], title),
     'content': parseContent(data[1])
   };
