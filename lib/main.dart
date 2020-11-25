@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
           'Technology': true,
           'Mathematics': true,
         },
-        'lesson-frequency': 5
+        'allow-random': true
       },
       // 'items': ['Basketball', 'LeBron James'],
       'preferences': {'list-view': true}

@@ -19,36 +19,33 @@ class _SettingsPageState extends State<SettingsPage> {
       'Technology': true,
       'Mathematics': true,
     },
-    'lesson-frequency': 5
+    'allow-random': true
   };
 
-  @override
-  _SettingsPageState() : super() {
+  _SettingsPageState() {
     readUserFile().then((data) => setState(() => settings = data['settings']));
   }
 
-  // Save setting
-  void saveSetting(String section, String option, bool state) async {
+  // Keeps state and userfile in sink
+  bool saveSetting(List<String> path, bool state) {
     // Write to state
-    setState(() => settings[section][option] = state);
+    setState(() => _editData(settings, path, state));
     // Write to file
     editUserFile((data) {
-      data['settings'][section][option] = state;
+      _editData(data['settings'], path, state);
     });
+    return state;
   }
 
-  List<Widget> buildCategorySettings() {
-    List<Widget> widgList = [];
-    settings['categories'].forEach((opt, state) {
-      widgList.add(Row(children: [
-        Text(opt, style: Theme.of(context).textTheme.headline2),
-        Expanded(child: SizedBox()), // Fils space inbetween
-        Switch(
-            value: state,
-            onChanged: (state) => saveSetting('categories', opt, state))
-      ]));
-    });
-    return widgList;
+  // follow the path to the end of the data to change the state
+  void _editData(Map data, List<String> path, dynamic state) {
+    dynamic temp = data;
+    int index = 0;
+    do {
+      temp = temp[path[index]];
+      index++;
+    } while (index < path.length - 1);
+    temp[path.last] = state;
   }
 
   @override
@@ -60,17 +57,26 @@ class _SettingsPageState extends State<SettingsPage> {
             Text('Categories', style: Theme.of(context).textTheme.headline1),
             Text('Decide which type of topics can be suggested',
                 style: Theme.of(context).textTheme.bodyText1),
-            Column(children: buildCategorySettings()),
-            Text('Lesson Frequency',
-                style: Theme.of(context).textTheme.headline1),
-            Text(settings['lesson-frequency'].toString()),
-            Text('How often should we suggest topics',
-                style: Theme.of(context).textTheme.bodyText1),
-            IconButton(
-                icon: Icon(Icons.sanitizer),
-                onPressed: () => Navigator.push(
-                    context, MaterialPageRoute(builder: (_) => Text('hi'))))
+            ...buildCategorySettings(),
+            Text('Misc', style: Theme.of(context).textTheme.headline1),
+            buildSwitch('Random Suggestions', ['allow-random'],
+                settings['allow-random'])
           ],
         ));
+  }
+
+  Widget buildSwitch(String title, List<String> path, bool state) {
+    return SwitchListTile(
+        title: Text(title, style: Theme.of(context).textTheme.headline2),
+        value: state,
+        onChanged: (newState) => saveSetting(path, newState));
+  }
+
+  List<Widget> buildCategorySettings() {
+    List<Widget> widgList = [];
+    settings['categories'].forEach((opt, state) {
+      widgList.add(buildSwitch(opt, ['categories', opt], state));
+    });
+    return widgList;
   }
 }
