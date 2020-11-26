@@ -1,10 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../helpers/globals.dart';
-
 // For the like button
 import '../helpers/firebase.dart';
-// import 'package:cached_network_image/cached_network_image.dart';
 
 class Item extends StatefulWidget {
   final String name;
@@ -39,11 +37,12 @@ class _ItemState extends State<Item> with AutomaticKeepAliveClientMixin<Item> {
   bool get wantKeepAlive => true;
 
   void addLikedItem(BuildContext context) {
-    final user = db.getUser(context);
     Scaffold.of(context).showSnackBar(SnackBar(
-      content: Text('Added ${widget.name} to your liked topics!'),
+      backgroundColor: Color(MAIN_ACCENT_COLOR),
+      content: Text('Added ${widget.name} to your liked topics!',
+          style: TextStyle(color: Color(MAIN_COLOR))),
     ));
-    db.writeItem(user, widget.name);
+    db.writeItem(context, widget.name);
   }
 
   @override
@@ -61,10 +60,7 @@ class _ItemState extends State<Item> with AutomaticKeepAliveClientMixin<Item> {
         ),
         // * TEXT
         Text(widget.name, style: ItemHeader),
-        Container(
-            padding: EdgeInsets.all(8),
-            child: Text(widget.content,
-                maxLines: isOpen ? 3 : null, overflow: TextOverflow.ellipsis)),
+        buildText(),
         // * BUTTONS
         Center(
           child: Row(children: [
@@ -99,5 +95,14 @@ class _ItemState extends State<Item> with AutomaticKeepAliveClientMixin<Item> {
     } catch (e) {
       return Container();
     }
+  }
+
+  Widget buildText() {
+    return Container(
+        padding: EdgeInsets.all(8),
+        child: isOpen
+            ? Text(widget.content)
+            : Text(widget.content,
+                maxLines: 3, overflow: TextOverflow.ellipsis));
   }
 }

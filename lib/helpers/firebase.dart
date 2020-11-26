@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 // import 'package:async/async.dart';
 
@@ -27,8 +28,7 @@ class DBService {
   final db = Firestore.instance;
   final auth = FirebaseAuth.instance;
 
-  // ! SHOULD THIS BE CALLED IN THE GET/WRITE FUNCTIONS?
-  FirebaseUser getUser(context) {
+  FirebaseUser getUser(BuildContext context) {
     return Provider.of<FirebaseUser>(context);
   }
 
@@ -36,20 +36,22 @@ class DBService {
     await auth.signInAnonymously();
   }
 
-  Stream<User> getUserData(FirebaseUser user) {
+  Stream<User> getUserData(BuildContext context) {
     // print('User ID: ${user.uid}');
+    final user = getUser(context);
     final query = _getDoc(user.uid).snapshots();
     return query.map((doc) => User.fromMap(doc.data));
   }
 
-  void writeItem(FirebaseUser user, String newItem) {
+  void writeItem(BuildContext context, String newItem) {
+    final user = getUser(context);
     final doc = _getDoc(user.uid);
     try {
-      // CHANGE THIS TO RIGHT ON ALL APP CLOSE?
+      // CHANGE THIS TO WRITE ON ALL APP CLOSE?
       doc.updateData({
         'items': FieldValue.arrayUnion([newItem])
       });
-      // CREATE USER DATA
+      // CREATE USER DATA (if it failed to write)
     } catch (e) {
       initUser(doc, newItem);
     }
@@ -59,7 +61,7 @@ class DBService {
     return db.collection('users').document(id);
   }
 
-  void initUser(doc, String item) {
+  void initUser(DocumentReference doc, String item) {
     doc.setData({
       'items': [item]
     });

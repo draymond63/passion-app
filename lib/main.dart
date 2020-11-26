@@ -88,7 +88,7 @@ class _PageState extends State<Page> {
   final db = DBService();
   int _pageIndex = 2;
 
-  final List<Widget> _pages = <Widget>[
+  final _pages = <Widget>[
     FeedPage(),
     BookShelfPage(),
     SearchPage(),

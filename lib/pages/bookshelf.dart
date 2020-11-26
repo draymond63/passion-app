@@ -7,6 +7,7 @@ import '../widgets/item.dart';
 
 class BookShelfPage extends StatelessWidget {
   final db = DBService();
+  // ! USE GLOBAL WIKI
   final wiki = Wiki();
 
   BookShelfPage() {
@@ -15,22 +16,20 @@ class BookShelfPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = db.getUser(context);
     // final wiki = context.watch<Wiki>();
-
     return Scaffold(
         body: StreamBuilder(
-            stream: db.getUserData(user),
+            stream: db.getUserData(context),
             initialData: [],
             builder: (context, AsyncSnapshot snap) {
               User data = User();
               if (snap.data is User) data = snap.data;
               // Show most recent
-              return buildRecentItem(data.items);
+              return buildItems(data.items);
             }));
   }
 
-  Widget buildRecentItem(List<String> items) {
+  Widget buildItems(List<String> items) {
     return ListView(
         // scrollDirection: Axis.horizontal,
         children: List.generate(
