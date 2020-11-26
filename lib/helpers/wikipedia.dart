@@ -1,15 +1,16 @@
 // import 'package:async/async.dart';
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart';
+// import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:http/http.dart' as http;
-import './globals.dart';
 import 'dart:convert';
+import './globals.dart';
 
 const WIKI_API = 'https://en.wikipedia.org/w/api.php?';
 
 //https://en.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=1&titles=LeBron_James
 
-class Wiki with ChangeNotifier {
+class Wiki {
   Map<String, Future> itemMemoizer = {};
 
   Future fetchItem(String title) {

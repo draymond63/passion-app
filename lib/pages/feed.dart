@@ -36,7 +36,7 @@ class _FeedPageState extends State<FeedPage>
 
   @override
   Widget build(BuildContext context) {
-    final wiki = context.watch<Wiki>();
+    final wiki = Provider.of<Wiki>(context);
 
     super.build(context); // For keepAlive
     return Scaffold(

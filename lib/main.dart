@@ -25,7 +25,7 @@ void main() {
     StreamProvider<FirebaseUser>.value(
         value: FirebaseAuth.instance.onAuthStateChanged),
     // StreamProvider(create: (context) => DBService().getUserData(context)),
-    ChangeNotifierProvider(create: (_) => Wiki())
+    Provider.value(value: Wiki())
   ], child: MyApp()));
 }
 

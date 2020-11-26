@@ -12,9 +12,9 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  // Set initial zoom
-  final _zoomer =
-      TransformationController(Matrix4.diagonal3Values(0.5, 0.5, 1));
+  // Set initial zoom and translation (!translation not working)
+  final _zoomer = TransformationController(Matrix4.diagonal3Values(2, 2, 1));
+  // Matrix4.translationValues(5, 5, 0)
 
   @override
   void initState() {
@@ -27,7 +27,9 @@ class _SearchPageState extends State<SearchPage> {
     return Scaffold(
         appBar: buildSearchBar(),
         body: InteractiveViewer(
-            transformationController: _zoomer, child: buildMap()));
+            maxScale: 1.0,
+            transformationController: _zoomer,
+            child: buildMap()));
     // floatingActionButton: Slider(
     //     value: 4,
     //     divisions: 4,
@@ -65,10 +67,8 @@ class _SearchPageState extends State<SearchPage> {
             plotAreaBorderWidth: 1,
             title: ChartTitle(text: isCardView ? '' : 'Knowledge Map'),
             legend: Legend(isVisible: !isCardView),
-            // primaryXAxis:
-            //     NumericAxis(isVisible: false, minimum: 0, maximum: 10),
-            // primaryYAxis:
-            //     NumericAxis(isVisible: false, minimum: 0, maximum: 10),
+            primaryXAxis: NumericAxis(isVisible: false),
+            primaryYAxis: NumericAxis(isVisible: false),
             tooltipBehavior: TooltipBehavior(enable: true),
             // zoomPanBehavior: ZoomPanBehavior(enablePinching: true),
             onSelectionChanged: (SelectionArgs info) {
