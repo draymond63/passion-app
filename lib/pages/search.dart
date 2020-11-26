@@ -20,7 +20,15 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: buildSearchBar(), body: buildMap());
+    return Scaffold(
+        appBar: buildSearchBar(),
+        body: buildMap(),
+        floatingActionButton: Slider(
+            value: 4,
+            divisions: 4,
+            min: 0,
+            max: 4,
+            onChanged: (double newVal) {}));
   }
 
   // * SEARCH BAR

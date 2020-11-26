@@ -1,8 +1,9 @@
-import 'package:PassionFruit/pages/settings.dart';
 import 'package:flutter/material.dart';
-import '../widgets/item.dart';
+import 'package:provider/provider.dart';
 import '../helpers/wikipedia.dart';
 import '../helpers/globals.dart';
+import '../widgets/item.dart';
+import './settings.dart';
 
 class FeedPage extends StatefulWidget {
   final loadBuffer = 5; // How many items to preload
@@ -11,7 +12,7 @@ class FeedPage extends StatefulWidget {
 }
 
 class _FeedPageState extends State<FeedPage>
-    with AutomaticKeepAliveClientMixin<FeedPage> {
+    with AutomaticKeepAliveClientMixin {
   List<String> names = [];
   List<Item> items = [];
   bool showSettings = false;
@@ -35,6 +36,8 @@ class _FeedPageState extends State<FeedPage>
 
   @override
   Widget build(BuildContext context) {
+    final wiki = context.watch<Wiki>();
+
     super.build(context); // For keepAlive
     return Scaffold(
         appBar: AppBar(
@@ -47,18 +50,18 @@ class _FeedPageState extends State<FeedPage>
         ),
         body: AnimatedSwitcher(
           duration: const Duration(milliseconds: 500),
-          child: showSettings ? SettingsPage() : feedBuilder(),
+          child: showSettings ? SettingsPage() : feedBuilder(wiki),
         ));
   }
 
-  Widget feedBuilder() {
+  Widget feedBuilder(Wiki wiki) {
     return ListView.builder(itemBuilder: (BuildContext context, i) {
       // Wait for the options to load
       if (i >= names.length) return Item(name: 'Loading');
       // Load images earlier than necessary
       if (i >= items.length - widget.loadBuffer) {
         // Get data
-        fetchItemData(names[i]).then((json) {
+        wiki.fetchItem(names[i]).then((json) {
           if (mounted) setState(() => items.add(Item.fromMap(map: json)));
         });
         return Item(name: 'Loading');

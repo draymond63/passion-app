@@ -23,7 +23,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  path_provider:
+  async: ^2.4.2
+  path_provider: ^1.6.24
   cached_network_image: 2.3.3
   csv: ^4.1.0
   syncfusion_flutter_charts: ^18.3.51 # ! REPLACE

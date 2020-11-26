@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 
 import './helpers/globals.dart';
 import './helpers/firebase.dart';
+import './helpers/wikipedia.dart';
 import './widgets/navbar.dart';
 
 import './pages/feed.dart';
@@ -22,7 +23,9 @@ void main() {
   // Setup all firebase datastreams
   runApp(MultiProvider(providers: [
     StreamProvider<FirebaseUser>.value(
-        value: FirebaseAuth.instance.onAuthStateChanged)
+        value: FirebaseAuth.instance.onAuthStateChanged),
+    // StreamProvider(create: (context) => DBService().getUserData(context)),
+    ChangeNotifierProvider(create: (_) => Wiki())
   ], child: MyApp()));
 }
 
@@ -82,8 +85,8 @@ class Page extends StatefulWidget {
 }
 
 class _PageState extends State<Page> {
+  final db = DBService();
   int _pageIndex = 2;
-  DBService db = DBService();
 
   final List<Widget> _pages = <Widget>[
     FeedPage(),

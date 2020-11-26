@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../helpers/globals.dart';
 
@@ -7,7 +8,7 @@ import '../helpers/firebase.dart';
 
 class Item extends StatefulWidget {
   final String name;
-  final Image image;
+  final CachedNetworkImageProvider image;
   final String content;
   final double width; // Fraction of viewport
   final double height; // image height
@@ -37,37 +38,40 @@ class _ItemState extends State<Item> with AutomaticKeepAliveClientMixin<Item> {
   @override
   bool get wantKeepAlive => true;
 
+  void addLikedItem(BuildContext context) {
+    final user = db.getUser(context);
+    Scaffold.of(context).showSnackBar(SnackBar(
+      content: Text('Added ${widget.name} to your liked topics!'),
+    ));
+    db.writeItem(user, widget.name);
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context); // For keepAlive
     final width = MediaQuery.of(context).size.width;
-    final user = db.getUser(context);
 
     return Container(
       child: Column(children: [
         // * IMAGE
         GestureDetector(
           // ? Move conditional inside the contrained box to maintain size ?
-          child: widget.image != null
-              ? ConstrainedBox(
-                  constraints: BoxConstraints(maxHeight: widget.height),
-                  child: SizedBox.expand(child: widget.image))
-              : Container(),
+          child: buildImage(),
           onTap: () => setState(() => isOpen = !isOpen),
         ),
         // * TEXT
         Text(widget.name, style: ItemHeader),
         Container(
             padding: EdgeInsets.all(8),
-            child:
-                Text(isOpen ? widget.content : widget.content.split('.')[0])),
+            child: Text(widget.content,
+                maxLines: isOpen ? 3 : null, overflow: TextOverflow.ellipsis)),
         // * BUTTONS
         Center(
           child: Row(children: [
             IconButton(
                 icon: Icon(Icons.thumb_up_rounded),
                 color: Color(0xFFAAAAAA),
-                onPressed: () => db.writeItem(user, widget.name))
+                onPressed: () => addLikedItem(context))
           ]),
         ),
       ]),
@@ -84,5 +88,16 @@ class _ItemState extends State<Item> with AutomaticKeepAliveClientMixin<Item> {
           color: Colors.white,
           borderRadius: BorderRadius.all(Radius.circular(16))),
     );
+  }
+
+  Widget buildImage() {
+    try {
+      return ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: widget.height),
+          child: SizedBox.expand(
+              child: Image(image: widget.image, fit: BoxFit.cover)));
+    } catch (e) {
+      return Container();
+    }
   }
 }

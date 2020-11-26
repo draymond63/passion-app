@@ -1,13 +1,13 @@
-// import 'package:PassionFruit/wikipedia.dart';
-import '../helpers/wikipedia.dart';
 import 'package:flutter/material.dart';
+
+import '../helpers/wikipedia.dart';
 import '../helpers/globals.dart';
 import '../helpers/firebase.dart';
-
 import '../widgets/item.dart';
 
 class BookShelfPage extends StatelessWidget {
-  final DBService db = DBService();
+  final db = DBService();
+  final wiki = Wiki();
 
   BookShelfPage() {
     print("CREATING BOOKSHELF");
@@ -16,6 +16,7 @@ class BookShelfPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = db.getUser(context);
+    // final wiki = context.watch<Wiki>();
 
     return Scaffold(
         body: StreamBuilder(
@@ -25,23 +26,17 @@ class BookShelfPage extends StatelessWidget {
               User data = User();
               if (snap.data is User) data = snap.data;
               // Show most recent
-              return RecentItems(data.items);
+              return buildRecentItem(data.items);
             }));
   }
-}
 
-class RecentItems extends StatelessWidget {
-  final List<String> items;
-  RecentItems(this.items);
-
-  @override
-  Widget build(BuildContext context) {
+  Widget buildRecentItem(List<String> items) {
     return ListView(
         // scrollDirection: Axis.horizontal,
         children: List.generate(
             items.length,
             (i) => futureBuilder(
-                fetchItemData(items[i]),
+                wiki.fetchItem(items[i]),
                 (data) => Item.fromMap(
                       map: data,
                       height: 200.0,
