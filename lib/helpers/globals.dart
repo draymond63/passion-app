@@ -24,6 +24,7 @@ Future<List<List<dynamic>>> loadVitals() async {
   return CsvToListConverter().convert(csvString);
 }
 
+// ! REMOVE THIS
 Widget futureBuilder(Future<dynamic> future, Widget Function(dynamic) widget) {
   return FutureBuilder<dynamic>(
       future: future,

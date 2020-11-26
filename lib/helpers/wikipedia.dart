@@ -38,6 +38,7 @@ class Wiki with ChangeNotifier {
   }
 
   Future<Map> _queryWiki(String name, String type) async {
+    // ! CHANGE THIS TO RETRIEVING GLOBAL DATA
     final vitals = await loadVitals();
     final row = vitals.firstWhere(
       (row) => row[MapCol.name.index] == name,
@@ -58,8 +59,6 @@ class Wiki with ChangeNotifier {
     }
     // Send request
     final http.Response resp = await http.get(WIKI_API + uri);
-    // print(resp.body);
-    // print(jsonDecode(resp.body)['data']);
     if (resp.statusCode == 200)
       return jsonDecode(resp.body);
     else

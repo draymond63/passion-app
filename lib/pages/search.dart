@@ -12,6 +12,10 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  // Set initial zoom
+  final _zoomer =
+      TransformationController(Matrix4.diagonal3Values(0.5, 0.5, 1));
+
   @override
   void initState() {
     print("CREATING SEARCH");
@@ -22,13 +26,14 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: buildSearchBar(),
-        body: buildMap(),
-        floatingActionButton: Slider(
-            value: 4,
-            divisions: 4,
-            min: 0,
-            max: 4,
-            onChanged: (double newVal) {}));
+        body: InteractiveViewer(
+            transformationController: _zoomer, child: buildMap()));
+    // floatingActionButton: Slider(
+    //     value: 4,
+    //     divisions: 4,
+    //     min: 0,
+    //     max: 4,
+    //     onChanged: (double newVal) {}));
   }
 
   // * SEARCH BAR
@@ -60,13 +65,12 @@ class _SearchPageState extends State<SearchPage> {
             plotAreaBorderWidth: 1,
             title: ChartTitle(text: isCardView ? '' : 'Knowledge Map'),
             legend: Legend(isVisible: !isCardView),
-            // ! PROGRAMATICALLY SET RANGE
-            primaryXAxis:
-                NumericAxis(isVisible: false, minimum: 0, maximum: 10),
-            primaryYAxis:
-                NumericAxis(isVisible: false, minimum: 0, maximum: 10),
+            // primaryXAxis:
+            //     NumericAxis(isVisible: false, minimum: 0, maximum: 10),
+            // primaryYAxis:
+            //     NumericAxis(isVisible: false, minimum: 0, maximum: 10),
             tooltipBehavior: TooltipBehavior(enable: true),
-            zoomPanBehavior: ZoomPanBehavior(enablePinching: true),
+            // zoomPanBehavior: ZoomPanBehavior(enablePinching: true),
             onSelectionChanged: (SelectionArgs info) {
               print(info.pointIndex);
             },
