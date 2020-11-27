@@ -1,5 +1,5 @@
 // import 'package:async/async.dart';
-// import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 // import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:http/http.dart' as http;
@@ -21,22 +21,24 @@ class Wiki {
     return itemMemoizer[title];
   }
 
+  // * Get all data required to display an item
   Future<Map<String, dynamic>> _fetchItemData(String title) async {
-    print("FETCHING ITEM: " + title);
+    // Pull in wiki content
     final images = _queryWiki(title, 'images');
     final content = _queryWiki(title, 'content');
     final data = await Future.wait([images, content]);
+    // Image selection
     final imageUrl = _parseImageUrl(data[0], title);
-    dynamic image;
-
-    try {
-      image = CachedNetworkImageProvider(imageUrl);
-    } catch (e) {
-      image = null;
-    }
+    dynamic image = Image.asset('assets/fruit.png');
+    // Image checking
+    final extensions = ['png', 'jpg', 'gif'];
+    final ext = imageUrl.split('.').last;
+    if (extensions.contains(ext)) image = CachedNetworkImageProvider(imageUrl);
+    // Return data
     return {'name': title, 'image': image, 'content': _parseContent(data[1])};
   }
 
+  // * Search wikipedia for a given item
   Future<Map> _queryWiki(String name, String type) async {
     // ! CHANGE THIS TO RETRIEVING GLOBAL DATA
     final vitals = await loadVitals();
@@ -46,6 +48,7 @@ class Wiki {
     );
     final site = row[MapCol.site.index];
 
+    // Create a url depending on the request
     String uri = 'action=query&format=json&origin=*&titles=' + site;
     switch (type) {
       case 'images':
@@ -65,6 +68,7 @@ class Wiki {
       throw Exception('Failed to fetch');
   }
 
+  // * Functions to extract the best image and content
   String _parseImageUrl(Map json, String title) {
     final pages = json['query']['pages'];
 

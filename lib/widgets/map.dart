@@ -12,7 +12,7 @@ class Map extends StatefulWidget {
 }
 
 class _MapState extends State<Map> {
-  CSV points = CSV();
+  CSV points = CSV([[]]);
   double width = 0;
   double height = 0;
 
@@ -20,7 +20,7 @@ class _MapState extends State<Map> {
   void initState() {
     print('hi');
     loadVitals().then((data) => setState(() {
-          points = CSV(data: data);
+          points = CSV(data);
           width = points.getRange(MapCol.x);
           height = points.getRange(MapCol.y);
         }));

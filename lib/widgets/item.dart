@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../helpers/globals.dart';
 // For the like button
 import '../helpers/firebase.dart';
 
 class Item extends StatefulWidget {
   final String name;
-  final CachedNetworkImageProvider image;
+  final image;
   final String content;
   final double width; // Fraction of viewport
   final double height; // image height

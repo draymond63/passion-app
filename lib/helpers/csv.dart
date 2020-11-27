@@ -5,7 +5,7 @@ class CSV {
   // Row first data
   List<List<dynamic>> data = [[]];
   List<List<dynamic>> dataRowFirst;
-  CSV({this.data}) {
+  CSV(data) {
     dataRowFirst = data;
     // Rearranges the data into column-first by default
     data = List.generate(dataRowFirst[0].length, (x) {
@@ -19,6 +19,7 @@ class CSV {
 
   double getMax(MapCol col) {
     final List<double> column = data[col.index];
+    print(column.toString());
     return column.reduce(math.max);
   }
 
