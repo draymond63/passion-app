@@ -6,7 +6,7 @@ import '../widgets/item.dart';
 import './settings.dart';
 
 class FeedPage extends StatefulWidget {
-  final loadBuffer = 5; // How many items to preload
+  final loadBuffer = 0; // How many items to preload
   @override
   _FeedPageState createState() => _FeedPageState();
 }
@@ -16,13 +16,12 @@ class _FeedPageState extends State<FeedPage>
   List<String> names = [];
   List<Item> items = [];
   bool showSettings = false;
-  bool loadingItem = false;
 
   @override
   void initState() {
     // ! CHOOSE RANDOM SUGGESTION FOR NOW
     loadVitals().then((List<List<dynamic>> csv) {
-      // csv.shuffle();
+      csv.shuffle();
       final temp =
           List<String>.generate(csv.length, (i) => csv[i][MapCol.name.index]);
       setState(() => names = temp);
@@ -61,12 +60,19 @@ class _FeedPageState extends State<FeedPage>
       // Load images earlier than necessary
       if (i >= items.length - widget.loadBuffer) {
         // Get data
-        wiki.fetchItem(names[i]).then((json) {
-          if (mounted) setState(() => items.add(Item.fromMap(map: json)));
-        });
+        _getNewItems(wiki);
         return Item(name: 'Loading');
       }
       return items[i];
+    });
+  }
+
+  _getNewItems(Wiki wiki) {
+    // Pop name frome state (We don't want to rerender)
+    final name = names.removeAt(0);
+
+    wiki.fetchItem(name).then((json) {
+      if (mounted) setState(() => items.add(Item.fromMap(map: json)));
     });
   }
 }

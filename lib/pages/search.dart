@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import '../helpers/globals.dart';
-// ! To be qualified for the Syncfusion Community License Program you must have
-// ! a gross revenue of less than one (1) million U.S. dollars ($1,000,000.00 USD)
-// ! per year and have less than five (5) developers in your organization, and
-// ! agree to be bound by Syncfusion’s terms and conditions.
-import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:charts_flutter/flutter.dart' as chart;
+// import '../helpers/globals.dart';
+import '../widgets/map.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -13,12 +10,13 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   // Set initial zoom and translation (!translation not working)
-  final _zoomer = TransformationController(Matrix4.diagonal3Values(2, 2, 1));
+  final _zoomer = TransformationController(Matrix4.diagonal3Values(1, 1, 1));
+  List<chart.Series> chartData = [];
   // Matrix4.translationValues(5, 5, 0)
 
   @override
   void initState() {
-    print("CREATING SEARCH");
+    // loadVitals().then((map) => setState(() => chartData = _formatPoints(map)));
     super.initState();
   }
 
@@ -27,9 +25,8 @@ class _SearchPageState extends State<SearchPage> {
     return Scaffold(
         appBar: buildSearchBar(),
         body: InteractiveViewer(
-            maxScale: 1.0,
-            transformationController: _zoomer,
-            child: buildMap()));
+            maxScale: 1.0, transformationController: _zoomer, child: Map()));
+    // child: chart.ScatterPlotChart(chartData, animate: true)));
     // floatingActionButton: Slider(
     //     value: 4,
     //     divisions: 4,
@@ -59,69 +56,38 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   // * SCATTER MAP
-  final isCardView = true;
-  Widget buildMap() {
-    return FutureBuilder(
-        future: loadVitals(),
-        builder: (context, obj) => SfCartesianChart(
-            plotAreaBorderWidth: 1,
-            title: ChartTitle(text: isCardView ? '' : 'Knowledge Map'),
-            legend: Legend(isVisible: !isCardView),
-            primaryXAxis: NumericAxis(isVisible: false),
-            primaryYAxis: NumericAxis(isVisible: false),
-            tooltipBehavior: TooltipBehavior(enable: true),
-            // zoomPanBehavior: ZoomPanBehavior(enablePinching: true),
-            onSelectionChanged: (SelectionArgs info) {
-              print(info.pointIndex);
-            },
-            // selectionType: SelectionType.point,
-            series: obj.hasData ? _formatPoints(obj.data) : <ScatterSeries>[]));
-  }
+  // // Returns the list of chart series
+  // List<chart.Series<MapPoint, int>> _formatPoints(List<List<dynamic>> map) {
+  //   // ! SPLIT BY CATEGORY
+  //   final List<MapPoint> chartData = List<MapPoint>.generate(map.length, (i) {
+  //     final data = map[i];
+  //     return MapPoint(
+  //         name: data[MapCol.name.index],
+  //         x: data[MapCol.x.index],
+  //         y: data[MapCol.y.index]);
+  //   });
 
-  /// Returns the list of chart series
-  List<ScatterSeries<MapPoint, double>> _formatPoints(List<List<dynamic>> map) {
-    // ! SPLIT BY CATEGORY
-    final List<MapPoint> chartData = List<MapPoint>.generate(map.length, (i) {
-      final data = map[i];
-      return MapPoint(
-          name: data[MapCol.name.index],
-          x: data[MapCol.x.index],
-          y: data[MapCol.y.index]);
-    });
+  //   final you = MapPoint(name: 'You', x: 5, y: 5);
 
-    final you = MapPoint(name: 'You', x: 5, y: 5);
+  //   return <chart.Series<MapPoint, int>>[
+  //     _getSeries(data: chartData, name: 'People'),
+  //     // ! STORE YOU VALUE
+  //     _getSeries(data: [you], name: 'You'),
+  //   ];
+  // }
 
-    return <ScatterSeries<MapPoint, double>>[
-      getSeries(data: chartData, name: 'People'),
-      // ! STORE YOU VALUE
-      getSeries(data: [you], name: 'You', height: 20, width: 20),
-    ];
-  }
-
-  ScatterSeries<MapPoint, double> getSeries(
-      {List<MapPoint> data,
-      String name,
-      double width = 15,
-      double height = 15}) {
-    return ScatterSeries<MapPoint, double>(
-        dataSource: data,
-        opacity: 0.7,
-        xValueMapper: (MapPoint p, _) => p.x,
-        yValueMapper: (MapPoint p, _) => p.y,
-        dataLabelMapper: (MapPoint p, _) => p.name,
-        markerSettings: MarkerSettings(
-          height: height,
-          width: width,
-        ),
-        dataLabelSettings: DataLabelSettings(isVisible: true),
-        // selectionBehavior: SelectionBehavior(enable: true),
-        name: name);
-  }
+  // chart.Series<MapPoint, int> _getSeries({List<MapPoint> data, String name}) {
+  //   return chart.Series<MapPoint, int>(
+  //       id: name,
+  //       data: data,
+  //       domainFn: (MapPoint p, _) => p.x,
+  //       measureFn: (MapPoint p, _) => p.y);
+  // }
 }
 
 class MapPoint {
   String name = '';
-  final double x;
+  final int x;
   final double y;
   MapPoint({this.name, this.x, this.y});
 }

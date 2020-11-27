@@ -17,8 +17,7 @@ class Wiki {
     // If we have not retrieved the item before, save it
     if (!itemMemoizer.containsKey(title)) {
       itemMemoizer[title] = _fetchItemData(title);
-    } else
-      print("USING SAVED ITEM: " + title);
+    }
     return itemMemoizer[title];
   }
 

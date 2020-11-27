@@ -1,5 +1,5 @@
-import 'package:PassionFruit/helpers/globals.dart';
 import 'package:flutter/material.dart';
+import '../helpers/globals.dart';
 import '../helpers/csv.dart';
 
 class Map extends StatefulWidget {
@@ -18,6 +18,7 @@ class _MapState extends State<Map> {
 
   @override
   void initState() {
+    print('hi');
     loadVitals().then((data) => setState(() {
           points = CSV(data: data);
           width = points.getRange(MapCol.x);
@@ -48,7 +49,6 @@ class MapPoint extends StatelessWidget {
   final String category;
   final double x;
   final double y;
-
   MapPoint({this.name, this.category, this.x, this.y});
 
   factory MapPoint.fromCSV(List data) {
