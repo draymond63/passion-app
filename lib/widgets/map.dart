@@ -6,7 +6,7 @@ class Graph extends StatefulWidget {
   final double initX;
   final double initY;
   final int scale;
-  Graph({this.initX, this.initY, this.scale = 10});
+  Graph({this.initX, this.initY, this.scale = 2});
   @override
   _GraphState createState() => _GraphState();
 }
@@ -14,23 +14,30 @@ class Graph extends StatefulWidget {
 class _GraphState extends State<Graph> {
   final _zoomer = TransformationController(Matrix4.diagonal3Values(1, 1, 1));
   CSV points = CSV.map();
+  bool csvLoaded = false;
   double width = 0;
   double height = 0;
   // List<MapPoint> closest = [];
 
+  @override
+  initState() {
+    points.addListener(() => setState(() => csvLoaded = true));
+    super.initState();
+  }
+
   getRange() {
-    setState(() => width = points.getRange(MapCol.x));
-    setState(() => height = points.getRange(MapCol.y));
-    // _zoomer.toScene(Offset(width / 2, height / 2));
+    setState(() => width = points.getRange(MapCol.x) * widget.scale);
+    setState(() => height = points.getRange(MapCol.y) * widget.scale);
+    _zoomer.toScene(Offset(width / 2, height / 2));
   }
 
   @override
   Widget build(BuildContext context) {
-    if (points.isLoaded && width == 0) getRange();
+    if (!csvLoaded) return Center(child: Text('Loading', style: ItemSubtitle));
+    if (width == 0) getRange();
 
     return InteractiveViewer(
-        transformationController: _zoomer,
-        child: points != null ? buildMap() : Container());
+        transformationController: _zoomer, child: buildMap());
   }
 
   Widget buildMap() {

@@ -1,9 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:csv/csv.dart';
 import 'dart:math' as math;
 import './globals.dart';
 
-class CSV {
+class CSV with ChangeNotifier {
   // Row first data
   List<List<dynamic>> data = [[]];
   List<List<dynamic>> dataRowFirst = [[]];
@@ -38,12 +39,14 @@ class CSV {
       });
     });
     isLoaded = true;
-    print('loaded');
+    notifyListeners();
   }
 
   String toString() {
     return dataRowFirst.toString();
   }
+
+  // * NOTIFYING LISTENERS
 
   // * EXTREMA FUNCTIONS
   double getMax(MapCol col) {

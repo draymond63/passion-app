@@ -12,7 +12,6 @@ class User {
 
   factory User.fromMap(Map data) {
     // ? Ready data['items'] directly freezes the function ?
-    print(data['items'][0]);
     final vals =
         List<String>.generate(data['items'].length, (i) => data['items'][i]);
     final temp = User(items: vals ?? []);
@@ -39,7 +38,7 @@ class DBService {
 
   Stream<User> getUserData(BuildContext context) {
     final user = getUser(context);
-    print('User ID: ${user.uid}');
+    // print('User ID: ${user.uid}');
     final query = _getDoc(user.uid).snapshots();
     return query.map((doc) => User.fromMap(doc.data));
   }

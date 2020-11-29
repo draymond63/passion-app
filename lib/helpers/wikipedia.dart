@@ -76,9 +76,11 @@ class Wiki {
     final pages = json['query']['pages'];
 
     for (final obj in pages.values) {
-      final String cUrl = obj['imageinfo'][0]['url'];
-      // cUrl.contains(title.split(' ')[0]) &&
-      if (!cUrl.contains('svg')) return cUrl;
+      if (obj.runtimeType == 'Map') {
+        final String cUrl = obj['imageinfo'][0]['url'];
+        // cUrl.contains(title.split(' ')[0]) &&
+        if (!cUrl.contains('svg')) return cUrl;
+      }
     }
     return pages[pages.keys.toList()[0]]['imageinfo'][0]['url'];
     // return 'https://upload.wikimedia.org/wikipedia/commons/7/7a/Basketball.png';
