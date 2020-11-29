@@ -22,12 +22,11 @@ class _FeedPageState extends State<FeedPage>
     // ! CHOOSE RANDOM SUGGESTION FOR NOW
     loadVitals().then((List<List<dynamic>> csv) {
       csv.shuffle();
-      final temp =
-          List<String>.generate(csv.length, (i) => csv[i][MapCol.name.index]);
+      final temp = List<String>.generate(
+          csv.length, (i) => csv[i][VitCol.name.index].toString());
       setState(() => names = temp);
     });
     super.initState();
-    print("CREATING FEED");
   }
 
   @override
@@ -59,7 +58,6 @@ class _FeedPageState extends State<FeedPage>
       if (i >= names.length) return Item(name: 'Loading');
       // Load images earlier than necessary
       if (i >= items.length - widget.loadBuffer) {
-        // Get data
         _getNewItems(wiki);
         return Item(name: 'Loading');
       }
@@ -70,7 +68,6 @@ class _FeedPageState extends State<FeedPage>
   _getNewItems(Wiki wiki) {
     // Pop name frome state (We don't want to rerender)
     final name = names.removeAt(0);
-
     wiki.fetchItem(name).then((json) {
       if (mounted) setState(() => items.add(Item.fromMap(map: json)));
     });

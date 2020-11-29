@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import './globals.dart';
+import './csv.dart';
 
 const WIKI_API = 'https://en.wikipedia.org/w/api.php?';
 
@@ -12,6 +13,7 @@ const WIKI_API = 'https://en.wikipedia.org/w/api.php?';
 
 class Wiki {
   Map<String, Future> itemMemoizer = {};
+  CSV vitals = CSV.vitals();
 
   Future fetchItem(String title) {
     // If we have not retrieved the item before, save it
@@ -40,13 +42,14 @@ class Wiki {
 
   // * Search wikipedia for a given item
   Future<Map> _queryWiki(String name, String type) async {
-    // ! CHANGE THIS TO RETRIEVING GLOBAL DATA
-    final vitals = await loadVitals();
-    final row = vitals.firstWhere(
-      (row) => row[MapCol.name.index] == name,
+    // Wait for vitals csv to load
+    while (!vitals.isLoaded) {}
+
+    final row = vitals.dataRowFirst.firstWhere(
+      (row) => row[VitCol.name.index] == name,
       orElse: () => throw Exception('$name not found in dataset'),
     );
-    final site = row[MapCol.site.index];
+    final site = row[VitCol.site.index];
 
     // Create a url depending on the request
     String uri = 'action=query&format=json&origin=*&titles=' + site;

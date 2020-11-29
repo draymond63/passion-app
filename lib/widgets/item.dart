@@ -87,10 +87,12 @@ class _ItemState extends State<Item> with AutomaticKeepAliveClientMixin<Item> {
 
   Widget buildImage() {
     try {
-      return ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: widget.height),
-          child: SizedBox.expand(
-              child: Image(image: widget.image, fit: BoxFit.cover)));
+      return ClipRRect(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          child: ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: widget.height),
+              child: SizedBox.expand(
+                  child: Image(image: widget.image, fit: BoxFit.cover))));
     } catch (e) {
       return Container();
     }

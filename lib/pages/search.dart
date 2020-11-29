@@ -15,24 +15,11 @@ class _SearchPageState extends State<SearchPage> {
   // Matrix4.translationValues(5, 5, 0)
 
   @override
-  void initState() {
-    // loadVitals().then((map) => setState(() => chartData = _formatPoints(map)));
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: buildSearchBar(),
         body: InteractiveViewer(
-            maxScale: 1.0, transformationController: _zoomer, child: Map()));
-    // child: chart.ScatterPlotChart(chartData, animate: true)));
-    // floatingActionButton: Slider(
-    //     value: 4,
-    //     divisions: 4,
-    //     min: 0,
-    //     max: 4,
-    //     onChanged: (double newVal) {}));
+            maxScale: 1.0, transformationController: _zoomer, child: Graph()));
   }
 
   // * SEARCH BAR
@@ -54,40 +41,4 @@ class _SearchPageState extends State<SearchPage> {
       ],
     );
   }
-
-  // * SCATTER MAP
-  // // Returns the list of chart series
-  // List<chart.Series<MapPoint, int>> _formatPoints(List<List<dynamic>> map) {
-  //   // ! SPLIT BY CATEGORY
-  //   final List<MapPoint> chartData = List<MapPoint>.generate(map.length, (i) {
-  //     final data = map[i];
-  //     return MapPoint(
-  //         name: data[MapCol.name.index],
-  //         x: data[MapCol.x.index],
-  //         y: data[MapCol.y.index]);
-  //   });
-
-  //   final you = MapPoint(name: 'You', x: 5, y: 5);
-
-  //   return <chart.Series<MapPoint, int>>[
-  //     _getSeries(data: chartData, name: 'People'),
-  //     // ! STORE YOU VALUE
-  //     _getSeries(data: [you], name: 'You'),
-  //   ];
-  // }
-
-  // chart.Series<MapPoint, int> _getSeries({List<MapPoint> data, String name}) {
-  //   return chart.Series<MapPoint, int>(
-  //       id: name,
-  //       data: data,
-  //       domainFn: (MapPoint p, _) => p.x,
-  //       measureFn: (MapPoint p, _) => p.y);
-  // }
-}
-
-class MapPoint {
-  String name = '';
-  final int x;
-  final double y;
-  MapPoint({this.name, this.x, this.y});
 }

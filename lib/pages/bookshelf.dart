@@ -9,10 +9,6 @@ import '../widgets/item.dart';
 class BookShelfPage extends StatelessWidget {
   final db = DBService();
 
-  BookShelfPage() {
-    print("CREATING BOOKSHELF");
-  }
-
   @override
   Widget build(BuildContext context) {
     final wiki = Provider.of<Wiki>(context);
@@ -30,6 +26,10 @@ class BookShelfPage extends StatelessWidget {
   }
 
   Widget buildItems(List<String> items, Wiki wiki) {
+    if (items.length == 0)
+      return Center(
+          child: Text("There's nothing here ¯\\_(ツ)_/¯", style: ItemSubtitle));
+    // If we have items, display them
     return ListView(
         // scrollDirection: Axis.horizontal,
         children: List.generate(

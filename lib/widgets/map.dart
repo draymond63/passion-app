@@ -2,65 +2,107 @@ import 'package:flutter/material.dart';
 import '../helpers/globals.dart';
 import '../helpers/csv.dart';
 
-class Map extends StatefulWidget {
+class Graph extends StatefulWidget {
   final double initX;
   final double initY;
-  final int view;
-  Map({this.initX, this.initY, this.view = 10});
+  final int scale;
+  Graph({this.initX, this.initY, this.scale = 10});
   @override
-  _MapState createState() => _MapState();
+  _GraphState createState() => _GraphState();
 }
 
-class _MapState extends State<Map> {
-  CSV points = CSV([[]]);
+class _GraphState extends State<Graph> {
+  final _zoomer = TransformationController(Matrix4.diagonal3Values(1, 1, 1));
+  CSV points = CSV.map();
   double width = 0;
   double height = 0;
+  // List<MapPoint> closest = [];
 
-  @override
-  void initState() {
-    print('hi');
-    loadVitals().then((data) => setState(() {
-          points = CSV(data);
-          width = points.getRange(MapCol.x);
-          height = points.getRange(MapCol.y);
-        }));
-    super.initState();
+  getRange() {
+    setState(() => width = points.getRange(MapCol.x));
+    setState(() => height = points.getRange(MapCol.y));
+    // _zoomer.toScene(Offset(width / 2, height / 2));
   }
 
   @override
   Widget build(BuildContext context) {
-    return InteractiveViewer(child: buildMap());
+    if (points.isLoaded && width == 0) getRange();
+
+    return InteractiveViewer(
+        transformationController: _zoomer,
+        child: points != null ? buildMap() : Container());
   }
 
   Widget buildMap() {
     return Container(
         padding: EdgeInsets.all(16),
-        width: width,
-        height: height,
-        child: Stack(
-            children: List<Widget>.generate(points.length, (i) {
-          return MapPoint.fromCSV(points.loc(i));
-        })));
+        decoration:
+            BoxDecoration(border: Border.all(color: Colors.grey, width: 1.0)),
+        width: width * widget.scale,
+        height: height * widget.scale,
+        child: points.isLoaded
+            ? Stack(
+                children: List<Widget>.generate(
+                    points.length,
+                    (i) => MapPoint.fromCSV(points.row(i), widget.scale,
+                        Offset(width / 2, height / 2))))
+            : Text('Loading'));
   }
 }
+
+Map<String, Color> categoryColors = {
+  'People': Colors.green,
+  'History': Colors.blue,
+  'Geography': Colors.yellow,
+  'Arts': Colors.purple,
+  'Social Sciences': Colors.red,
+  'Biology': Colors.cyan,
+  'Physical Sciences': Colors.amber,
+  'Technology': Colors.orange,
+  'Mathematics': Colors.indigo,
+};
 
 class MapPoint extends StatelessWidget {
   final String name;
   final String category;
   final double x;
   final double y;
-  MapPoint({this.name, this.category, this.x, this.y});
+  final Offset offset;
+  final int scale;
+  MapPoint({
+    this.name,
+    this.category,
+    this.x,
+    this.y,
+    this.offset,
+    this.scale,
+  });
 
-  factory MapPoint.fromCSV(List data) {
-    final tname = data[MapCol.name.index];
-    final tcategory = data[MapCol.l0.index];
-    final tx = data[MapCol.x.index];
-    final ty = data[MapCol.y.index];
-    return MapPoint(name: tname, category: tcategory, x: tx, y: ty);
+  factory MapPoint.fromCSV(List data, int scale, Offset center) {
+    // ! TEMPORARY FIX for string type
+    return MapPoint(
+        name: data[MapCol.name.index].toString(),
+        category: data[MapCol.l0.index].toString(),
+        x: data[MapCol.x.index],
+        y: data[MapCol.y.index],
+        offset: center,
+        scale: scale);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(left: x, bottom: y, child: Container());
+    return Positioned(
+        left: (x + offset.dx) * scale,
+        bottom: (y + offset.dy) * scale,
+        child: Column(
+          children: [
+            Container(
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(
+                    color: categoryColors[category], shape: BoxShape.circle)),
+            // Text(name, style: TextStyle(fontSize: 10 / viewScale))
+          ],
+        )); // Icon(Icons.circle)
   }
 }

@@ -10,7 +10,8 @@ const MAIN_ACCENT_COLOR = 0xFFCFD1D8;
 const SECOND_ACCENT_COLOR = 0xFF8B92A2;
 const TEXT_COLOR = 0xFF6D7690;
 
-enum MapCol { name, x, y, l0, l1, l2, l3, l4, site }
+enum VitCol { site, l0, l1, l2, l3, l4, name }
+enum MapCol { name, l0, x, y }
 
 // * STYLES
 const ItemHeader = const TextStyle(
@@ -20,7 +21,7 @@ const ItemSubtitle = const TextStyle(
 
 // * FUNCTIONS
 Future<List<List<dynamic>>> loadVitals() async {
-  final csvString = await rootBundle.loadString('assets/map.csv');
+  final csvString = await rootBundle.loadString('assets/vitals.csv');
   return CsvToListConverter().convert(csvString);
 }
 
