@@ -12,6 +12,7 @@ class User {
 
   factory User.fromMap(Map data) {
     // ? Ready data['items'] directly freezes the function ?
+    print(data['items'][0]);
     final vals =
         List<String>.generate(data['items'].length, (i) => data['items'][i]);
     final temp = User(items: vals ?? []);
@@ -37,32 +38,31 @@ class DBService {
   }
 
   Stream<User> getUserData(BuildContext context) {
-    // print('User ID: ${user.uid}');
     final user = getUser(context);
+    print('User ID: ${user.uid}');
     final query = _getDoc(user.uid).snapshots();
     return query.map((doc) => User.fromMap(doc.data));
   }
 
-  void writeItem(BuildContext context, String newItem) {
-    final user = getUser(context);
+  void writeItem(BuildContext context, String newItem) async {
+    final user = Provider.of<FirebaseUser>(context, listen: false);
     final doc = _getDoc(user.uid);
-    try {
+
+    if ((await doc.get()).exists) {
       // CHANGE THIS TO WRITE ON ALL APP CLOSE?
       doc.updateData({
         'items': FieldValue.arrayUnion([newItem])
       });
-      // CREATE USER DATA (if it failed to write)
-    } catch (e) {
-      initUser(doc, newItem);
-    }
+    } else
+      initUser(user, newItem);
   }
 
   DocumentReference _getDoc(String id) {
     return db.collection('users').document(id);
   }
 
-  void initUser(DocumentReference doc, String item) {
-    doc.setData({
+  void initUser(FirebaseUser user, String item) {
+    db.collection('users').document(user.uid).setData({
       'items': [item]
     });
   }
