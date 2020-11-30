@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:charts_flutter/flutter.dart' as chart;
+// import 'package:charts_flutter/flutter.dart' as chart;
 // import '../helpers/globals.dart';
 import '../widgets/map.dart';
 
@@ -8,18 +8,49 @@ class SearchPage extends StatefulWidget {
   _SearchPageState createState() => _SearchPageState();
 }
 
+final double _initScale = 10;
+
 class _SearchPageState extends State<SearchPage> {
+  final _zoomer = TransformationController();
+  double scale = _initScale;
+
   // Set initial zoom and translation (!translation not working)
-  final _zoomer = TransformationController(Matrix4.diagonal3Values(1, 1, 1));
-  List<chart.Series> chartData = [];
-  // Matrix4.translationValues(5, 5, 0)
+  void center(double x, double y) {
+    // ! NOT FULLY CENTERING
+    _zoomer.value = Matrix4.translationValues(-x / 2 - 200, -y / 2, 1) *
+        Matrix4.diagonal3Values(_initScale, _initScale, 1);
+  }
+
+  setScale(_) {
+    final _scale = _zoomer.value.getMaxScaleOnAxis();
+    setState(() => scale = _scale);
+  }
+
+  @override
+  void dispose() {
+    _zoomer.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: buildSearchBar(),
-        body: InteractiveViewer(
-            maxScale: 1.0, transformationController: _zoomer, child: Graph()));
+        // Improves render efficiencQy
+        body: ClipRect(
+          clipBehavior: Clip.hardEdge,
+          child: InteractiveViewer(
+              maxScale: 20,
+              minScale: 1,
+              constrained: false,
+              transformationController: _zoomer,
+              onInteractionEnd: setScale,
+              // Graph
+              child: Graph(
+                scale: scale,
+                updateViewer: center,
+              )),
+        ));
   }
 
   // * SEARCH BAR
