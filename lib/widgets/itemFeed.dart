@@ -49,7 +49,7 @@ class _FeedItemState extends State<FeedItem> {
                 buildText(data['content']),
               ]);
             }
-            return Text('Loading');
+            return Center(child: Text('Loading'));
           }),
       // * FORMATTING
       margin: EdgeInsets.all(8),

@@ -52,7 +52,10 @@ class _FeedPageState extends State<FeedPage> {
         if (sites.length <= i)
           return Center(child: Text('Loading', style: ItemSubtitle));
         return GestureDetector(
-            onTap: () => pushNewScreen(context, screen: ViewItem(sites[i])),
+            onTap: () => pushNewScreen(context,
+                withNavBar: false,
+                pageTransitionAnimation: PageTransitionAnimation.fade,
+                screen: ViewItem(sites[i])),
             child: FeedItem(sites[i]));
       },
     );

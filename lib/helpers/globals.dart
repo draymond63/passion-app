@@ -20,22 +20,10 @@ const ItemSubtitle = const TextStyle(
     fontSize: 20, color: Color(MAIN_COLOR), fontWeight: FontWeight.w500);
 
 // * FUNCTIONS
+// ! LOAD ONCE IN PROVIDERS
 Future<List<List<dynamic>>> loadVitals() async {
   final csvString = await rootBundle.loadString('assets/vitals.csv');
   return CsvToListConverter().convert(csvString);
-}
-
-// ! REMOVE THIS
-Widget futureBuilder(Future<dynamic> future, Widget Function(dynamic) widget) {
-  return FutureBuilder<dynamic>(
-      future: future,
-      builder: (context, AsyncSnapshot<dynamic> obj) {
-        if (obj.hasError) print(obj.error);
-        if (obj.hasData)
-          return widget(obj.data);
-        else
-          return Text('');
-      });
 }
 
 // * DATA PERSISTENCE

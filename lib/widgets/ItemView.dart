@@ -28,31 +28,33 @@ class _ViewItemState extends State<ViewItem> {
   Widget build(BuildContext context) {
     final wiki = Provider.of<Wiki>(context);
 
-    return Container(
-      child: FutureBuilder(
-          future: wiki.fetchItem(widget.site),
-          builder: (context, snap) {
-            if (snap.hasData) {
-              final data = snap.data;
-              return Column(children: [
-                // * IMAGE
-                buildImage(data['image']),
-                Text(data['name'], style: ItemHeader),
-                // * BUTTONS
-                Center(
-                    child: IconButton(
-                        icon: Icon(Icons.thumb_up_rounded),
-                        color: Color(0xFFAAAAAA),
-                        onPressed: () =>
-                            addLikedItem(context, data['name'], data['site']))),
-                // * TEXT
-                buildText(data['content']),
-              ]);
-            }
-            return Text('Loading');
-          }),
-      // * FORMATTING
-      color: Colors.white,
+    return Scaffold(
+      body: Container(
+        child: FutureBuilder(
+            future: wiki.fetchItem(widget.site),
+            builder: (context, snap) {
+              if (snap.hasData) {
+                final data = snap.data;
+                return ListView(children: [
+                  // * IMAGE
+                  buildImage(data['image']),
+                  Text(data['name'], style: ItemHeader),
+                  // * BUTTONS
+                  Center(
+                      child: IconButton(
+                          icon: Icon(Icons.thumb_up_rounded),
+                          color: Color(0xFFAAAAAA),
+                          onPressed: () => addLikedItem(
+                              context, data['name'], data['site']))),
+                  // * TEXT
+                  buildText(data['content']),
+                ]);
+              }
+              return Text('Loading');
+            }),
+        // * FORMATTING
+        color: Colors.white,
+      ),
     );
   }
 

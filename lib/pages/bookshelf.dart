@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:provider/provider.dart';
 
-import '../helpers/wikipedia.dart';
 import '../helpers/globals.dart';
 import '../helpers/firebase.dart';
 import '../widgets/itemPreview.dart';
@@ -12,8 +10,6 @@ class BookShelfPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final wiki = Provider.of<Wiki>(context);
-
     return Scaffold(
         body: SafeArea(
             minimum: EdgeInsets.all(8),
@@ -29,7 +25,7 @@ class BookShelfPage extends StatelessWidget {
                       if (snap.data is User) data = snap.data;
                       print(data.items);
                       // Show most recent
-                      return buildItems(data.items, wiki);
+                      return buildItems(data.items);
                     }),
                 // https://pub.dev/documentation/graphview/latest/
                 Text('Your Tree', style: ItemHeader),
@@ -38,18 +34,18 @@ class BookShelfPage extends StatelessWidget {
             )));
   }
 
-  Widget buildItems(List<String> items, Wiki wiki) {
-    if (items.length == 0)
+  Widget buildItems(List<String> sites) {
+    if (sites.length == 0)
       return Center(
           child: Text("There's nothing here ¯\\_(ツ)_/¯", style: ItemSubtitle));
-    print(items.toString());
     // If we have items, display them
     return ConstrainedBox(
+      // ! PROBABLY SHOULDN'T HARDCODE
       constraints: BoxConstraints(maxHeight: 115),
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: List<PreviewItem>.generate(
-            items.length, (i) => PreviewItem(name: items[i])),
+            sites.length, (i) => PreviewItem(sites[i])),
       ),
     );
   }
