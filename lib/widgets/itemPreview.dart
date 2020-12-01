@@ -1,6 +1,6 @@
-import 'package:PassionFruit/widgets/itemView.dart';
+// import 'package:PassionFruit/widgets/itemView.dart';
 import 'package:flutter/material.dart';
-import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+// import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import '../helpers/globals.dart';
 
 class PreviewItem extends StatefulWidget {
@@ -11,21 +11,20 @@ class PreviewItem extends StatefulWidget {
 }
 
 class _PreviewItemState extends State<PreviewItem> {
-  Future<List> vitals = loadVitals();
+  Future<List> vitals = loadVitals(); // ! CHANGE TO GLOBAL LOAD
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        pushNewScreen(context,
-            pageTransitionAnimation: PageTransitionAnimation.fade,
-            screen: ViewItem(
-              name: widget.name,
-            ));
+        // pushNewScreen(context,
+        //     pageTransitionAnimation: PageTransitionAnimation.fade,
+        //     screen: ViewItem(widget.site));
       },
       child: Container(
-        width: 200,
-        margin: EdgeInsets.all(4),
+        width: 300,
+        margin: EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
@@ -36,12 +35,11 @@ class _PreviewItemState extends State<PreviewItem> {
             ],
             color: Colors.white,
             borderRadius: BorderRadius.all(Radius.circular(16))),
-        child: Center(
-          child: Column(children: [
-            Center(child: Text(widget.name, style: ItemHeader)),
-            buildPath()
-          ]),
-        ),
+        // * ITEMS
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          FittedBox(child: Text(widget.name, style: ItemHeader)),
+          FittedBox(child: buildPath())
+        ]),
       ),
     );
   }
@@ -54,17 +52,14 @@ class _PreviewItemState extends State<PreviewItem> {
             List row = snap.data
                 .firstWhere((row) => row[VitCol.name.index] == widget.name);
             row = [
-              row[VitCol.l0.index],
-              row[VitCol.l1.index],
-              row[VitCol.l2.index],
-              row[VitCol.l3.index],
-              row[VitCol.l4.index]
+              row[VitCol.l0.index].replaceAll('_', ' '),
+              row[VitCol.l1.index].replaceAll('_', ' '),
+              row[VitCol.l2.index].replaceAll('_', ' '),
+              row[VitCol.l3.index].replaceAll('_', ' '),
+              row[VitCol.l4.index].replaceAll('_', ' ')
             ];
-            row = row.toSet().toList();
-            return Text(
-              row.join(' -> '),
-              softWrap: true,
-            );
+            row = row.toSet().toList(); // Remove duplicates
+            return Text(row.join(' -> '));
           }
           return Text('Loading');
         });

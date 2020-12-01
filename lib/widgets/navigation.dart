@@ -16,7 +16,7 @@ class PageRouter extends StatefulWidget {
 class _PageRouterState extends State<PageRouter> {
   static const double _iconSize = 36;
   PersistentTabController _controller =
-      PersistentTabController(initialIndex: 0);
+      PersistentTabController(initialIndex: 1);
 
   final _pages = <Widget>[
     FeedPage(),

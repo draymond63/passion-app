@@ -1,5 +1,4 @@
 // import 'package:async/async.dart';
-import 'package:flutter/material.dart';
 // import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:http/http.dart' as http;
@@ -15,42 +14,40 @@ class Wiki {
   Map<String, Future> itemMemoizer = {};
   CSV vitals = CSV.vitals();
 
-  Future<Map> fetchItem(String title) {
+  Future<Map> fetchItem(String site) {
     // If we have not retrieved the item before, save it
-    if (!itemMemoizer.containsKey(title)) {
-      itemMemoizer[title] = _fetchItemData(title);
+    if (!itemMemoizer.containsKey(site)) {
+      itemMemoizer[site] = _fetchSite(site);
     }
-    return itemMemoizer[title];
+    return itemMemoizer[site];
   }
 
   // * Get all data required to display an item
-  Future<Map<String, dynamic>> _fetchItemData(String title) async {
+  Future<Map<String, dynamic>> _fetchSite(String site) async {
     // Pull in wiki content
-    final images = _queryWiki(title, 'images');
-    final content = _queryWiki(title, 'content');
+    final images = _queryWiki(site, 'images');
+    final content = _queryWiki(site, 'content');
     final data = await Future.wait([images, content]);
     // Image selection
-    final imageUrl = _parseImageUrl(data[0], title);
-    dynamic image = Image.asset('assets/fruit.png');
-    // Image checking
-    final extensions = ['png', 'jpg', 'gif'];
-    final ext = imageUrl.split('.').last;
-    if (extensions.contains(ext)) image = CachedNetworkImageProvider(imageUrl);
+    final imageUrl = _parseImageUrl(data[0], site);
+    final image = CachedNetworkImageProvider(imageUrl);
+    // Get vitals info
+    final info = vitals.row(site, VitCol.site);
+    final name = info.removeAt(VitCol.name.index);
     // Return data
-    return {'name': title, 'image': image, 'content': _parseContent(data[1])};
+    return {
+      'name': name,
+      'info': info,
+      'site': site,
+      'image': image,
+      'content': _parseContent(data[1])
+    };
   }
 
   // * Search wikipedia for a given item
-  Future<Map> _queryWiki(String name, String type) async {
-    // Wait for vitals csv to load
+  Future<Map> _queryWiki(String site, String type) async {
+    // ! Wait for vitals csv to load
     while (!vitals.isLoaded) {}
-
-    final row = vitals.dataRowFirst.firstWhere(
-      (row) => row[VitCol.name.index] == name,
-      orElse: () => throw Exception('$name not found in dataset'),
-    );
-    final site = row[VitCol.site.index];
-
     // Create a url depending on the request
     String uri = 'action=query&format=json&origin=*&titles=' + site;
     switch (type) {
@@ -73,17 +70,15 @@ class Wiki {
 
   // * Functions to extract the best image and content
   String _parseImageUrl(Map json, String title) {
+    final extensions = ['png', 'jpg', 'gif'];
     final pages = json['query']['pages'];
 
     for (final obj in pages.values) {
-      if (obj.runtimeType == 'Map') {
-        final String cUrl = obj['imageinfo'][0]['url'];
-        // cUrl.contains(title.split(' ')[0]) &&
-        if (!cUrl.contains('svg')) return cUrl;
-      }
+      final String cUrl = obj['imageinfo'][0]['url'];
+      final ext = cUrl.split('.').last;
+      if (extensions.contains(ext)) return cUrl;
     }
-    return pages[pages.keys.toList()[0]]['imageinfo'][0]['url'];
-    // return 'https://upload.wikimedia.org/wikipedia/commons/7/7a/Basketball.png';
+    return '';
   }
 
   String _parseContent(Map json) {

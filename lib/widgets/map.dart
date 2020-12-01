@@ -44,7 +44,7 @@ class _GraphState extends State<Graph> {
           ...List<Widget>.generate(
               points.length,
               (i) => MapPoint.fromCSV(
-                  points.row(i), widget.scale, Offset(width / 2, height / 2))),
+                  points.iRow(i), widget.scale, Offset(width / 2, height / 2))),
           Positioned(
             child: Text('YOU'),
             left: width / 2,

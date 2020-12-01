@@ -69,7 +69,7 @@ class CSV with ChangeNotifier {
   }
 
   // * GETTERS
-  List row(int index) {
+  List iRow(int index) {
     assert(index < length, 'row index recieved was greater than CSV length ');
     return dataRowFirst[index];
   }
@@ -80,10 +80,11 @@ class CSV with ChangeNotifier {
     return data[col.index];
   }
 
+  List row(index, col) {
+    return dataRowFirst.firstWhere((row) => row[col.index] == index);
+  }
+
   get length => dataRowFirst.length;
   get width => data.length;
   get shape => [length, width];
-
-  // * FIND CLOSEST
-  getNclosest(x, y, n) {}
 }
