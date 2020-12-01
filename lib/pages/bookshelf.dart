@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../helpers/wikipedia.dart';
 import '../helpers/globals.dart';
 import '../helpers/firebase.dart';
-import '../widgets/item.dart';
+// import '../widgets/item.dart';
 
 class BookShelfPage extends StatelessWidget {
   final db = DBService();
@@ -29,16 +29,18 @@ class BookShelfPage extends StatelessWidget {
     if (items.length == 0)
       return Center(
           child: Text("There's nothing here ¯\\_(ツ)_/¯", style: ItemSubtitle));
+    print("LENGTH: " + items.length.toString());
     // If we have items, display them
-    return ListView(
-        // scrollDirection: Axis.horizontal,
-        children: List.generate(
-            items.length,
-            (i) => futureBuilder(
-                wiki.fetchItem(items[i]),
-                (data) => Item.fromMap(
-                      map: data,
-                      height: 200.0,
-                    ))));
+    return Text('${items.length}');
+    // return ListView(
+    //     // scrollDirection: Axis.horizontal,
+    //     children: List.generate(
+    //         items.length,
+    //         (i) => futureBuilder(
+    //             wiki.fetchItem(items[i]),
+    //             (data) => Item.fromMap(
+    //                   map: data,
+    //                   height: 200.0,
+    //                 ))));
   }
 }

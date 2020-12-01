@@ -15,7 +15,7 @@ class Wiki {
   Map<String, Future> itemMemoizer = {};
   CSV vitals = CSV.vitals();
 
-  Future fetchItem(String title) {
+  Future<Map> fetchItem(String title) {
     // If we have not retrieved the item before, save it
     if (!itemMemoizer.containsKey(title)) {
       itemMemoizer[title] = _fetchItemData(title);

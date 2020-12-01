@@ -3,23 +3,23 @@ import '../helpers/globals.dart';
 // For the like button
 import '../helpers/firebase.dart';
 
-class Item extends StatefulWidget {
+class FeedItem extends StatefulWidget {
   final String name;
   final image;
   final String content;
   final double width; // Fraction of viewport
   final double height; // image height
-  const Item(
-      {this.name,
+  const FeedItem(
+      {this.name = '',
       this.image,
       this.content = '',
       this.width = 0.8,
       this.height = 256});
   @override
-  _ItemState createState() => _ItemState();
+  _FeedItemState createState() => _FeedItemState();
 
-  factory Item.fromMap({Map map, width = 0.8, height = 256.0}) {
-    return Item(
+  factory FeedItem.fromMap({Map map, width = 0.8, height = 256.0}) {
+    return FeedItem(
         name: map['name'],
         content: map['content'],
         image: map['image'],
@@ -28,12 +28,8 @@ class Item extends StatefulWidget {
   }
 }
 
-class _ItemState extends State<Item> with AutomaticKeepAliveClientMixin<Item> {
+class _FeedItemState extends State<FeedItem> {
   final db = DBService();
-  bool isOpen = false;
-
-  @override
-  bool get wantKeepAlive => true;
 
   void addLikedItem(BuildContext context) {
     Scaffold.of(context).showSnackBar(SnackBar(
@@ -46,30 +42,24 @@ class _ItemState extends State<Item> with AutomaticKeepAliveClientMixin<Item> {
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // For keepAlive
+    // For keepAlive
     final width = MediaQuery.of(context).size.width;
 
     return Container(
       child: Column(children: [
         // * IMAGE
-        GestureDetector(
-          // ? Move conditional inside the contrained box to maintain size ?
-          child: buildImage(),
-          onTap: () => setState(() => isOpen = !isOpen),
-        ),
-        // * TEXT
+        buildImage(),
         Text(widget.name, style: ItemHeader),
-        buildText(),
         // * BUTTONS
         Center(
-          child: Row(children: [
-            IconButton(
+            child: IconButton(
                 icon: Icon(Icons.thumb_up_rounded),
                 color: Color(0xFFAAAAAA),
-                onPressed: () => addLikedItem(context))
-          ]),
-        ),
+                onPressed: () => addLikedItem(context))),
+        // * TEXT
+        buildText(),
       ]),
+      // * FORMATTING
       width: width * widget.width,
       margin: EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -99,11 +89,14 @@ class _ItemState extends State<Item> with AutomaticKeepAliveClientMixin<Item> {
   }
 
   Widget buildText() {
-    return Container(
-        padding: EdgeInsets.all(8),
-        child: isOpen
-            ? Text(widget.content)
-            : Text(widget.content,
-                maxLines: 3, overflow: TextOverflow.ellipsis));
+    return Flexible(
+      child: Container(
+          padding: EdgeInsets.all(8),
+          child: Text(
+            widget.content,
+            overflow: TextOverflow.fade,
+            softWrap: true,
+          )),
+    );
   }
 }

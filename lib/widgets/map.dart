@@ -99,7 +99,13 @@ class MapPoint extends StatelessWidget {
         left: (x + offset.dx),
         bottom: (y + offset.dy),
         child: GestureDetector(
-          onTap: () => print(name),
+          // * TAP
+          onTap: () => Scaffold.of(context).showSnackBar(SnackBar(
+            backgroundColor: Color(MAIN_ACCENT_COLOR),
+            content: Text('This is "$name" in the "$category" category!',
+                style: TextStyle(color: Color(MAIN_COLOR))),
+          )),
+          // * VISUAL
           child: Column(
             children: [
               Container(

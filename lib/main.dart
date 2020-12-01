@@ -86,7 +86,7 @@ class Page extends StatefulWidget {
 
 class _PageState extends State<Page> {
   final db = DBService();
-  int _pageIndex = 2;
+  int _pageIndex = 0;
 
   final _pages = <Widget>[
     FeedPage(),
