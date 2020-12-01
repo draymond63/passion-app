@@ -1,10 +1,11 @@
-import 'package:PassionFruit/widgets/ItemView.dart';
 import 'package:flutter/material.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
+
 import '../helpers/wikipedia.dart';
 import '../helpers/globals.dart';
 import '../widgets/itemFeed.dart';
-// import '../widgets/itemView.dart';
+import '../widgets/itemView.dart';
 import './settings.dart';
 
 class FeedPage extends StatefulWidget {
@@ -19,7 +20,6 @@ class _FeedPageState extends State<FeedPage> {
   List<Widget> items = [];
   Future<bool> loaded;
   bool showSettings = false;
-  bool viewItem = false;
 
   @override
   void initState() {
@@ -41,14 +41,12 @@ class _FeedPageState extends State<FeedPage> {
           title: Text('Your Feed'),
           actions: [
             IconButton(
-                icon: Icon(Icons.settings),
-                onPressed: () => setState(() => showSettings = !showSettings))
+              icon: Icon(Icons.settings),
+              onPressed: () => pushNewScreen(context, screen: SettingsPage()),
+            ),
           ],
         ),
-        body: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 500),
-          child: showSettings ? SettingsPage() : feedBuilder(context),
-        ));
+        body: feedBuilder(context));
   }
 
   Widget feedBuilder(context) {
@@ -76,10 +74,11 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   buildFeedItem(Map data) {
-    return viewItem
-        ? ViewItem.fromMap(map: data)
-        : GestureDetector(
-            onTap: () => setState(() => viewItem = true),
-            child: FeedItem.fromMap(map: data));
+    return GestureDetector(
+        onTap: () => pushNewScreen(context,
+            screen: ViewItem.fromMap(map: data),
+            withNavBar: false,
+            pageTransitionAnimation: PageTransitionAnimation.fade),
+        child: FeedItem.fromMap(map: data));
   }
 }

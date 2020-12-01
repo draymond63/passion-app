@@ -50,18 +50,21 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        padding: new EdgeInsets.symmetric(horizontal: 20),
-        child: ListView(
-          children: [
-            Text('Categories', style: Theme.of(context).textTheme.headline1),
-            Text('Decide which type of topics can be suggested',
-                style: Theme.of(context).textTheme.bodyText1),
-            ...buildCategorySettings(),
-            Text('Misc', style: Theme.of(context).textTheme.headline1),
-            buildSwitch('Random Suggestions', ['allow-random'],
-                settings['allow-random'])
-          ],
+    return Scaffold(
+        appBar: AppBar(title: Text('Settings')),
+        body: Container(
+          padding: new EdgeInsets.symmetric(horizontal: 20),
+          child: ListView(
+            children: [
+              Text('Categories', style: Theme.of(context).textTheme.headline1),
+              Text('Decide which type of topics can be suggested',
+                  style: Theme.of(context).textTheme.bodyText1),
+              ...buildCategorySettings(),
+              Text('Misc', style: Theme.of(context).textTheme.headline1),
+              buildSwitch('Random Suggestions', ['allow-random'],
+                  settings['allow-random'])
+            ],
+          ),
         ));
   }
 

@@ -42,29 +42,29 @@ class _ViewItemState extends State<ViewItem> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(children: [
-      // * IMAGE
-      buildImage(),
-      Text(widget.name, style: ItemHeader),
-      // * BUTTONS
-      Center(
-          child: IconButton(
-              icon: Icon(Icons.thumb_up_rounded),
-              color: Color(0xFFAAAAAA),
-              onPressed: () => addLikedItem(context))),
-      // * TEXT
-      buildText(),
-    ]);
+    return Scaffold(
+      body: ListView(shrinkWrap: true, children: [
+        // * IMAGE
+        buildImage(),
+        Center(child: Text(widget.name, style: ItemHeader)),
+        // * BUTTONS
+        Center(
+            child: IconButton(
+                icon: Icon(Icons.thumb_up_rounded),
+                color: Color(0xFFAAAAAA),
+                onPressed: () => addLikedItem(context))),
+        // * TEXT
+        buildText(),
+      ]),
+    );
   }
 
   Widget buildImage() {
     try {
-      return ClipRRect(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-          child: ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: widget.height),
-              child: SizedBox.expand(
-                  child: Image(image: widget.image, fit: BoxFit.cover))));
+      return ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: widget.height),
+          child: SizedBox.expand(
+              child: Image(image: widget.image, fit: BoxFit.cover)));
     } catch (e) {
       return Container();
     }

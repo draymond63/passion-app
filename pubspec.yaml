@@ -28,9 +28,10 @@ dependencies:
   path_provider: ^1.6.24
   cached_network_image: 2.3.3
   csv: ^4.1.0
-  syncfusion_flutter_charts: ^18.3.51 # ! REPLACE
-  charts_flutter: ^0.9.0
   http: ^0.12.2
+  persistent_bottom_nav_bar: any
+  # syncfusion_flutter_charts: ^18.3.51 # ! REPLACE
+  # charts_flutter: ^0.9.0
   # dartpedia: ^1.6.6
 
   firebase_core: ^0.4.0+9

@@ -42,9 +42,6 @@ class _FeedItemState extends State<FeedItem> {
 
   @override
   Widget build(BuildContext context) {
-    // For keepAlive
-    final width = MediaQuery.of(context).size.width;
-
     return Container(
       child: Column(children: [
         // * IMAGE
@@ -60,7 +57,6 @@ class _FeedItemState extends State<FeedItem> {
         buildText(),
       ]),
       // * FORMATTING
-      width: width * widget.width,
       margin: EdgeInsets.all(8),
       decoration: BoxDecoration(
           boxShadow: [

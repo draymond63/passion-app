@@ -10,13 +10,7 @@ import 'package:provider/provider.dart';
 import './helpers/globals.dart';
 import './helpers/firebase.dart';
 import './helpers/wikipedia.dart';
-import './widgets/navbar.dart';
-
-import './pages/feed.dart';
-// import './pages/settings.dart';
-import './pages/bookshelf.dart';
-import './pages/search.dart';
-// import './pages/login.dart';
+import 'widgets/navigation.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,6 +24,8 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  final db = DBService();
+
   void initUser() {
     // ! MOVE TO NEW USER PAGE
     writeUserFile({
@@ -55,6 +51,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     initUser();
+    // If the user is not logged in, redirect to the login page
+    final user = db.getUser(context);
+    if (user == null) {
+      db.login();
+      return MaterialApp(
+          home: Scaffold(
+              body: Center(child: Text('Please wait', style: ItemSubtitle))));
+    }
+
     return MaterialApp(
         title: 'PassionFruit',
         theme: ThemeData(
@@ -75,51 +80,6 @@ class MyApp extends StatelessWidget {
                   color: Color(TEXT_COLOR),
                   fontWeight: FontWeight.w300),
             )),
-        home: Page());
-  }
-}
-
-class Page extends StatefulWidget {
-  @override
-  _PageState createState() => _PageState();
-}
-
-class _PageState extends State<Page> {
-  final db = DBService();
-  int _pageIndex = 0;
-
-  final _pages = <Widget>[
-    FeedPage(),
-    BookShelfPage(),
-    SearchPage(),
-  ];
-
-  changePage(int i) => setState(() => _pageIndex = i);
-
-  @override
-  Widget build(BuildContext context) {
-    // If the user is not logged in, redirect to the login page
-    final user = db.getUser(context);
-    if (user == null) {
-      db.login();
-      return Scaffold(
-          body: Center(child: Text('Please wait', style: ItemSubtitle)));
-    }
-
-    return Scaffold(
-        // * PAGE
-        // Indexed stack used to save page state
-        body: SafeArea(
-          child: AnimatedSwitcher(
-              transitionBuilder: AnimatedSwitcher.defaultTransitionBuilder,
-              duration: const Duration(milliseconds: 500),
-              child: IndexedStack(
-                  children: _pages,
-                  // This key causes the AnimatedSwitcher to interpret this as new
-                  key: ValueKey<int>(_pageIndex),
-                  index: _pageIndex)),
-        ),
-        // * NAV BAR
-        bottomNavigationBar: NavBar(_pageIndex, changePage));
+        home: PageRouter());
   }
 }
