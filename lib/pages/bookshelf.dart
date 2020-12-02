@@ -23,7 +23,6 @@ class BookShelfPage extends StatelessWidget {
                     builder: (context, AsyncSnapshot snap) {
                       User data = User();
                       if (snap.data is User) data = snap.data;
-                      print(data.items);
                       // Show most recent
                       return buildItems(data.items);
                     }),

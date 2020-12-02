@@ -1,6 +1,7 @@
 import 'package:PassionFruit/widgets/itemView.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+import 'package:provider/provider.dart';
 
 import '../helpers/globals.dart';
 import '../widgets/itemFeed.dart';
@@ -16,13 +17,13 @@ class FeedPage extends StatefulWidget {
 class _FeedPageState extends State<FeedPage> {
   final _swiper = PageController(viewportFraction: 0.9);
   List<String> sites = [];
-  Future<List<List>> vitals = loadVitals();
 
   @override
   void initState() {
     super.initState();
     // ! CHOOSE RANDOM SUGGESTION FOR NOW
-    vitals.then((List<List> csv) {
+    Future.delayed(Duration(seconds: 0), () async {
+      final csv = await Provider.of<Future<List<List>>>(context, listen: false);
       final temp = List<String>.generate(
           csv.length, (i) => csv[i][VitCol.site.index].toString());
       temp.shuffle();
@@ -51,6 +52,7 @@ class _FeedPageState extends State<FeedPage> {
       itemBuilder: (BuildContext context, int i) {
         if (sites.length <= i)
           return Center(child: Text('Loading', style: ItemSubtitle));
+        print(sites[i]);
         return GestureDetector(
             onTap: () => pushNewScreen(context,
                 withNavBar: false,

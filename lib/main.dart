@@ -15,12 +15,20 @@ import 'widgets/navigation.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   // Setup all firebase datastreams
-  runApp(MultiProvider(providers: [
-    StreamProvider<FirebaseUser>.value(
-        value: FirebaseAuth.instance.onAuthStateChanged),
-    // StreamProvider(create: (context) => DBService().getUserData(context)),
-    Provider.value(value: Wiki())
-  ], child: MyApp()));
+  runApp(MultiProvider(
+      providers: [
+        StreamProvider<FirebaseUser>.value(
+            value: FirebaseAuth.instance.onAuthStateChanged),
+        Provider(create: (_) => loadVitals()),
+      ],
+      // Secondary providers that depend on the previous ones
+      child: MultiProvider(providers: [
+        Provider(
+            create: (context) async => Wiki(
+                await Provider.of<Future<List<List>>>(context, listen: false)),
+            lazy: false),
+        // Provider(create: (context) => DBService().getUserData(context))
+      ], child: MyApp())));
 }
 
 class MyApp extends StatelessWidget {

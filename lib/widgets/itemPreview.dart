@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+import 'package:provider/provider.dart';
 import 'package:PassionFruit/widgets/itemView.dart';
 import '../helpers/globals.dart';
 
@@ -11,10 +12,10 @@ class PreviewItem extends StatefulWidget {
 }
 
 class _PreviewItemState extends State<PreviewItem> {
-  Future<List> vitals = loadVitals(); // ! CHANGE TO GLOBAL LOAD
-
   @override
   Widget build(BuildContext context) {
+    final vitals = Provider.of<Future<List<List>>>(context, listen: false);
+
     return GestureDetector(
       onTap: () {
         pushNewScreen(context,
@@ -38,14 +39,14 @@ class _PreviewItemState extends State<PreviewItem> {
             borderRadius: BorderRadius.all(Radius.circular(16))),
         // * ITEMS
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          FittedBox(child: buildTitle()),
-          FittedBox(child: buildPath())
+          FittedBox(child: buildTitle(vitals)),
+          FittedBox(child: buildPath(vitals))
         ]),
       ),
     );
   }
 
-  Widget buildTitle() {
+  Widget buildTitle(vitals) {
     return FutureBuilder(
         future: vitals,
         builder: (_, snap) {
@@ -58,7 +59,7 @@ class _PreviewItemState extends State<PreviewItem> {
         });
   }
 
-  Widget buildPath() {
+  Widget buildPath(vitals) {
     return FutureBuilder<List>(
         future: vitals,
         builder: (context, AsyncSnapshot<List> snap) {

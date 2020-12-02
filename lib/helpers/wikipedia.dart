@@ -11,8 +11,13 @@ const WIKI_API = 'https://en.wikipedia.org/w/api.php?';
 //https://en.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=1&titles=LeBron_James
 
 class Wiki {
-  Map<String, Future> itemMemoizer = {};
-  CSV vitals = CSV.vitals();
+  Map<String, Future<Map>> itemMemoizer = {};
+  CSV vitals;
+  bool loaded = false;
+
+  Wiki(List<List> csv) {
+    vitals = CSV(csv: csv);
+  }
 
   Future<Map> fetchItem(String site) {
     // If we have not retrieved the item before, save it
@@ -46,8 +51,6 @@ class Wiki {
 
   // * Search wikipedia for a given item
   Future<Map> _queryWiki(String site, String type) async {
-    // ! Wait for vitals csv to load
-    while (!vitals.isLoaded) {}
     // Create a url depending on the request
     String uri = 'action=query&format=json&origin=*&titles=' + site;
     switch (type) {

@@ -26,19 +26,19 @@ class _ViewItemState extends State<ViewItem> {
 
   @override
   Widget build(BuildContext context) {
-    final wiki = Provider.of<Wiki>(context);
+    final wiki = Provider.of<Future<Wiki>>(context);
 
     return Scaffold(
       body: Container(
         child: FutureBuilder(
-            future: wiki.fetchItem(widget.site),
+            future: wiki.then((wiki) => wiki.fetchItem(widget.site)),
             builder: (context, snap) {
               if (snap.hasData) {
                 final data = snap.data;
                 return ListView(children: [
                   // * IMAGE
                   buildImage(data['image']),
-                  Text(data['name'], style: ItemHeader),
+                  Center(child: Text(data['name'], style: ItemHeader)),
                   // * BUTTONS
                   Center(
                       child: IconButton(
@@ -50,6 +50,7 @@ class _ViewItemState extends State<ViewItem> {
                   buildText(data['content']),
                 ]);
               }
+              if (snap.hasError) return Center(child: Text('${snap.error}'));
               return Text('Loading');
             }),
         // * FORMATTING

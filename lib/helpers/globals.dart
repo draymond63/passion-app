@@ -20,9 +20,16 @@ const ItemSubtitle = const TextStyle(
     fontSize: 20, color: Color(MAIN_COLOR), fontWeight: FontWeight.w500);
 
 // * FUNCTIONS
-// ! LOAD ONCE IN PROVIDERS
 Future<List<List<dynamic>>> loadVitals() async {
-  final csvString = await rootBundle.loadString('assets/vitals.csv');
+  return _getAsset('vitals.csv');
+}
+
+Future<List<List<dynamic>>> loadMap() async {
+  return _getAsset('map.csv');
+}
+
+Future<List<List<dynamic>>> _getAsset(String name) async {
+  final csvString = await rootBundle.loadString('assets/' + name);
   return CsvToListConverter().convert(csvString);
 }
 

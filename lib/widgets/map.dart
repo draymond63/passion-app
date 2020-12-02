@@ -1,4 +1,6 @@
+import 'package:PassionFruit/widgets/itemFeed.dart';
 import 'package:flutter/material.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import '../helpers/globals.dart';
 import '../helpers/csv.dart';
 
@@ -13,7 +15,7 @@ class Graph extends StatefulWidget {
 }
 
 class _GraphState extends State<Graph> {
-  CSV points = CSV.map();
+  CSV points;
   bool csvLoaded = false;
   double width = 0;
   double height = 0;
@@ -21,11 +23,12 @@ class _GraphState extends State<Graph> {
 
   @override
   initState() {
-    points.addListener(() {
+    loadMap().then((data) {
+      setState(() => points = CSV(csv: data));
       setState(() => width = points.getRange(MapCol.x));
       setState(() => height = points.getRange(MapCol.y));
-      widget.updateViewer(width, height);
       setState(() => csvLoaded = true);
+      widget.updateViewer(width, height);
     });
     super.initState();
   }
@@ -68,6 +71,7 @@ Map<String, Color> categoryColors = {
 
 class MapPoint extends StatelessWidget {
   final String name;
+  // final String site;
   final String category;
   final double x;
   final double y;
@@ -75,6 +79,7 @@ class MapPoint extends StatelessWidget {
   final double scale;
   MapPoint({
     this.name,
+    // this.site,
     this.category,
     this.x,
     this.y,
@@ -86,6 +91,7 @@ class MapPoint extends StatelessWidget {
     // ! TEMPORARY FIX for string type
     return MapPoint(
         name: data[MapCol.name.index].toString(),
+        // site: data[MapCol.site.index].toString(),
         category: data[MapCol.l0.index].toString(),
         x: data[MapCol.x.index],
         y: data[MapCol.y.index],
@@ -100,11 +106,8 @@ class MapPoint extends StatelessWidget {
         bottom: (y + offset.dy),
         child: GestureDetector(
           // * TAP
-          onTap: () => Scaffold.of(context).showSnackBar(SnackBar(
-            backgroundColor: Color(MAIN_ACCENT_COLOR),
-            content: Text('This is "$name" in the "$category" category!',
-                style: TextStyle(color: Color(MAIN_COLOR))),
-          )),
+          // ! GIVE IT THE SITE
+          onTap: () => pushDynamicScreen(context, screen: FeedItem(name)),
           // * VISUAL
           child: Column(
             children: [

@@ -26,11 +26,11 @@ class _FeedItemState extends State<FeedItem> {
 
   @override
   Widget build(BuildContext context) {
-    final wiki = Provider.of<Wiki>(context);
+    final wiki = Provider.of<Future<Wiki>>(context);
 
     return Container(
       child: FutureBuilder(
-          future: wiki.fetchItem(widget.site),
+          future: wiki.then((wiki) => wiki.fetchItem(widget.site)),
           builder: (context, snap) {
             if (snap.hasData) {
               final data = snap.data;
@@ -49,6 +49,7 @@ class _FeedItemState extends State<FeedItem> {
                 buildText(data['content']),
               ]);
             }
+            if (snap.hasError) return Center(child: Text('${snap.error}'));
             return Center(child: Text('Loading'));
           }),
       // * FORMATTING
