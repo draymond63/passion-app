@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../helpers/wikipedia.dart';
-import '../helpers/globals.dart';
-// For the like button
-import '../helpers/firebase.dart';
+import 'package:PassionFruit/widgets/itemBase.dart';
 
 class ViewItem extends StatefulWidget {
   final String site;
@@ -13,45 +9,13 @@ class ViewItem extends StatefulWidget {
 }
 
 class _ViewItemState extends State<ViewItem> {
-  final db = DBService();
-
-  void addLikedItem(BuildContext context, String name, String site) {
-    Scaffold.of(context).showSnackBar(SnackBar(
-      backgroundColor: Color(MAIN_ACCENT_COLOR),
-      content: Text('Added $name to your liked topics!',
-          style: TextStyle(color: Color(MAIN_COLOR))),
-    ));
-    db.writeItem(context, site);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        child: Consumer<Wiki>(
-          builder: (_, wiki, c) => FutureBuilder(
-              future: wiki.fetchItem(widget.site),
-              builder: (context, snap) {
-                if (snap.hasData) {
-                  final data = snap.data;
-                  return ListView(children: [
-                    // * IMAGE
-                    buildImage(data['image']),
-                    Center(child: Text(data['name'], style: ItemHeader)),
-                    // * BUTTONS
-                    Center(
-                        child: IconButton(
-                            icon: Icon(Icons.thumb_up_rounded),
-                            color: Color(0xFFAAAAAA),
-                            onPressed: () => addLikedItem(
-                                context, data['name'], data['site']))),
-                    // * TEXT
-                    buildText(data['content']),
-                  ]);
-                }
-                if (snap.hasError) return Center(child: Text('${snap.error}'));
-                return Text('Loading', style: ItemSubtitle);
-              }),
+        child: BaseItem(
+          site: widget.site,
+          buildImage: buildImage,
         ),
         // * FORMATTING
         color: Colors.white,
@@ -68,9 +32,5 @@ class _ViewItemState extends State<ViewItem> {
     } catch (e) {
       return Image.asset('assets/fruit.png');
     }
-  }
-
-  Widget buildText(String content) {
-    return Container(padding: EdgeInsets.all(8), child: Text(content));
   }
 }

@@ -1,9 +1,5 @@
+import 'package:PassionFruit/widgets/itemBase.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../helpers/globals.dart';
-import '../helpers/wikipedia.dart';
-// For the like button
-import '../helpers/firebase.dart';
 
 class FeedItem extends StatefulWidget {
   final String site;
@@ -13,47 +9,12 @@ class FeedItem extends StatefulWidget {
 }
 
 class _FeedItemState extends State<FeedItem> {
-  final db = DBService();
-
-  void addLikedItem(BuildContext context, String name, String site) {
-    Scaffold.of(context).showSnackBar(SnackBar(
-      backgroundColor: Color(MAIN_ACCENT_COLOR),
-      content: Text('Added $name to your liked topics!',
-          style: TextStyle(color: Color(MAIN_COLOR))),
-    ));
-    db.writeItem(context, site);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Consumer<Wiki>(
-        builder: (_, wiki, c) => FutureBuilder(
-            future: wiki.fetchItem(widget.site),
-            builder: (context, snap) {
-              if (snap.hasData) {
-                final data = snap.data;
-                return Column(children: [
-                  // * IMAGE
-                  buildImage(data['image']),
-                  FittedBox(
-                      child: Container(
-                          padding: EdgeInsets.all(8),
-                          child: Text(data['name'], style: ItemHeader))),
-                  // * BUTTONS
-                  Center(
-                      child: IconButton(
-                          icon: Icon(Icons.thumb_up_rounded),
-                          color: Color(0xFFAAAAAA),
-                          onPressed: () => addLikedItem(
-                              context, data['name'], data['site']))),
-                  // * TEXT
-                  buildText(data['content']),
-                ]);
-              }
-              if (snap.hasError) return Center(child: Text('${snap.error}'));
-              return Center(child: Text('Loading'));
-            }),
+      child: BaseItem(
+        site: widget.site,
+        buildImage: buildImage,
       ),
       // * FORMATTING
       margin: EdgeInsets.all(8),
@@ -81,17 +42,5 @@ class _FeedItemState extends State<FeedItem> {
     } catch (e) {
       return Image.asset('assets/fruit.png');
     }
-  }
-
-  Widget buildText(String content) {
-    return Flexible(
-      child: Container(
-          padding: EdgeInsets.all(8),
-          child: Text(
-            content,
-            overflow: TextOverflow.fade,
-            softWrap: true,
-          )),
-    );
   }
 }

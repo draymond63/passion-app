@@ -12,9 +12,12 @@ class PreviewItem extends StatefulWidget {
 }
 
 class _PreviewItemState extends State<PreviewItem> {
+  Future<List<List>> vitals;
+  List info;
+
   @override
   Widget build(BuildContext context) {
-    final vitals = Provider.of<Future<List<List>>>(context, listen: false);
+    vitals = Provider.of<Future<List<List>>>(context, listen: false);
 
     return GestureDetector(
       onTap: () {
@@ -51,9 +54,11 @@ class _PreviewItemState extends State<PreviewItem> {
         future: vitals,
         builder: (_, snap) {
           if (snap.hasData) {
-            List row = snap.data
-                .firstWhere((row) => row[VitCol.site.index] == widget.site);
-            return Text(row[VitCol.name.index], style: ItemHeader);
+            if (info == null)
+              info = snap.data
+                  .firstWhere((row) => row[VitCol.site.index] == widget.site);
+            print('$info');
+            return Text(info[VitCol.name.index], style: ItemHeader);
           }
           return Text('Loading', style: ItemHeader);
         });
@@ -64,14 +69,16 @@ class _PreviewItemState extends State<PreviewItem> {
         future: vitals,
         builder: (context, AsyncSnapshot<List> snap) {
           if (snap.hasData) {
-            List row = snap.data
-                .firstWhere((row) => row[VitCol.site.index] == widget.site);
-            row = [
-              row[VitCol.l0.index].replaceAll('_', ' '),
-              row[VitCol.l1.index].replaceAll('_', ' '),
-              row[VitCol.l2.index].replaceAll('_', ' '),
-              row[VitCol.l3.index].replaceAll('_', ' '),
-              row[VitCol.l4.index].replaceAll('_', ' ')
+            if (info == null)
+              info = snap.data
+                  .firstWhere((row) => row[VitCol.site.index] == widget.site);
+            // print('${info.length} : ${VitCol.l0.index}, ${VitCol.l4.index}');
+            List<String> row = [
+              info[VitCol.l0.index].replaceAll('_', ' '),
+              info[VitCol.l1.index].replaceAll('_', ' '),
+              info[VitCol.l2.index].replaceAll('_', ' '),
+              info[VitCol.l3.index].replaceAll('_', ' '),
+              info[VitCol.l4.index].replaceAll('_', ' ')
             ];
             row = row.toSet().toList(); // Remove duplicates
             return Text(row.join(' -> '));

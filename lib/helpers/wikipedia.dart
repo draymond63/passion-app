@@ -30,23 +30,28 @@ class Wiki {
   // * Get all data required to display an item
   Future<Map<String, dynamic>> _fetchSite(String site) async {
     // Pull in wiki content
-    final images = _queryWiki(site, 'images');
-    final content = _queryWiki(site, 'content');
-    final data = await Future.wait([images, content]);
-    // Image selection
-    final imageUrl = _parseImageUrl(data[0], site);
-    final image = CachedNetworkImageProvider(imageUrl);
-    // Get vitals info
-    final info = vitals.row(site, VitCol.site);
-    final name = info.removeAt(VitCol.name.index);
-    // Return data
-    return {
-      'name': name,
-      'info': info,
-      'site': site,
-      'image': image,
-      'content': _parseContent(data[1])
-    };
+    try {
+      final images = _queryWiki(site, 'images');
+      final content = _queryWiki(site, 'content');
+      final data = await Future.wait([images, content]);
+      // Image selection
+      final imageUrl = _parseImageUrl(data[0], site);
+      final image = CachedNetworkImageProvider(imageUrl);
+      // Get vitals info
+      final info = vitals.row(site, VitCol.site);
+      final name = info.removeAt(VitCol.name.index);
+      // Return data
+      return {
+        'name': name,
+        'info': info,
+        'site': site,
+        'image': image,
+        'content': _parseContent(data[1])
+      };
+    } catch (e) {
+      print('WIKI-ERROR: $e');
+      throw Exception('Failed to retrieve wikipedia info: $e');
+    }
   }
 
   // * Search wikipedia for a given item

@@ -19,14 +19,13 @@ void main() {
       providers: [
         StreamProvider<FirebaseUser>.value(
             value: FirebaseAuth.instance.onAuthStateChanged),
-        Provider(create: (_) => loadVitals()),
+        Provider(create: (_) => loadVitals(), lazy: false),
       ],
       // Secondary providers that depend on the previous ones
       child: MultiProvider(providers: [
         FutureProvider(
             create: (context) async => Wiki(
-                await Provider.of<Future<List<List>>>(context, listen: false)),
-            lazy: false),
+                await Provider.of<Future<List<List>>>(context, listen: false))),
         // StreamProvider(create: (context) => DBService().getUserData(context))
       ], child: MyApp())));
 }
