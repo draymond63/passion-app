@@ -26,32 +26,35 @@ class _FeedItemState extends State<FeedItem> {
 
   @override
   Widget build(BuildContext context) {
-    final wiki = Provider.of<Future<Wiki>>(context);
-
     return Container(
-      child: FutureBuilder(
-          future: wiki.then((wiki) => wiki.fetchItem(widget.site)),
-          builder: (context, snap) {
-            if (snap.hasData) {
-              final data = snap.data;
-              return Column(children: [
-                // * IMAGE
-                buildImage(data['image']),
-                Text(data['name'], style: ItemHeader),
-                // * BUTTONS
-                Center(
-                    child: IconButton(
-                        icon: Icon(Icons.thumb_up_rounded),
-                        color: Color(0xFFAAAAAA),
-                        onPressed: () =>
-                            addLikedItem(context, data['name'], data['site']))),
-                // * TEXT
-                buildText(data['content']),
-              ]);
-            }
-            if (snap.hasError) return Center(child: Text('${snap.error}'));
-            return Center(child: Text('Loading'));
-          }),
+      child: Consumer<Wiki>(
+        builder: (_, wiki, c) => FutureBuilder(
+            future: wiki.fetchItem(widget.site),
+            builder: (context, snap) {
+              if (snap.hasData) {
+                final data = snap.data;
+                return Column(children: [
+                  // * IMAGE
+                  buildImage(data['image']),
+                  FittedBox(
+                      child: Container(
+                          padding: EdgeInsets.all(8),
+                          child: Text(data['name'], style: ItemHeader))),
+                  // * BUTTONS
+                  Center(
+                      child: IconButton(
+                          icon: Icon(Icons.thumb_up_rounded),
+                          color: Color(0xFFAAAAAA),
+                          onPressed: () => addLikedItem(
+                              context, data['name'], data['site']))),
+                  // * TEXT
+                  buildText(data['content']),
+                ]);
+              }
+              if (snap.hasError) return Center(child: Text('${snap.error}'));
+              return Center(child: Text('Loading'));
+            }),
+      ),
       // * FORMATTING
       margin: EdgeInsets.all(8),
       decoration: BoxDecoration(

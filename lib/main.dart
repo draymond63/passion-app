@@ -23,11 +23,11 @@ void main() {
       ],
       // Secondary providers that depend on the previous ones
       child: MultiProvider(providers: [
-        Provider(
+        FutureProvider(
             create: (context) async => Wiki(
                 await Provider.of<Future<List<List>>>(context, listen: false)),
             lazy: false),
-        // Provider(create: (context) => DBService().getUserData(context))
+        // StreamProvider(create: (context) => DBService().getUserData(context))
       ], child: MyApp())));
 }
 
