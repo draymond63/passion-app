@@ -45,11 +45,12 @@ class _TreeViewerState extends State<TreeViewer> {
       setState(() => path.add(selection));
       setState(() => depth++);
       setState(() => items = List.from(next));
+      // Dive deeper into the tree if there's only one child
+      if (items.length == 1) selectBranch(items[0]);
     }
-    // Dive deeper into the tree if there's only one child
-    if (items.length == 1) selectBranch(items[0]);
   }
 
+  // ! RECURSION MIGHT CAUSE AN ERROR WHEN USER HAS ONLY LIKED ONE ITEM
   void popBranch() {
     if (path.length > 1) {
       final selection = path.reversed.toList()[1]; // Get parent of parent page
@@ -84,11 +85,9 @@ class _TreeViewerState extends State<TreeViewer> {
             items.length,
             (i) => InkWell(
               onTap: () => selectBranch(items[i]),
-              child: TreeNode(items[i]),
+              child: TreeNode(items[i], depth != _columns.length - 1),
             ),
           ),
-          Text('$depth'),
-          // ! FIND WIDGET THAT RESTRICTS MAX SIZE
           FittedBox(
               child: path.length > 0
                   ? Text(path.join(' -> ').replaceAll('_', ' '))

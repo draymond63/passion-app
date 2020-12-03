@@ -24,8 +24,8 @@ class BookShelfPage extends StatelessWidget {
                     builder: (context, AsyncSnapshot snap) {
                       User data = User();
                       if (snap.data is User) data = snap.data;
-                      // Show most recent
-                      return buildItems(data.items);
+                      // Reverse to show most recent first
+                      return buildItems(data.items.reversed.toList());
                     }),
                 // https://pub.dev/documentation/graphview/latest/
                 Text('Your Tree', style: ItemHeader),

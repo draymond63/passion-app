@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 
 class TreeNode extends StatelessWidget {
   final String site;
-  TreeNode(this.site);
+  final bool showArrow;
+  TreeNode(this.site, this.showArrow);
 
   @override
   Widget build(BuildContext context) {
@@ -21,13 +22,15 @@ class TreeNode extends StatelessWidget {
                 blurRadius: 2)
           ],
           borderRadius: BorderRadius.all(Radius.circular(8))),
-      child: Row(
-        children: [
-          Text(site.replaceAll('_', ' '), style: ItemSubtitle),
-          Flexible(child: Container()), // Right align arrow
-          Icon(Icons.arrow_right_rounded),
-        ],
-      ),
+      child: showArrow
+          ? Row(
+              children: [
+                Text(site.replaceAll('_', ' '), style: ItemSubtitle),
+                Flexible(child: Container()), // Right align arrow
+                Icon(Icons.arrow_right_rounded),
+              ],
+            )
+          : Text(site.replaceAll('_', ' '), style: ItemSubtitle),
     );
   }
 }
