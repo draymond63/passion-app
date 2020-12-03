@@ -17,7 +17,7 @@ class BookShelfPage extends StatelessWidget {
             child: ListView(
               shrinkWrap: true,
               children: [
-                Text('Show statics here', style: ItemSubtitle),
+                // Text('Most common category:', style: ItemSubtitle),
                 Text('Bookmarks', style: ItemHeader),
                 StreamBuilder(
                     stream: db.getUserData(context),

@@ -2,6 +2,7 @@ import 'package:PassionFruit/helpers/firebase.dart';
 import 'package:PassionFruit/helpers/globals.dart';
 import 'package:PassionFruit/widgets/treeNode.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class TreeViewer extends StatefulWidget {
@@ -19,126 +20,88 @@ class _TreeViewerState extends State<TreeViewer> {
     VitCol.l4,
     VitCol.name
   ];
-  List<int> selected;
-  List<PageController> _swipers =
-      List.generate(6, (i) => PageController(viewportFraction: 0.3));
+  int depth = 0; // How many layers deep the tree is showing (0-5)
+  List items = []; // Items to currently show
+  List<String> path = []; // Current route to items
+  List<List> data = [[]];
 
-  initState() {
-    super.initState();
-    // _swipers = List.generate(
-    //     _columns.length, (i) => PageController(viewportFraction: 0.3));
-    selected = List.filled(_columns.length, 0);
-
-    // Listen to each swipe page
-    for (int i = 0; i < _columns.length; i++) {
-      _swipers[i].addListener(() {
-        final page = _swipers[i].page.round();
-        if (selected[i] != page) setState(() => selected[i] = page);
-      });
-    }
-  }
-
-  /* Initialize map from vitals and user data
-   *  {
-   *    VitCol.l0: [
-   *      {
-   *        'name: 'People',
-   *        'children': ['l1-child1', 'l1-child2', ...]
-   *        'count': 12 // ! NOT ADDED
-   *      },
-   *      {
-   *        'name': 'History',
-   *        'children': [...]
-   *      }
-   *      ...
-   *    ],
-   *    VitCol.l1: [
-   *      {
-   *        'name': 'l1-child1',
-   *        'children': [...]
-   *      }
-   *      ...
-   *    ]
-   *    ...
-   *    VitCol.name: [
-   *      {
-   *        'name': 'item1', // Name map won't have any children in its lists
-   *        'children': []
-   *      }
-   *      ...
-   *    ]
-   *  }
-   */
-  Map<VitCol, List<Map>> getTreeData(List<List> csv, List items) {
+  // * Updates user data and initialization
+  List getTreeData(List<List> csv, List items) {
     // For future loading
-    if (csv.length == 0) return {};
+    if (csv.length == 0) return [];
     // Strip vitals down to liked items
-    final data =
-        csv.where((row) => items.contains(row[VitCol.site.index])).toList();
-
-    Map<VitCol, List<Map>> tree =
-        Map.fromIterable(_columns, key: (col) => col, value: (_) => []);
-
-    // Set up l0s because they are a special case
-    VitCol parentCol = _columns[0];
-    final l0s =
-        data.map((row) => row[parentCol.index] as String).toSet().toList();
-    tree[parentCol] = l0s.map((l0) => {'name': l0, 'children': []}).toList();
-    // Iterate through each column
-    List<String> addedItems = [];
-    List<String> parents = l0s;
-    for (final col in _columns.skip(1)) {
-      // Iterate through each item in the data
-      for (final row in data) {
-        final String item = row[col.index];
-        if (!addedItems.contains(item)) {
-          tree[col].add({'name': item, 'children': []});
-          // Add item to parent's children
-          final parentName = row[parentCol.index];
-          final pIndex = parents.indexOf(parentName);
-          tree[parentCol][pIndex]['children'].add(item);
-          // Keep track of the items we added
-          addedItems.add(item);
-        }
-      }
-      parentCol = col;
-      parents = addedItems;
-      addedItems = [];
-    }
-    return tree;
+    data = csv.where((row) => items.contains(row[VitCol.site.index])).toList();
+    return data.map((row) => row[_columns[0].index]).toSet().toList();
   }
 
-  // Gets list using the selected items from the parents
-  List getItems(Map<VitCol, List<Map>> treeData, int index) {
-    // Get all items that are at that level
-    if (index == 0) {
-      // First column doesn't have parents
-      final column = _columns[index];
-      return treeData[column].map((item) => item['name'] as String).toList();
-    } else {
-      // Get parent's children
-      final parentCol = _columns[index - 1];
-      final sPIndex = selected[index - 1];
-      final parent = treeData[parentCol][sPIndex];
-      return parent['children'];
+  // * Updates tree depth and associated items
+  void selectBranch(String selection) {
+    if (depth != _columns.length - 1) {
+      // Get rows that match the selected item at the given depth
+      final rows = data.where((row) => row[_columns[depth].index] == selection);
+      // Get the children of the selected item
+      final next = rows.map((row) => row[_columns[depth + 1].index]).toSet();
+      // Update state
+      setState(() => path.add(selection));
+      setState(() => depth++);
+      setState(() => items = List.from(next));
     }
+    // Dive deeper into the tree if there's only one child
+    if (items.length == 1) selectBranch(items[0]);
+  }
+
+  void popBranch() {
+    if (path.length > 1) {
+      final selection = path.reversed.toList()[1]; // Get parent of parent page
+      // Get rows that match the selected item at the given depth
+      final rows =
+          data.where((row) => row[_columns[depth - 2].index] == selection);
+      // // Get the children of the selected item
+      final next = rows.map((row) => row[_columns[depth - 1].index]).toSet();
+      setState(() => items = List.from(next));
+    } else {
+      // If there is no parent parent then give back the l0s
+      setState(() =>
+          items = List.from(data.map((row) => row[_columns[0].index]).toSet()));
+    }
+    setState(() => path = List.from(path.getRange(0, path.length - 1)));
+    setState(() => depth--);
+    // Dive deeper into the tree if there's only one child
+    if (items.length == 1) popBranch();
   }
 
   // * Builds the rendered tree
-  Widget buildTree(Map<VitCol, List<Map>> treeData) {
-    // return Text(treeData.toString());
+  Widget buildTree(List init, BuildContext context) {
+    // ! WONT UPDATE ON LIKED ITEM
+    if (items.length == 0) {
+      items = init;
+    }
     return Container(
-      height: 500,
-      child: ListView(
-          children: List<Widget>.generate(_columns.length, (r) {
-        final items = getItems(treeData, r);
-        return PageView(
-            controller: _swipers[r],
-            children: List<Widget>.generate(
-              items.length,
-              (i) => TreeNode(items[i]),
-            ));
-      })),
+      width: MediaQuery.of(context).size.width,
+      child: Column(
+        children: [
+          ...List.generate(
+            items.length,
+            (i) => InkWell(
+              onTap: () => selectBranch(items[i]),
+              child: TreeNode(items[i]),
+            ),
+          ),
+          Text('$depth'),
+          // ! FIND WIDGET THAT RESTRICTS MAX SIZE
+          FittedBox(
+              child: path.length > 0
+                  ? Text(path.join(' -> ').replaceAll('_', ' '))
+                  : Container(width: 1, height: 1)),
+          // Dynamic back button
+          depth != 0
+              ? IconButton(
+                  icon: Icon(Icons.arrow_back_ios_rounded),
+                  onPressed: popBranch,
+                )
+              : Container()
+        ],
+      ),
     );
   }
 
@@ -157,7 +120,10 @@ class _TreeViewerState extends State<TreeViewer> {
             stream: DBService().getUserData(context),
             builder: (BuildContext context, AsyncSnapshot<User> snap) {
               if (snap.hasData)
-                return buildTree(getTreeData(vitals.data, snap.data.items));
+                return buildTree(
+                  getTreeData(vitals.data, snap.data.items),
+                  context,
+                );
               if (snap.hasError) return Text('${snap.error}');
               return Text('Loading');
             },
