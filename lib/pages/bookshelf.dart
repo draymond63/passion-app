@@ -1,3 +1,4 @@
+import 'package:PassionFruit/widgets/tree.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -28,7 +29,7 @@ class BookShelfPage extends StatelessWidget {
                     }),
                 // https://pub.dev/documentation/graphview/latest/
                 Text('Your Tree', style: ItemHeader),
-                Text('Get all the paths of every item...')
+                TreeViewer(),
               ],
             )));
   }
