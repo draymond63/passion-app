@@ -16,9 +16,20 @@ class PageRouter extends StatefulWidget {
 class _PageRouterState extends State<PageRouter> {
   static const double _iconSize = 36;
   PersistentTabController _controller =
-      PersistentTabController(initialIndex: 0);
+      PersistentTabController(initialIndex: 1);
 
-  final _pages = <Widget>[
+  @override
+  void initState() {
+    Future.delayed(
+      Duration(seconds: 0),
+      () => _controller
+          .addListener(() => _pages[0].pause(context, _controller.index)),
+    );
+    super.initState();
+  }
+
+  // Needs to be dynamic so pause function can be called above
+  final _pages = <dynamic>[
     FeedPage(),
     BookShelfPage(),
     SearchPage(),
@@ -29,7 +40,7 @@ class _PageRouterState extends State<PageRouter> {
     return PersistentTabView(
       navBarStyle: NavBarStyle.style13,
       controller: _controller,
-      screens: _pages,
+      screens: List<Widget>.from(_pages),
       handleAndroidBackButtonPress: true,
       resizeToAvoidBottomInset: true,
       hideNavigationBarWhenKeyboardShows: true,

@@ -27,7 +27,7 @@ class _UserStatisticsState extends State<UserStatistics> {
     // Sort by frequency
     sorted.sort((map1, map2) => map2[1].compareTo(map1[1]));
     // Return name column
-    return sorted.map((row) => row[0] as String).toList();
+    return sorted.map((row) => row[0].toString().replaceAll('_', ' ')).toList();
   }
 
   @override
