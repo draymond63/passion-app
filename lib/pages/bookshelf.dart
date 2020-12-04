@@ -15,7 +15,6 @@ class BookShelfPage extends StatelessWidget {
         body: SafeArea(
             minimum: EdgeInsets.all(8),
             child: ListView(
-              shrinkWrap: true,
               children: [
                 // Text('Most common category:', style: ItemSubtitle),
                 Text('Bookmarks', style: ItemHeader),
