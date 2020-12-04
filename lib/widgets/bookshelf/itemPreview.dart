@@ -17,9 +17,9 @@ class _PreviewItemState extends State<PreviewItem> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 0), () {
+    info = Future.microtask(() async {
       final vitals = Provider.of<Future<List<List>>>(context, listen: false);
-      info = vitals.then((csv) =>
+      return vitals.then((csv) =>
           csv.firstWhere((row) => row[VitCol.site.index] == widget.site));
     });
   }
@@ -60,10 +60,10 @@ class _PreviewItemState extends State<PreviewItem> {
     return FutureBuilder(
         future: info,
         builder: (_, snap) {
-          if (snap.hasData) {
+          if (snap.hasData)
             return Text(snap.data[VitCol.name.index], style: ItemHeader);
-          }
-          return Text('Loading', style: ItemHeader);
+          else
+            return Text('Loading', style: ItemHeader);
         });
   }
 
