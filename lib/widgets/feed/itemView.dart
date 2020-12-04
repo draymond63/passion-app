@@ -23,14 +23,12 @@ class _ViewItemState extends State<ViewItem> {
     );
   }
 
-  Widget buildImage(image) {
-    try {
-      return ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: 256),
-          child:
-              SizedBox.expand(child: Image(image: image, fit: BoxFit.cover)));
-    } catch (e) {
-      return Image.asset('assets/fruit.png');
-    }
+  Widget buildImage(Image image) {
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: 256),
+      child: SizedBox.expand(
+        child: image,
+      ),
+    );
   }
 }

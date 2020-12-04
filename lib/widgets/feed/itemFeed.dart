@@ -31,16 +31,15 @@ class _FeedItemState extends State<FeedItem> {
     );
   }
 
-  Widget buildImage(image) {
-    try {
-      return ClipRRect(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-          child: ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: 256),
-              child: SizedBox.expand(
-                  child: Image(image: image, fit: BoxFit.cover))));
-    } catch (e) {
-      return Image.asset('assets/fruit.png');
-    }
+  Widget buildImage(Image image) {
+    return ClipRRect(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: 256),
+        child: SizedBox.expand(
+          child: image,
+        ),
+      ),
+    );
   }
 }

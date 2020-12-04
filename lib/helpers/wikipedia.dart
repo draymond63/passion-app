@@ -1,6 +1,3 @@
-// import 'package:async/async.dart';
-// import 'package:provider/provider.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import './globals.dart';
@@ -36,7 +33,6 @@ class Wiki {
       final data = await Future.wait([images, content]);
       // Image selection
       final imageUrl = _parseImageUrl(data[0], site);
-      final image = CachedNetworkImageProvider(imageUrl);
       // Get vitals info
       final info = vitals.row(site, VitCol.site);
       final name = info.removeAt(VitCol.name.index);
@@ -45,7 +41,7 @@ class Wiki {
         'name': name,
         'info': info,
         'site': site,
-        'image': image,
+        'image': imageUrl,
         'content': _parseContent(data[1])
       };
     } catch (e) {

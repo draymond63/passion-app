@@ -8,7 +8,7 @@ import '../../helpers/firebase.dart';
 
 class BaseItem extends StatefulWidget {
   final String site;
-  final Widget Function(CachedNetworkImageProvider) buildImage;
+  final Widget Function(Image) buildImage;
   BaseItem({this.site, this.buildImage});
   @override
   _BaseItemState createState() => _BaseItemState();
@@ -28,22 +28,29 @@ class _BaseItemState extends State<BaseItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Wiki>(
-      builder: (_, wiki, c) => FutureBuilder(
-          future: wiki.fetchItem(widget.site),
-          builder: (context, snap) {
-            if (snap.hasData)
-              return ListView(children: buildContent(snap.data));
-            if (snap.hasError) return Center(child: Text('${snap.error}'));
-            return Text('Loading', style: ItemSubtitle);
-          }),
+    final wiki = Provider.of<Wiki>(context);
+
+    return FutureBuilder<Map>(
+      future: wiki.fetchItem(widget.site),
+      builder: (context, snap) {
+        if (snap.hasData) return ListView(children: buildContent(snap.data));
+        if (snap.hasError) return Center(child: Text('${snap.error}'));
+        return Text('Loading', style: ItemSubtitle);
+      },
     );
   }
 
   List<Widget> buildContent(Map data) {
+    // Check to see if any images were available
+    final image = data['image'] == ''
+        ? Image.asset('assets/fruit.png', fit: BoxFit.cover)
+        : Image(
+            image: CachedNetworkImageProvider(data['image']),
+            fit: BoxFit.cover);
+
     return [
       // * IMAGE
-      widget.buildImage(data['image']),
+      widget.buildImage(image),
       Center(child: Text(data['name'], style: ItemHeader)),
       // * BUTTONS
       Center(
