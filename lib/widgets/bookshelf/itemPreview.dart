@@ -12,15 +12,16 @@ class PreviewItem extends StatefulWidget {
 }
 
 class _PreviewItemState extends State<PreviewItem> {
-  Future<List> info;
+  List info = [];
 
   @override
   void initState() {
     super.initState();
-    info = Future.microtask(() async {
-      final vitals = Provider.of<Future<List<List>>>(context, listen: false);
-      return vitals.then((csv) =>
-          csv.firstWhere((row) => row[VitCol.site.index] == widget.site));
+    // Future needed to have context
+    Future.delayed(Duration(seconds: 0), () {
+      final vitals = Provider.of<List<List>>(context, listen: false);
+      setState(() => info =
+          vitals.firstWhere((row) => row[VitCol.site.index] == widget.site));
     });
   }
 
@@ -48,42 +49,26 @@ class _PreviewItemState extends State<PreviewItem> {
             color: Colors.white,
             borderRadius: BorderRadius.all(Radius.circular(16))),
         // * ITEMS
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          FittedBox(child: buildTitle()),
-          FittedBox(child: buildPath())
-        ]),
+        child: info.length != 0
+            ? Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                FittedBox(
+                    child: Text(info[VitCol.name.index], style: ItemHeader)),
+                FittedBox(child: buildPath())
+              ])
+            : Container(),
       ),
     );
   }
 
-  Widget buildTitle() {
-    return FutureBuilder(
-        future: info,
-        builder: (_, snap) {
-          if (snap.hasData)
-            return Text(snap.data[VitCol.name.index], style: ItemHeader);
-          else
-            return Text('Loading', style: ItemHeader);
-        });
-  }
-
   Widget buildPath() {
-    return FutureBuilder<List>(
-        future: info,
-        builder: (context, AsyncSnapshot<List> snap) {
-          if (snap.hasData) {
-            // print('${info.length} : ${VitCol.l0.index}, ${VitCol.l4.index}');
-            List<String> row = [
-              snap.data[VitCol.l0.index].replaceAll('_', ' '),
-              snap.data[VitCol.l1.index].replaceAll('_', ' '),
-              snap.data[VitCol.l2.index].replaceAll('_', ' '),
-              snap.data[VitCol.l3.index].replaceAll('_', ' '),
-              snap.data[VitCol.l4.index].replaceAll('_', ' ')
-            ];
-            row = row.toSet().toList(); // Remove duplicates
-            return Text(row.join(' -> '));
-          }
-          return Text('Loading');
-        });
+    List<String> row = [
+      info[VitCol.l0.index].replaceAll('_', ' '),
+      info[VitCol.l1.index].replaceAll('_', ' '),
+      info[VitCol.l2.index].replaceAll('_', ' '),
+      info[VitCol.l3.index].replaceAll('_', ' '),
+      info[VitCol.l4.index].replaceAll('_', ' ')
+    ];
+    row = row.toSet().toList(); // Remove duplicates
+    return Text(row.join(' -> '));
   }
 }

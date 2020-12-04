@@ -18,15 +18,25 @@ void main() {
   runApp(MultiProvider(
       providers: [
         StreamProvider<FirebaseUser>.value(
-            value: FirebaseAuth.instance.onAuthStateChanged),
-        Provider(create: (_) => loadVitals(), lazy: false),
+          value: FirebaseAuth.instance.onAuthStateChanged,
+        ),
+        FutureProvider(
+          create: (_) => loadVitals(),
+          initialData: [List.generate(VitCol.values.length, (_) => [])],
+          lazy: false,
+        ),
       ],
       // Secondary providers that depend on the previous ones
       child: MultiProvider(providers: [
-        FutureProvider(
-            create: (context) async => Wiki(
-                await Provider.of<Future<List<List>>>(context, listen: false))),
-        // StreamProvider(create: (context) => DBService().getUserData(context))
+        Provider(
+          create: (context) => Wiki(
+            Provider.of<List<List>>(context, listen: false),
+          ),
+        ),
+        StreamProvider(
+          create: (context) => DBService().getUserData(context),
+          initialData: User(),
+        ),
       ], child: MyApp())));
 }
 

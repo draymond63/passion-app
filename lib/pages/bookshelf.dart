@@ -1,6 +1,7 @@
 import 'package:PassionFruit/widgets/bookshelf/tree.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:provider/provider.dart';
 
 import '../helpers/globals.dart';
 import '../helpers/firebase.dart';
@@ -11,6 +12,8 @@ class BookShelfPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    User data = Provider.of<User>(context);
+
     return Scaffold(
         body: SafeArea(
             minimum: EdgeInsets.all(8),
@@ -18,14 +21,7 @@ class BookShelfPage extends StatelessWidget {
               children: [
                 // Text('Most common category:', style: ItemSubtitle),
                 Text('Bookmarks', style: ItemHeader),
-                StreamBuilder(
-                    stream: db.getUserData(context),
-                    builder: (context, AsyncSnapshot snap) {
-                      User data = User();
-                      if (snap.data is User) data = snap.data;
-                      // Reverse to show most recent first
-                      return buildItems(data.items.reversed.toList());
-                    }),
+                buildItems(data.items.reversed.toList()),
                 // https://pub.dev/documentation/graphview/latest/
                 Text('Your Tree', style: ItemHeader),
                 TreeViewer(),

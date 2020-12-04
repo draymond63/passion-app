@@ -104,29 +104,9 @@ class _TreeViewerState extends State<TreeViewer> {
   // * Builds the data
   @override
   Widget build(BuildContext context) {
-    final vitals = Provider.of<Future<List<List>>>(context);
-
-    return FutureBuilder(
-      future: vitals,
-      builder: (BuildContext context, AsyncSnapshot<List<List>> vitals) {
-        if (vitals.hasData) {
-          // We need user data as well
-          return StreamBuilder(
-            // ! CHANGE TO GLOBAL SUBSCRIPTION
-            stream: DBService().getUserData(context),
-            builder: (BuildContext context, AsyncSnapshot<User> snap) {
-              if (snap.hasData) {
-                buildTreeData(vitals.data, snap.data.items);
-                return buildTree(getItems(), context);
-              }
-              if (snap.hasError) return Text('${snap.error}');
-              return Text('Loading');
-            },
-          );
-        }
-        if (vitals.hasError) return Text('${vitals.error}');
-        return Text('Loading');
-      },
-    );
+    final vitals = Provider.of<List<List>>(context);
+    final user = Provider.of<User>(context);
+    buildTreeData(vitals, user.items);
+    return buildTree(getItems(), context);
   }
 }

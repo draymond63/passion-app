@@ -28,8 +28,8 @@ class DBService {
   final db = Firestore.instance;
   final auth = FirebaseAuth.instance;
 
-  FirebaseUser getUser(BuildContext context) {
-    return Provider.of<FirebaseUser>(context);
+  FirebaseUser getUser(BuildContext context, {bool listen = true}) {
+    return Provider.of<FirebaseUser>(context, listen: listen);
   }
 
   void login() async {
@@ -37,7 +37,7 @@ class DBService {
   }
 
   Stream<User> getUserData(BuildContext context) {
-    final user = getUser(context);
+    final user = getUser(context, listen: false);
     // print('User ID: ${user.uid}');
     final query = _getDoc(user.uid).snapshots();
     return query.map((doc) => User.fromMap(doc.data));

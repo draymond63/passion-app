@@ -23,7 +23,7 @@ class _FeedPageState extends State<FeedPage> {
     super.initState();
     // ! CHOOSE RANDOM SUGGESTION FOR NOW
     Future.delayed(Duration(seconds: 0), () async {
-      final csv = await Provider.of<Future<List<List>>>(context, listen: false);
+      final csv = Provider.of<List<List>>(context, listen: false);
       final temp = List<String>.generate(
           csv.length, (i) => csv[i][VitCol.site.index].toString());
       temp.shuffle();
@@ -52,7 +52,6 @@ class _FeedPageState extends State<FeedPage> {
       itemBuilder: (BuildContext context, int i) {
         if (sites.length <= i)
           return Center(child: Text('Loading', style: ItemSubtitle));
-        print(sites[i]);
         return GestureDetector(
             onTap: () => pushNewScreen(context,
                 withNavBar: false,
