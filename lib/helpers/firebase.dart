@@ -11,16 +11,23 @@ class User {
   }
 
   factory User.fromMap(Map data) {
+    print(data);
+    print(data['viewed']);
     // ? Ready data['items'] directly freezes the function ?
-    final vals =
-        List<String>.generate(data['items'].length, (i) => data['items'][i]);
-    final temp = User(items: vals ?? []);
-    return temp;
+    final _items = List<String>.generate(
+      data['items'].length,
+      (i) => data['items'][i],
+    );
+    return User(items: _items ?? []);
+  }
+
+  Map toMap() {
+    return {'items': items};
   }
 
   @override
   String toString() {
-    return '{items: $items}';
+    return toMap().toString();
   }
 }
 
@@ -61,9 +68,9 @@ class DBService {
   }
 
   void initUser(FirebaseUser user, String item) {
-    db.collection('users').document(user.uid).setData({
-      'items': [item]
-    });
+    db.collection('users').document(user.uid).setData(
+          User(items: [item]).toMap(),
+        );
   }
 
   // addUser(FirebaseUser user) {

@@ -25,17 +25,18 @@ const LoadingWidget = Center(
 );
 
 // * FUNCTIONS
-Future<List<List<dynamic>>> loadVitals() async {
-  return _getAsset('vitals.csv');
+Future<List<List>> loadVitals() async {
+  return _getAsset('vitals.csv', shouldParseNumbers: false);
 }
 
-Future<List<List<dynamic>>> loadMap() async {
+Future<List<List>> loadMap() async {
   return _getAsset('map.csv');
 }
 
-Future<List<List<dynamic>>> _getAsset(String name) async {
+Future<List<List>> _getAsset(String name, {shouldParseNumbers = true}) async {
   final csvString = await rootBundle.loadString('assets/' + name);
-  return CsvToListConverter().convert(csvString);
+  return CsvToListConverter()
+      .convert(csvString, shouldParseNumbers: shouldParseNumbers);
 }
 
 // * DATA PERSISTENCE

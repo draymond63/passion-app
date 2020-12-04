@@ -1,7 +1,5 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import './globals.dart';
-import './csv.dart';
 
 const WIKI_API = 'https://en.wikipedia.org/w/api.php?';
 
@@ -9,11 +7,6 @@ const WIKI_API = 'https://en.wikipedia.org/w/api.php?';
 
 class Wiki {
   Map<String, Future<Map>> itemMemoizer = {};
-  CSV vitals;
-
-  Wiki(List<List> csv) {
-    vitals = CSV(csv: csv);
-  }
 
   Future<Map> fetchItem(String site) {
     // If we have not retrieved the item before, save it
@@ -31,14 +24,9 @@ class Wiki {
       final content = _queryWiki(site, 'content');
       final data = await Future.wait([images, content]);
       // Image selection
-      final imageUrl = _parseImageUrl(data[0], site);
-      // Get vitals info
-      final info = vitals.row(site, VitCol.site);
-      final name = info[VitCol.name.index];
+      final imageUrl = _parseImageUrl(data[0]);
       // Return data
       return {
-        'name': name,
-        'info': info,
         'site': site,
         'image': imageUrl,
         'content': _parseContent(data[1])
@@ -72,7 +60,8 @@ class Wiki {
   }
 
   // * Functions to extract the best image and content
-  String _parseImageUrl(Map json, String title) {
+  String _parseImageUrl(Map json) {
+    if (!json.containsKey('query')) return '';
     final extensions = ['png', 'jpg', 'gif'];
     final pages = json['query']['pages'];
 
@@ -85,6 +74,7 @@ class Wiki {
   }
 
   String _parseContent(Map json) {
+    if (!json.containsKey('query')) return 'An error has occured';
     final String pageId = json['query']['pages'].keys.toList()[0];
     return json['query']['pages'][pageId]['extract'];
   }

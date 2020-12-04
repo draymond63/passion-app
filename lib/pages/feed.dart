@@ -16,23 +16,14 @@ class FeedPage extends StatefulWidget {
 
 class _FeedPageState extends State<FeedPage> {
   final _swiper = PageController(viewportFraction: 0.9);
-  List<String> sites = [];
-
-  @override
-  void initState() {
-    super.initState();
-    // ! CHOOSE RANDOM SUGGESTION FOR NOW
-    Future.delayed(Duration(seconds: 0), () async {
-      final csv = Provider.of<List<List>>(context, listen: false);
-      final temp = List<String>.generate(
-          csv.length, (i) => csv[i][VitCol.site.index].toString());
-      temp.shuffle();
-      setState(() => sites = temp);
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
+    final vitals = Provider.of<List<List>>(context);
+    final sites = List<String>.generate(
+        vitals.length, (i) => vitals[i][VitCol.site.index].toString());
+    sites.shuffle();
+
     return Scaffold(
         appBar: AppBar(
           title: Text('Your Feed'),
@@ -43,20 +34,20 @@ class _FeedPageState extends State<FeedPage> {
             ),
           ],
         ),
-        body: feedBuilder(context));
+        body: feedBuilder(sites));
   }
 
-  Widget feedBuilder(context) {
+  Widget feedBuilder(List items) {
     return PageView.builder(
       controller: _swiper,
       itemBuilder: (BuildContext context, int i) {
-        if (sites.length <= i) return LoadingWidget;
+        if (items.length <= i) return LoadingWidget;
         return GestureDetector(
             onTap: () => pushNewScreen(context,
                 withNavBar: false,
                 pageTransitionAnimation: PageTransitionAnimation.fade,
-                screen: ViewItem(sites[i])),
-            child: FeedItem(sites[i]));
+                screen: ViewItem(items[i])),
+            child: FeedItem(items[i]));
       },
     );
   }

@@ -58,7 +58,10 @@ class CSV {
 
   List row(index, col) {
     assert([MapCol, VitCol].contains(col.runtimeType));
-    return dataRowFirst.firstWhere((row) => row[col.index] == index);
+    return dataRowFirst.firstWhere(
+      (row) => row[col.index] == index,
+      orElse: () => <String>[], // ! I think this is wrong
+    );
   }
 
   get length => dataRowFirst.length;

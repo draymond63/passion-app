@@ -22,17 +22,15 @@ void main() {
         ),
         FutureProvider(
           create: (_) => loadVitals(),
-          initialData: [List.generate(VitCol.values.length, (_) => [])],
+          initialData: [List.generate(VitCol.values.length, (_) => '')],
           lazy: false,
+        ),
+        Provider(
+          create: (context) => Wiki(),
         ),
       ],
       // Secondary providers that depend on the previous ones
       child: MultiProvider(providers: [
-        Provider(
-          create: (context) => Wiki(
-            Provider.of<List<List>>(context, listen: false),
-          ),
-        ),
         StreamProvider(
           create: (context) => DBService().getUserData(context),
           initialData: User(),
