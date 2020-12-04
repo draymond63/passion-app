@@ -50,8 +50,7 @@ class _FeedPageState extends State<FeedPage> {
     return PageView.builder(
       controller: _swiper,
       itemBuilder: (BuildContext context, int i) {
-        if (sites.length <= i)
-          return Center(child: Text('Loading', style: ItemSubtitle));
+        if (sites.length <= i) return LoadingWidget;
         return GestureDetector(
             onTap: () => pushNewScreen(context,
                 withNavBar: false,

@@ -49,13 +49,13 @@ class _PreviewItemState extends State<PreviewItem> {
             color: Colors.white,
             borderRadius: BorderRadius.all(Radius.circular(16))),
         // * ITEMS
-        child: info.length != 0
+        child: info.length == VitCol.values.length
             ? Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                 FittedBox(
                     child: Text(info[VitCol.name.index], style: ItemHeader)),
                 FittedBox(child: buildPath())
               ])
-            : Container(),
+            : LoadingWidget,
       ),
     );
   }

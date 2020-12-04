@@ -35,7 +35,7 @@ class _BaseItemState extends State<BaseItem> {
       builder: (context, snap) {
         if (snap.hasData) return ListView(children: buildContent(snap.data));
         if (snap.hasError) return Center(child: Text('${snap.error}'));
-        return Text('Loading', style: ItemSubtitle);
+        return LoadingWidget;
       },
     );
   }

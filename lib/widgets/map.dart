@@ -35,7 +35,7 @@ class _GraphState extends State<Graph> {
 
   @override
   Widget build(BuildContext context) {
-    if (!csvLoaded) return Center(child: Text('Loading', style: ItemSubtitle));
+    if (!csvLoaded) return LoadingWidget;
 
     return Container(
         // padding: EdgeInsets.all(16),

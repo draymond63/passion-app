@@ -19,6 +19,11 @@ const ItemHeader = const TextStyle(
 const ItemSubtitle = const TextStyle(
     fontSize: 20, color: Color(MAIN_COLOR), fontWeight: FontWeight.w500);
 
+const LoadingWidget = Center(
+  child: CircularProgressIndicator(
+      valueColor: AlwaysStoppedAnimation<Color>(Color(MAIN_COLOR))),
+);
+
 // * FUNCTIONS
 Future<List<List<dynamic>>> loadVitals() async {
   return _getAsset('vitals.csv');
