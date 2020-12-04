@@ -1,4 +1,4 @@
-import 'package:PassionFruit/widgets/itemBase.dart';
+import 'package:PassionFruit/widgets/feed/itemBase.dart';
 import 'package:flutter/material.dart';
 
 class FeedItem extends StatefulWidget {

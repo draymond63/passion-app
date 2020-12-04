@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
-import '../helpers/wikipedia.dart';
-import '../helpers/globals.dart';
+import '../../helpers/wikipedia.dart';
+import '../../helpers/globals.dart';
 // For the like button
-import '../helpers/firebase.dart';
+import '../../helpers/firebase.dart';
 
 class BaseItem extends StatefulWidget {
   final String site;

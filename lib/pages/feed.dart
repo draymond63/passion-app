@@ -1,10 +1,10 @@
-import 'package:PassionFruit/widgets/itemView.dart';
+import 'package:PassionFruit/widgets/feed/itemView.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/globals.dart';
-import '../widgets/itemFeed.dart';
+import '../widgets/feed/itemFeed.dart';
 // import '../widgets/itemView.dart';
 import './settings.dart';
 

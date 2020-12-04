@@ -1,4 +1,4 @@
-import 'package:PassionFruit/widgets/itemFeed.dart';
+import 'package:PassionFruit/widgets/feed/itemFeed.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import '../helpers/globals.dart';

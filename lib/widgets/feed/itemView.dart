@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:PassionFruit/widgets/itemBase.dart';
+import 'package:PassionFruit/widgets/feed/itemBase.dart';
 
 class ViewItem extends StatefulWidget {
   final String site;

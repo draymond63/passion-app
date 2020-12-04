@@ -1,6 +1,6 @@
 import 'package:PassionFruit/helpers/firebase.dart';
 import 'package:PassionFruit/helpers/globals.dart';
-import 'package:PassionFruit/widgets/treeNode.dart';
+import 'package:PassionFruit/widgets/bookshelf/treeNode.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

@@ -1,10 +1,10 @@
-import 'package:PassionFruit/widgets/tree.dart';
+import 'package:PassionFruit/widgets/bookshelf/tree.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import '../helpers/globals.dart';
 import '../helpers/firebase.dart';
-import '../widgets/itemPreview.dart';
+import '../widgets/bookshelf/itemPreview.dart';
 
 class BookShelfPage extends StatelessWidget {
   final db = DBService();

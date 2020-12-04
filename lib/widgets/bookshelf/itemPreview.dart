@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
-import 'package:PassionFruit/widgets/itemView.dart';
-import '../helpers/globals.dart';
+import 'package:PassionFruit/widgets/feed/itemView.dart';
+import '../../helpers/globals.dart';
 
 class PreviewItem extends StatefulWidget {
   final String site;
