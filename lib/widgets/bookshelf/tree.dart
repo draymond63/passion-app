@@ -46,20 +46,15 @@ class _TreeViewerState extends State<TreeViewer> {
   // * Updates tree depth and associated items
   void selectBranch(String selection) {
     if (depth != _columns.length - 1) {
-      // Get rows that match the selected item at the given depth
-      final rows = data.where((row) => row[_columns[depth].index] == selection);
-      // Get the children of the selected item
-      final children =
-          rows.map((row) => row[_columns[depth + 1].index]).toSet();
       // Update state
       setState(() => path.add(selection));
       setState(() => depth++);
       // Dive deeper into the tree if there's only one child
+      final children = getItems();
       if (children.length == 1) selectBranch(children.first);
     }
   }
 
-  // ! RECURSION MIGHT CAUSE AN ERROR WHEN USER HAS ONLY LIKED ONE ITEM
   void popBranch() {
     if (depth != 0) {
       setState(() => path = List.from(path.getRange(0, path.length - 1)));
@@ -70,35 +65,34 @@ class _TreeViewerState extends State<TreeViewer> {
   }
 
   // * Builds the rendered tree
-  Widget buildTree(List items, BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      child: Column(
-        children: [
-          // * ITEMS
-          ...List.generate(
-            items.length,
-            (i) => InkWell(
-              onTap: () => selectBranch(items[i]),
-              child: TreeNode(items[i], depth != _columns.length - 1),
-            ),
-          ),
-          // * PATH
-          FittedBox(
-              child: path.length > 0
-                  // ! PATH ORDER NOT GUARANTEED WITH SET
-                  ? Text(path.toSet().join(' -> ').replaceAll('_', ' '))
-                  : Container(width: 1, height: 1)),
-          // * Back button
-          depth != 0
-              ? IconButton(
-                  icon: Icon(Icons.arrow_back_ios_rounded),
-                  onPressed: popBranch,
-                )
-              : Container()
-        ],
+  List<Widget> buildTree(List items, BuildContext context) {
+    return [
+      Align(
+        alignment: Alignment.topLeft,
+        child: Text('Your Tree', style: ItemHeader),
       ),
-    );
+      // * ITEMS
+      ...List.generate(
+        items.length,
+        (i) => InkWell(
+          onTap: () => selectBranch(items[i]),
+          child: TreeNode(items[i], depth != _columns.length - 1),
+        ),
+      ),
+      // * PATH
+      FittedBox(
+          child: path.length > 0
+              // ! PATH ORDER NOT GUARANTEED WITH SET
+              ? Text(path.toSet().join(' -> ').replaceAll('_', ' '))
+              : Container(width: 1, height: 1)),
+      // * Back button
+      depth != 0
+          ? IconButton(
+              icon: Icon(Icons.arrow_back_ios_rounded),
+              onPressed: popBranch,
+            )
+          : Container()
+    ];
   }
 
   // * Builds the data
@@ -107,6 +101,12 @@ class _TreeViewerState extends State<TreeViewer> {
     final vitals = Provider.of<List<List>>(context);
     final user = Provider.of<User>(context);
     buildTreeData(vitals, user.items);
-    return buildTree(getItems(), context);
+
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      child: Column(
+        children: buildTree(getItems(), context),
+      ),
+    );
   }
 }

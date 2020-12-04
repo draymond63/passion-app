@@ -10,7 +10,6 @@ const WIKI_API = 'https://en.wikipedia.org/w/api.php?';
 class Wiki {
   Map<String, Future<Map>> itemMemoizer = {};
   CSV vitals;
-  bool loaded = false;
 
   Wiki(List<List> csv) {
     vitals = CSV(csv: csv);
@@ -35,7 +34,7 @@ class Wiki {
       final imageUrl = _parseImageUrl(data[0], site);
       // Get vitals info
       final info = vitals.row(site, VitCol.site);
-      final name = info.removeAt(VitCol.name.index);
+      final name = info[VitCol.name.index];
       // Return data
       return {
         'name': name,

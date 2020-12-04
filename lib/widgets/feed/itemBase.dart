@@ -46,7 +46,8 @@ class _BaseItemState extends State<BaseItem> {
         ? Image.asset('assets/fruit.png', fit: BoxFit.cover)
         : Image(
             image: CachedNetworkImageProvider(data['image']),
-            fit: BoxFit.cover);
+            fit: BoxFit.cover,
+          );
 
     return [
       // * IMAGE

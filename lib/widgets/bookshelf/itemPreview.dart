@@ -36,7 +36,7 @@ class _PreviewItemState extends State<PreviewItem> {
       },
       child: Container(
         width: 300,
-        margin: EdgeInsets.all(16),
+        margin: EdgeInsets.all(8),
         padding: EdgeInsets.all(8),
         decoration: BoxDecoration(
             boxShadow: [
