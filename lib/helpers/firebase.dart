@@ -1,21 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class User {
+class UserDoc {
   List<String> items;
   Map<String, dynamic> feed;
-  User({this.items, this.feed}) {
+  UserDoc({this.items, this.feed}) {
     if (items == null) items = [];
     if (feed == null) feed = {};
   }
 
-  factory User.fromMap(Map data) {
+  factory UserDoc.fromMap(Map data) {
     final _data = Map<String, dynamic>.from(data);
     final _items = List<String>.from(_data['items']);
     final _feed = Map<String, dynamic>.from(_data['feed']);
-    return User(
+    return UserDoc(
       items: _items ?? [],
       feed: _feed ?? {},
     );
@@ -32,23 +33,31 @@ class User {
 }
 
 class DBService {
-  final db = Firestore.instance;
+  final db = FirebaseFirestore.instance;
   final auth = FirebaseAuth.instance;
+  final functions = FirebaseFunctions.instance;
 
   // * READING
-  FirebaseUser getUser(BuildContext context, {bool listen = true}) {
-    return Provider.of<FirebaseUser>(context, listen: listen);
+  User getUser(BuildContext context, {bool listen = true}) {
+    return Provider.of<User>(context, listen: listen);
   }
 
   void login() async {
     await auth.signInAnonymously();
   }
 
-  Stream<User> getUserData(BuildContext context) {
+  Stream<UserDoc> getUserData(BuildContext context) {
     final user = getUser(context, listen: false);
     // print('User ID: ${user.uid}');
     final query = _getDoc(user.uid).snapshots();
-    return query.map((doc) => User.fromMap(doc.data));
+    return query.map((doc) => UserDoc.fromMap(doc.data()));
+  }
+
+  Future getSuggestions(BuildContext context) async {
+    final user = getUser(context, listen: false);
+    final request = functions.httpsCallable('suggest?uid=${user.uid}');
+    print(request.toString());
+    return (await request());
   }
 
   // * WRITING
@@ -69,17 +78,17 @@ class DBService {
     final doc = _getDoc(user.uid);
     // CHANGE THIS TO WRITE ALL ON APP CLOSE?
     if ((await doc.get()).exists)
-      doc.updateData(Map.from(info));
+      doc.update(Map.from(info));
     else
       _initUser(user, Map.from(info));
   }
 
-  void _initUser(FirebaseUser user, Map initData) {
-    db.collection('users').document(user.uid).setData(initData);
+  void _initUser(User user, Map initData) {
+    db.collection('users').doc(user.uid).set(initData);
   }
 
   // * GENERAL
   DocumentReference _getDoc(String id) {
-    return db.collection('users').document(id);
+    return db.collection('users').doc(id);
   }
 }

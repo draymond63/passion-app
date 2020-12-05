@@ -1,7 +1,7 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-// import 'package:firebase_core/firebase_core.dart';
 // import 'package:firebase_analytics/firebase_analytics.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:firebase_analytics/observer.dart';
@@ -14,31 +14,47 @@ import 'widgets/navigation.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  // Setup all firebase datastreams
-  runApp(MultiProvider(
-      providers: [
-        StreamProvider<FirebaseUser>.value(
-          value: FirebaseAuth.instance.onAuthStateChanged,
-        ),
-        FutureProvider(
-          create: (_) => loadVitals(),
-          initialData: [List.generate(VitCol.values.length, (_) => '')],
-          lazy: false,
-        ),
-        Provider(
-          create: (context) => Wiki(),
-        ),
-      ],
-      // Secondary providers that depend on the previous ones
-      child: MultiProvider(providers: [
-        StreamProvider(
-          create: (context) => DBService().getUserData(context),
-          initialData: User(),
-        ),
-      ], child: MyApp())));
+  runApp(ProviderApp());
 }
 
-class MyApp extends StatelessWidget {
+// Setup all firebase datastreams
+class ProviderApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: Firebase.initializeApp(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            // * PROVIDERS
+            return MultiProvider(
+                providers: [
+                  StreamProvider<User>.value(
+                      value: FirebaseAuth.instance.authStateChanges()),
+                  FutureProvider(
+                      create: (_) => loadVitals(),
+                      initialData: [
+                        List.generate(VitCol.values.length, (_) => '')
+                      ],
+                      lazy: false),
+                  Provider(create: (context) => Wiki()),
+                ],
+                // * SECONDARY PROVIDERS
+                child: MultiProvider(
+                  providers: [
+                    StreamProvider(
+                        create: (context) => DBService().getUserData(context),
+                        initialData: UserDoc()),
+                  ],
+                  child: DataApp(),
+                ));
+          } else
+            return LoadingWidget;
+        });
+  }
+}
+
+// Configures local data and theme data
+class DataApp extends StatelessWidget {
   final db = DBService();
 
   void initUser() {

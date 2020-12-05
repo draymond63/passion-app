@@ -11,7 +11,7 @@ class UserStatistics extends StatefulWidget {
 }
 
 class _UserStatisticsState extends State<UserStatistics> {
-  List<String> getPopularL0s(List<List> vitals, User user) {
+  List<String> getPopularL0s(List<List> vitals, UserDoc user) {
     // Get all current l0s
     final items = user.items;
     final rows = vitals.where((row) => items.contains(row[VitCol.site.index]));
@@ -33,7 +33,7 @@ class _UserStatisticsState extends State<UserStatistics> {
   @override
   Widget build(BuildContext context) {
     final vitals = Provider.of<List<List>>(context);
-    final user = Provider.of<User>(context);
+    final user = Provider.of<UserDoc>(context);
 
     final popList = getPopularL0s(vitals, user);
 

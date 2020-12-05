@@ -13,7 +13,7 @@ class BookShelfPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    User data = Provider.of<User>(context);
+    final data = Provider.of<UserDoc>(context);
     final pageItems = [
       SizedBox(),
       UserStatistics(),

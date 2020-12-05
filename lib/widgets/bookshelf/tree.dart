@@ -99,7 +99,7 @@ class _TreeViewerState extends State<TreeViewer> {
   @override
   Widget build(BuildContext context) {
     final vitals = Provider.of<List<List>>(context);
-    final user = Provider.of<User>(context);
+    final user = Provider.of<UserDoc>(context);
     buildTreeData(vitals, user.items);
 
     return Container(

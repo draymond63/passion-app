@@ -3,10 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
 import 'package:PassionFruit/helpers/firebase.dart';
+import 'package:PassionFruit/helpers/globals.dart';
 import 'package:PassionFruit/widgets/feed/itemView.dart';
-import '../helpers/globals.dart';
-import '../widgets/feed/itemFeed.dart';
-import './settings.dart';
+import 'package:PassionFruit/widgets/feed/itemFeed.dart';
+import 'package:PassionFruit/pages/settings.dart';
 
 class FeedPage extends StatefulWidget {
   final loadBuffer = 3; // How many items to preload
@@ -20,27 +20,32 @@ class FeedPage extends StatefulWidget {
   _FeedPageState createState() => _state;
 }
 
+const NO_ITEM = '';
+
 class _FeedPageState extends State<FeedPage> {
   final _swiper = PageController(viewportFraction: 0.9);
+  final db = DBService();
   List<String> sites = [];
   // For timing
-  String currentSite = '';
+  String currentSite = NO_ITEM;
   DateTime startTime = DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 0), () {
+    Future.delayed(Duration(seconds: 0), () async {
       _swiper.addListener(() => timePage(context, sites[_swiper.page.round()]));
+      print('HELLO ${await db.getSuggestions(context)}');
     });
   }
 
   // * Uses page indexes to
   pageSwitch(context, int i) {
     if (i != 0) // ! ASSUMES FEED PAGE IS THE FIRST IN THE NAVBAR
-      timePage(context, '');
+      timePage(context, NO_ITEM);
     else {
-      String newSite = ''; // ! BREAKS ON FIRST VIEW
+      String newSite = NO_ITEM; // ! MISTAKE ON FIRST VIEW
+      // ignore: invalid_use_of_protected_member
       if (_swiper.positions.isNotEmpty) newSite = sites[_swiper.page.round()];
       timePage(context, newSite);
     }
@@ -54,7 +59,7 @@ class _FeedPageState extends State<FeedPage> {
       final duration = endTime.difference(startTime).inMilliseconds ~/ 100;
       print('$currentSite: ${duration / 10}');
       // Send to the database
-      if (currentSite != '') db.updateTime(context, currentSite, duration);
+      if (currentSite != NO_ITEM) db.updateTime(context, currentSite, duration);
       // Setup for new page tracking
       startTime = endTime;
       currentSite = newSite;
