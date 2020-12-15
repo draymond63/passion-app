@@ -18,54 +18,49 @@ void main() {
   runApp(ProviderApp());
 }
 
-// Setup all firebase datastreams
+// Setup all datastreams
 class ProviderApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: Firebase.initializeApp(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            // * PROVIDERS
-            return MultiProvider(
-                providers: [
-                  // User
-                  StreamProvider<User>.value(
-                    value: FirebaseAuth.instance.authStateChanges(),
-                  ),
-                  // List<List>
-                  FutureProvider(
-                    create: (_) => loadVitals(),
-                    initialData: [
-                      List.generate(VitCol.values.length, (_) => '')
-                    ],
-                    lazy: false,
-                  ),
-                  // Map
-                  FutureProvider(
-                    create: (_) => readUserFile(),
-                    initialData: {},
-                  ),
-                  // Wiki
-                  Provider(create: (_) => Wiki()),
-                ],
-                // * SECONDARY PROVIDERS
-                child: MultiProvider(
+      future: readUserFile(), // ! THIS TAKES TOO LONG
+      builder: (_, userfile) => FutureBuilder(
+          future: Firebase.initializeApp(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done &&
+                userfile.hasData) {
+              // * PROVIDERS
+              return MultiProvider(
                   providers: [
-                    // UserDoc
-                    StreamProvider(
-                      create: (context) => DBService().getUserData(context),
-                      initialData: UserDoc(),
+                    // User
+                    StreamProvider<User>.value(
+                      value: FirebaseAuth.instance.authStateChanges(),
                     ),
-                    // Storage
-                    ChangeNotifierProvider(
-                        create: (context) => Storage.fromFile(context)),
+                    // List<List>
+                    FutureProvider(
+                      create: (_) => loadVitals(),
+                      initialData: [
+                        List.generate(VitCol.values.length, (_) => '')
+                      ],
+                      lazy: false,
+                    ),
+                    // Wiki
+                    Provider(create: (_) => Wiki()),
                   ],
-                  child: DataApp(),
-                ));
-          } else
-            return LoadingWidget;
-        });
+                  // * SECONDARY PROVIDERS
+                  child: MultiProvider(
+                    providers: [
+                      // Storage
+                      ChangeNotifierProvider(
+                        create: (context) => Storage.fromMap(userfile.data),
+                      ),
+                    ],
+                    child: DataApp(),
+                  ));
+            } else
+              return LoadingWidget;
+          }),
+    );
   }
 }
 

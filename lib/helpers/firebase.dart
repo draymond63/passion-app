@@ -52,9 +52,15 @@ class DBService {
   }
 
   // * WRITING
-  void writeItem(BuildContext context, String newItem) async {
+  void addItem(BuildContext context, String newItem) async {
     _updateData(context, {
       'items': FieldValue.arrayUnion([newItem]),
+    });
+  }
+
+  void removeItem(BuildContext context, String newItem) async {
+    _updateData(context, {
+      'items': FieldValue.arrayRemove([newItem]),
     });
   }
 
@@ -74,7 +80,7 @@ class DBService {
       _initUser(user, Map.from(info));
   }
 
-  void _initUser(User user, Map initData) {
+  void _initUser(User user, Map<String, dynamic> initData) {
     db.collection('users').doc(user.uid).set(initData);
   }
 

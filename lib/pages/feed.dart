@@ -59,7 +59,7 @@ class _FeedPageState extends State<FeedPage> {
       final db = Provider.of<Storage>(context, listen: false);
       // print('$currentSite: ${duration / 10}');
       // Send to the database
-      if (currentSite != NO_ITEM) db.updateTime(currentSite, duration);
+      if (currentSite != NO_ITEM) db.updateTime(currentSite, duration, context);
       // Setup for new page tracking
       startTime = endTime;
       currentSite = newSite;

@@ -17,8 +17,8 @@ class _BaseItemState extends State<BaseItem> {
   void addLikedItem(BuildContext context, String name, String site) {
     // Add item to the list
     final db = Provider.of<Storage>(context, listen: false);
-    final status = db.addItem(site);
-    if (!status) db.removeItem(site);
+    final status = db.addItem(site, context);
+    if (!status) db.removeItem(site, context);
     // Show feedback
     Scaffold.of(context).showSnackBar(SnackBar(
       backgroundColor: Color(MAIN_ACCENT_COLOR),

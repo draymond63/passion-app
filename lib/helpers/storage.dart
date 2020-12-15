@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:PassionFruit/helpers/globals.dart';
 import 'package:PassionFruit/helpers/firebase.dart';
 
 // * Interface for user file
 class Storage extends ChangeNotifier {
-  final db = DBService();
+  final _db = DBService();
   // data
   Map<String, bool> _settings = {};
   Map<String, int> _feed = {};
@@ -36,11 +35,6 @@ class Storage extends ChangeNotifier {
     );
   }
 
-  factory Storage.fromFile(BuildContext context) {
-    final userFile = Provider.of<Map>(context, listen: false);
-    return Storage.fromMap(userFile);
-  }
-
   Map<String, dynamic> toMap() {
     return {
       'settings': settings,
@@ -60,26 +54,31 @@ class Storage extends ChangeNotifier {
     writeUserFile(toMap());
   }
 
-  bool addItem(String site) {
+  bool addItem(String site, BuildContext context) {
     if (!items.contains(site)) {
       _items.add(site);
+      _db.addItem(context, site);
       _update();
       return true;
     }
     return false;
   }
 
-  bool removeItem(String site) {
+  bool removeItem(String site, BuildContext context) {
     final status = _items.remove(site);
-    if (status) _update();
+    if (status) {
+      _db.removeItem(context, site);
+      _update();
+    }
     return status;
   }
 
-  updateTime(String site, int time) {
+  updateTime(String site, int time, BuildContext context) {
     if (feed.containsKey(site))
       _feed[site] += time;
     else
       _feed[site] = time;
+    _db.updateTime(context, site, time);
     _update();
   }
 }
