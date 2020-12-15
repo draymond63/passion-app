@@ -1,5 +1,5 @@
+import 'package:PassionFruit/helpers/suggestion.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
 import 'package:PassionFruit/helpers/firebase.dart';
@@ -26,6 +26,7 @@ class _FeedPageState extends State<FeedPage> {
   final _swiper = PageController(viewportFraction: 0.9);
   final db = DBService();
   List<String> sites = [];
+  Suggestor sg;
   // For timing
   String currentSite = NO_ITEM;
   DateTime startTime = DateTime.now();
@@ -35,7 +36,6 @@ class _FeedPageState extends State<FeedPage> {
     super.initState();
     Future.delayed(Duration(seconds: 0), () async {
       _swiper.addListener(() => timePage(context, sites[_swiper.page.round()]));
-      print('HELLO ${await db.getSuggestions(context)}');
     });
   }
 
@@ -68,10 +68,8 @@ class _FeedPageState extends State<FeedPage> {
 
   @override
   Widget build(BuildContext context) {
-    final vitals = Provider.of<List<List>>(context);
-    sites = List<String>.generate(
-        vitals.length, (i) => vitals[i][VitCol.site.index].toString());
-    sites.shuffle();
+    sg = Suggestor(context);
+    if (sites.length == 0) sites.addAll(sg.suggest());
 
     return Scaffold(
         appBar: AppBar(
@@ -83,20 +81,24 @@ class _FeedPageState extends State<FeedPage> {
             ),
           ],
         ),
-        body: feedBuilder(sites));
+        body: feedBuilder());
   }
 
-  Widget feedBuilder(List items) {
+  Widget feedBuilder() {
     return PageView.builder(
       controller: _swiper,
       itemBuilder: (BuildContext context, int i) {
-        if (items.length <= i) return LoadingWidget;
+        if (sites.length <= i) {
+          final suggestions = sg.suggest();
+          sites.addAll(suggestions);
+          return LoadingWidget;
+        }
         return GestureDetector(
             onTap: () => pushNewScreen(context,
                 withNavBar: false,
                 pageTransitionAnimation: PageTransitionAnimation.fade,
-                screen: ViewItem(items[i])),
-            child: FeedItem(items[i]));
+                screen: ViewItem(sites[i])),
+            child: FeedItem(sites[i]));
       },
     );
   }

@@ -1,12 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class UserDoc {
   List<String> items;
-  Map<String, dynamic> feed;
+  Map feed;
   UserDoc({this.items, this.feed}) {
     if (items == null) items = [];
     if (feed == null) feed = {};
@@ -15,7 +14,7 @@ class UserDoc {
   factory UserDoc.fromMap(Map data) {
     final _data = Map<String, dynamic>.from(data);
     final _items = List<String>.from(_data['items']);
-    final _feed = Map<String, dynamic>.from(_data['feed']);
+    final _feed = Map.from(_data['feed']);
     return UserDoc(
       items: _items ?? [],
       feed: _feed ?? {},
@@ -35,7 +34,6 @@ class UserDoc {
 class DBService {
   final db = FirebaseFirestore.instance;
   final auth = FirebaseAuth.instance;
-  final functions = FirebaseFunctions.instance;
 
   // * READING
   User getUser(BuildContext context, {bool listen = true}) {
@@ -51,13 +49,6 @@ class DBService {
     // print('User ID: ${user.uid}');
     final query = _getDoc(user.uid).snapshots();
     return query.map((doc) => UserDoc.fromMap(doc.data()));
-  }
-
-  Future getSuggestions(BuildContext context) async {
-    final user = getUser(context, listen: false);
-    final request = functions.httpsCallable('suggest?uid=${user.uid}');
-    print(request.toString());
-    return (await request());
   }
 
   // * WRITING

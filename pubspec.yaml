@@ -30,8 +30,9 @@ dependencies:
   csv: ^4.1.0
   http: ^0.12.2
   persistent_bottom_nav_bar: any
-  cloud_functions: ^0.7.2
-  # syncfusion_flutter_charts: ^18.3.51 # ! REPLACE
+  dart_random_choice: ^0.0.2 # For suggestion algo
+  # cloud_functions: ^0.7.2
+  # syncfusion_flutter_charts: ^18.3.51
   # charts_flutter: ^0.9.0
   # dartpedia: ^1.6.6
 
