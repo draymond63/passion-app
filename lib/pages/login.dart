@@ -2,7 +2,6 @@
 // import '../firebase.dart';
 // // import 'package:firebase_auth/firebase_auth.dart';
 // // import '../globals.dart';
-// // import '../firebase.dart';
 
 // class LoginPage extends StatefulWidget {
 //   @override

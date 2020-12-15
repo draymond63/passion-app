@@ -1,3 +1,4 @@
+import 'package:PassionFruit/helpers/storage.dart';
 import 'package:PassionFruit/widgets/bookshelf/tree.dart';
 import 'package:PassionFruit/widgets/bookshelf/userStats.dart';
 import 'package:flutter/material.dart';
@@ -5,15 +6,12 @@ import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/globals.dart';
-import '../helpers/firebase.dart';
 import '../widgets/bookshelf/itemPreview.dart';
 
 class BookShelfPage extends StatelessWidget {
-  final db = DBService();
-
   @override
   Widget build(BuildContext context) {
-    final data = Provider.of<UserDoc>(context);
+    final data = Provider.of<Storage>(context);
     final pageItems = [
       SizedBox(),
       UserStatistics(),
@@ -32,14 +30,7 @@ class BookShelfPage extends StatelessWidget {
   }
 
   Widget buildItems(List<String> sites) {
-    if (sites.length == 0)
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Bookmarks', style: ItemHeader),
-          Text("There's nothing here ¯\\_(ツ)_/¯", style: ItemSubtitle)
-        ],
-      );
+    print(sites);
     // If we have items, display them
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,11 +39,13 @@ class BookShelfPage extends StatelessWidget {
         ConstrainedBox(
           // ! PROBABLY SHOULDN'T HARDCODE
           constraints: BoxConstraints(maxHeight: 115),
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: List<PreviewItem>.generate(
-                sites.length, (i) => PreviewItem(sites[i])),
-          ),
+          child: sites.length != 0
+              ? ListView.builder(
+                  itemCount: sites.length,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (_, i) => PreviewItem(sites[i]),
+                )
+              : Text("There's nothing here ¯\\_(ツ)_/¯", style: ItemSubtitle),
         ),
       ],
     );

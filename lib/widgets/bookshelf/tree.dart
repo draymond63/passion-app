@@ -1,5 +1,5 @@
-import 'package:PassionFruit/helpers/firebase.dart';
 import 'package:PassionFruit/helpers/globals.dart';
+import 'package:PassionFruit/helpers/storage.dart';
 import 'package:PassionFruit/widgets/bookshelf/treeNode.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -99,7 +99,7 @@ class _TreeViewerState extends State<TreeViewer> {
   @override
   Widget build(BuildContext context) {
     final vitals = Provider.of<List<List>>(context);
-    final user = Provider.of<UserDoc>(context);
+    final user = Provider.of<Storage>(context);
     buildTreeData(vitals, user.items);
 
     return Container(

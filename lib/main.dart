@@ -1,3 +1,4 @@
+import 'package:PassionFruit/helpers/storage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -28,22 +29,37 @@ class ProviderApp extends StatelessWidget {
             // * PROVIDERS
             return MultiProvider(
                 providers: [
+                  // User
                   StreamProvider<User>.value(
-                      value: FirebaseAuth.instance.authStateChanges()),
+                    value: FirebaseAuth.instance.authStateChanges(),
+                  ),
+                  // List<List>
                   FutureProvider(
-                      create: (_) => loadVitals(),
-                      initialData: [
-                        List.generate(VitCol.values.length, (_) => '')
-                      ],
-                      lazy: false),
-                  Provider(create: (context) => Wiki()),
+                    create: (_) => loadVitals(),
+                    initialData: [
+                      List.generate(VitCol.values.length, (_) => '')
+                    ],
+                    lazy: false,
+                  ),
+                  // Map
+                  FutureProvider(
+                    create: (_) => readUserFile(),
+                    initialData: {},
+                  ),
+                  // Wiki
+                  Provider(create: (_) => Wiki()),
                 ],
                 // * SECONDARY PROVIDERS
                 child: MultiProvider(
                   providers: [
+                    // UserDoc
                     StreamProvider(
-                        create: (context) => DBService().getUserData(context),
-                        initialData: UserDoc()),
+                      create: (context) => DBService().getUserData(context),
+                      initialData: UserDoc(),
+                    ),
+                    // Storage
+                    ChangeNotifierProvider(
+                        create: (context) => Storage.fromFile(context)),
                   ],
                   child: DataApp(),
                 ));
@@ -57,31 +73,8 @@ class ProviderApp extends StatelessWidget {
 class DataApp extends StatelessWidget {
   final db = DBService();
 
-  void initUser() {
-    // ! MOVE TO NEW USER PAGE
-    writeUserFile({
-      'settings': {
-        'categories': {
-          'People': true,
-          'History': true,
-          'Geography': true,
-          'Arts': true,
-          'Social Sciences': true,
-          'Biology': true,
-          'Physical Sciences': true,
-          'Technology': true,
-          'Mathematics': true,
-        },
-        'allow-random': true
-      },
-      // 'items': ['Basketball', 'LeBron James'],
-      'preferences': {'list-view': true}
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    initUser();
     // If the user is not logged in, redirect to the login page
     final user = db.getUser(context);
     if (user == null) {

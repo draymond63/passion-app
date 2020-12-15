@@ -1,5 +1,5 @@
-import 'package:PassionFruit/helpers/firebase.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:PassionFruit/helpers/storage.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dart_random_choice/dart_random_choice.dart';
 import 'package:PassionFruit/helpers/globals.dart';
@@ -23,7 +23,7 @@ class Suggestor {
 
   // ! Causes an error sometimes?
   List<String> suggest([int k = 10]) {
-    final userInfo = Provider.of<UserDoc>(context).feed;
+    final userInfo = Provider.of<Storage>(context).feed;
     // If we don't have any data, return the random sites
     if (userInfo.length == 0)
       return List.generate(k, (_) => randomChoice(vitals)[siteCol]);
@@ -51,7 +51,6 @@ class Suggestor {
         if (rows.length == 0)
           throw Exception('Suggestion Selection not found: $selection');
       }
-      print(rows.length);
       final site = randomChoice<String>(rows.map((r) => r[siteCol]));
       sites.add(site);
     }
@@ -70,8 +69,6 @@ class Suggestor {
       // ? Is this necessary ?
       if (row.length != 0) {
         final category = row[col.index];
-        // if (info[site] == double.nan)
-        //   throw Exception('NaN value received: Column=$col, site=$site');
         if (!probs.containsKey(category)) probs[category] = 0;
         probs[category] += info[site].toDouble();
         total += info[site];

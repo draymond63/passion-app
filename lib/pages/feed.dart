@@ -1,12 +1,13 @@
+import 'package:PassionFruit/helpers/storage.dart';
 import 'package:PassionFruit/helpers/suggestion.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
-import 'package:PassionFruit/helpers/firebase.dart';
 import 'package:PassionFruit/helpers/globals.dart';
 import 'package:PassionFruit/widgets/feed/itemView.dart';
 import 'package:PassionFruit/widgets/feed/itemFeed.dart';
 import 'package:PassionFruit/pages/settings.dart';
+import 'package:provider/provider.dart';
 
 class FeedPage extends StatefulWidget {
   final loadBuffer = 3; // How many items to preload
@@ -24,7 +25,6 @@ const NO_ITEM = '';
 
 class _FeedPageState extends State<FeedPage> {
   final _swiper = PageController(viewportFraction: 0.9);
-  final db = DBService();
   List<String> sites = [];
   Suggestor sg;
   // For timing
@@ -52,14 +52,14 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   timePage(context, newSite) {
-    final db = DBService();
     // If the page has switched, change the currentSite
     if (currentSite != newSite) {
       final endTime = DateTime.now();
       final duration = endTime.difference(startTime).inMilliseconds ~/ 100;
-      print('$currentSite: ${duration / 10}');
+      final db = Provider.of<Storage>(context, listen: false);
+      // print('$currentSite: ${duration / 10}');
       // Send to the database
-      if (currentSite != NO_ITEM) db.updateTime(context, currentSite, duration);
+      if (currentSite != NO_ITEM) db.updateTime(currentSite, duration);
       // Setup for new page tracking
       startTime = endTime;
       currentSite = newSite;

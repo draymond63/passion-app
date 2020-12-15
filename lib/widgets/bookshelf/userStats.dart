@@ -1,6 +1,6 @@
 import 'package:PassionFruit/helpers/globals.dart';
+import 'package:PassionFruit/helpers/storage.dart';
 import 'package:flutter/material.dart';
-import 'package:PassionFruit/helpers/firebase.dart';
 import 'package:provider/provider.dart';
 
 class UserStatistics extends StatefulWidget {
@@ -11,7 +11,7 @@ class UserStatistics extends StatefulWidget {
 }
 
 class _UserStatisticsState extends State<UserStatistics> {
-  List<String> getPopularL0s(List<List> vitals, UserDoc user) {
+  List<String> getPopularL0s(List<List> vitals, Storage user) {
     // Get all current l0s
     final items = user.items;
     final rows = vitals.where((row) => items.contains(row[VitCol.site.index]));
@@ -33,7 +33,7 @@ class _UserStatisticsState extends State<UserStatistics> {
   @override
   Widget build(BuildContext context) {
     final vitals = Provider.of<List<List>>(context);
-    final user = Provider.of<UserDoc>(context);
+    final user = Provider.of<Storage>(context);
 
     final popList = getPopularL0s(vitals, user);
 

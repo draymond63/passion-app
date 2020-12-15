@@ -15,18 +15,11 @@ class _PreviewItemState extends State<PreviewItem> {
   List info = [];
 
   @override
-  void initState() {
-    super.initState();
-    // Future needed to have context
-    Future.delayed(Duration(seconds: 0), () {
-      final vitals = Provider.of<List<List>>(context, listen: false);
-      setState(() => info =
-          vitals.firstWhere((row) => row[VitCol.site.index] == widget.site));
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final vitals = Provider.of<List<List>>(context);
+    setState(() => info =
+        vitals.firstWhere((row) => row[VitCol.site.index] == widget.site));
+
     return GestureDetector(
       onTap: () {
         pushNewScreen(context,
