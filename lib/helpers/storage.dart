@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:PassionFruit/helpers/globals.dart';
 import 'package:PassionFruit/helpers/firebase.dart';
@@ -24,9 +26,11 @@ class Storage extends ChangeNotifier {
             'History': true,
             'Geography': true,
             'Arts': true,
-            'Social Sciences': true,
-            'Biology': true,
-            'Physical Sciences': true,
+            'Philosophy_and_religion': true,
+            'Everyday_life': true,
+            'Society_and_social_sciences': true,
+            'Biological_and_health_sciences': true,
+            'Physical_sciences': true,
             'Technology': true,
             'Mathematics': true,
           },
@@ -44,16 +48,23 @@ class Storage extends ChangeNotifier {
   }
 
   // * GETTERS
-  get settings => _settings;
-  get items => _items;
-  get feed => _feed;
+  Map<String, bool> get settings => _settings;
+  List<String> get items => _items;
+  Map<String, int> get feed => _feed;
 
   // * FUNCTIONS
   _update() {
     notifyListeners();
-    writeUserFile(toMap());
+    _writeUserFile(toMap());
   }
 
+  // Write to user file
+  void _writeUserFile(Map<String, dynamic> map) async {
+    final file = await localFile;
+    file.writeAsString(jsonEncode(map));
+  }
+
+  // Items
   bool addItem(String site, BuildContext context) {
     if (!items.contains(site)) {
       _items.add(site);
@@ -73,12 +84,21 @@ class Storage extends ChangeNotifier {
     return status;
   }
 
+  // Feed
   updateTime(String site, int time, BuildContext context) {
     if (feed.containsKey(site))
       _feed[site] += time;
     else
       _feed[site] = time;
     _db.updateTime(context, site, time);
+    _update();
+  }
+
+  // Settings
+  updateSetting(String category, bool state) {
+    assert(_settings.containsKey(category),
+        'Category not found in settings: $category');
+    _settings[category] = state;
     _update();
   }
 }

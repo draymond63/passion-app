@@ -30,7 +30,6 @@ class BookShelfPage extends StatelessWidget {
   }
 
   Widget buildItems(List<String> sites) {
-    print(sites);
     // If we have items, display them
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

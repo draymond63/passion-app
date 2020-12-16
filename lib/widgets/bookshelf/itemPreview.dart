@@ -17,8 +17,10 @@ class _PreviewItemState extends State<PreviewItem> {
   @override
   Widget build(BuildContext context) {
     final vitals = Provider.of<List<List>>(context);
-    setState(() => info =
-        vitals.firstWhere((row) => row[VitCol.site.index] == widget.site));
+    setState(() => info = vitals.firstWhere(
+          (row) => row[VitCol.site.index] == widget.site,
+          orElse: () => <String>[],
+        ));
 
     return GestureDetector(
       onTap: () {

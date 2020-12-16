@@ -41,32 +41,18 @@ Future<List<List>> _getAsset(String name, {shouldParseNumbers = true}) async {
 
 // * DATA PERSISTENCE
 // Help function to get user file
-Future<File> get _localFile async {
+Future<File> get localFile async {
   final directory = await getApplicationDocumentsDirectory();
   return File('${directory.path}/user.json');
-}
-
-// Write to user file
-void writeUserFile(Map<String, dynamic> map) async {
-  final file = await _localFile;
-  file.writeAsString(jsonEncode(map));
 }
 
 // Read from user file
 Future<Map<String, dynamic>> readUserFile() async {
   try {
-    final file = await _localFile;
+    final file = await localFile;
     String contents = await file.readAsString();
     return jsonDecode(contents);
   } catch (e) {
     return {};
   }
-}
-
-// Make a change to the user file
-void editUserFile(void Function(Map<String, dynamic>) edit) {
-  readUserFile().then((data) {
-    edit(data);
-    writeUserFile(data);
-  });
 }

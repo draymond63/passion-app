@@ -23,15 +23,20 @@ class Suggestor {
 
   // ! Causes an error sometimes?
   List<String> suggest([int k = 10]) {
-    final userInfo = Provider.of<Storage>(context).feed;
+    final store = Provider.of<Storage>(context);
+    final userInfo = store.feed;
+    final settings = store.settings;
     // If we don't have any data, return the random sites
     if (userInfo.length == 0)
       return List.generate(k, (_) => randomChoice(vitals)[siteCol]);
 
     // ? COMBINE INTO ONE ITERATION ?
-    // Remove all rows that have been seen
-    final rowsConst =
-        vitals.where((row) => !userInfo.containsKey(row[siteCol])).toList();
+    // Remove all rows that have been seen or are ignored by user settings
+    final rowsConst = vitals
+        .where((row) =>
+            !userInfo.containsKey(row[siteCol]) &&
+            settings[row[VitCol.l0.index]])
+        .toList();
     final userConst =
         vitals.where((row) => userInfo.containsKey(row[siteCol])).toList();
 
@@ -43,6 +48,8 @@ class Suggestor {
       List<List> userRows = userConst;
       for (final col in columns) {
         final probs = getWeights(col, userRows, rows, userInfo);
+        print(col);
+        print(probs);
         final selection = randomChoice(probs.keys, probs.values);
         // Keep rows with the selection
         rows = rows.where((r) => r[col.index] == selection).toList();

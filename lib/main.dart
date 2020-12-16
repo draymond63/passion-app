@@ -76,7 +76,9 @@ class DataApp extends StatelessWidget {
       db.login();
       return MaterialApp(
           home: Scaffold(
-              body: Center(child: Text('Please wait', style: ItemSubtitle))));
+              body: Center(
+        child: Text('Please wait', style: ItemSubtitle),
+      )));
     }
 
     return MaterialApp(

@@ -32,7 +32,6 @@ class Wiki {
         'content': _parseContent(data[1])
       };
     } catch (e) {
-      print('WIKI-ERROR: $e');
       throw Exception('Failed to retrieve wikipedia info: $e');
     }
   }
