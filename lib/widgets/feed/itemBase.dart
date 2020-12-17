@@ -63,16 +63,24 @@ class _BaseItemState extends State<BaseItem> {
       widget.buildImage(image),
       Center(child: Text(info[VitCol.name.index], style: ItemHeader)),
       // * BUTTONS
-      Center(
-        child: IconButton(
-          icon: Icon(Icons.thumb_up_rounded),
-          color: Color(0xFFAAAAAA),
-          onPressed: () =>
-              addLikedItem(context, info[VitCol.name.index], widget.site),
-        ),
-      ),
+      buildButton(context, info),
       // * TEXT
       Container(padding: EdgeInsets.all(8), child: Text(doc.content)),
     ];
+  }
+
+  Widget buildButton(BuildContext context, List info) {
+    final store = Provider.of<Storage>(context);
+    Color color = Color(0xFFAAAAAA);
+    if (store.items.contains(widget.site)) color = Color(MAIN_COLOR);
+
+    return Center(
+      child: IconButton(
+        icon: Icon(Icons.thumb_up_rounded),
+        color: color,
+        onPressed: () =>
+            addLikedItem(context, info[VitCol.name.index], widget.site),
+      ),
+    );
   }
 }
