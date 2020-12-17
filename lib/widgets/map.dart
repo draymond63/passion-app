@@ -1,8 +1,8 @@
 import 'package:PassionFruit/widgets/feed/itemFeed.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
-import '../helpers/globals.dart';
-import '../helpers/csv.dart';
+import 'package:PassionFruit/helpers/globals.dart';
+import 'package:PassionFruit/helpers/csv.dart';
 
 class Graph extends StatefulWidget {
   final double initX;

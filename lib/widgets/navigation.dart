@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
-import '../helpers/globals.dart';
 
-import '../pages/feed.dart';
-// import '../pages/settings.dart';
-import '../pages/bookshelf.dart';
-import '../pages/search.dart';
-// import '../pages/login.dart';
+import 'package:PassionFruit/helpers/globals.dart';
+
+import 'package:PassionFruit/pages/feed.dart';
+import 'package:PassionFruit/pages/bookshelf.dart';
+import 'package:PassionFruit/pages/search.dart';
+// import 'package:PassionFruit/pages/login.dart';
 
 class PageRouter extends StatefulWidget {
   @override

@@ -1,7 +1,6 @@
 // import 'package:flutter/material.dart';
-// import '../firebase.dart';
-// // import 'package:firebase_auth/firebase_auth.dart';
-// // import '../globals.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:PassionFruit/helpers/globals.dart';
 
 // class LoginPage extends StatefulWidget {
 //   @override

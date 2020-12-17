@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 // import 'package:charts_flutter/flutter.dart' as chart;
-// import '../helpers/globals.dart';
-import '../widgets/map.dart';
+// import 'package:PassionFruit/helpers/globals.dart';
+import 'package:PassionFruit/widgets/map.dart';
 
 class SearchPage extends StatefulWidget {
   @override

@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 
-import '../helpers/globals.dart';
-import '../widgets/bookshelf/itemPreview.dart';
+import 'package:PassionFruit/helpers/globals.dart';
+import 'package:PassionFruit/widgets/bookshelf/itemPreview.dart';
 
 class BookShelfPage extends StatelessWidget {
   @override
