@@ -32,7 +32,7 @@ class _BaseItemState extends State<BaseItem> {
     final wiki = Provider.of<Wiki>(context);
     final vitals = Provider.of<List<List>>(context);
 
-    return FutureBuilder<Map>(
+    return FutureBuilder<WikiDoc>(
       future: wiki.fetchItem(widget.site),
       builder: (context, snap) {
         if (snap.hasData)
@@ -43,7 +43,7 @@ class _BaseItemState extends State<BaseItem> {
     );
   }
 
-  List<Widget> buildContent(Map data, List<List> vitals) {
+  List<Widget> buildContent(WikiDoc doc, List<List> vitals) {
     // Get vitals row info for the site
     final info = vitals.firstWhere(
       (row) => row[VitCol.site.index] == widget.site,
@@ -51,10 +51,10 @@ class _BaseItemState extends State<BaseItem> {
     );
 
     // Check to see if any images were available
-    final image = data['image'] == ''
+    final image = doc.imageUrl == ''
         ? Image.asset('assets/fruit.png', fit: BoxFit.cover)
         : Image(
-            image: CachedNetworkImageProvider(data['image']),
+            image: CachedNetworkImageProvider(doc.imageUrl),
             fit: BoxFit.cover,
           );
 
@@ -72,7 +72,7 @@ class _BaseItemState extends State<BaseItem> {
         ),
       ),
       // * TEXT
-      Container(padding: EdgeInsets.all(8), child: Text(data['content'])),
+      Container(padding: EdgeInsets.all(8), child: Text(doc.content)),
     ];
   }
 }

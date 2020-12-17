@@ -5,10 +5,25 @@ const WIKI_API = 'https://en.wikipedia.org/w/api.php?';
 
 //https://en.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=1&titles=LeBron_James
 
-class Wiki {
-  Map<String, Future<Map>> itemMemoizer = {};
+class WikiDoc {
+  String site;
+  String imageUrl;
+  String content;
+  WikiDoc({this.site = '', this.imageUrl = '', this.content = ''});
 
-  Future<Map> fetchItem(String site) {
+  factory WikiDoc.fromMap(Map<String, String> data) {
+    return WikiDoc(
+      site: data['site'] ?? '',
+      imageUrl: data['imageUrl'] ?? '',
+      content: data['content'] ?? '',
+    );
+  }
+}
+
+class Wiki {
+  Map<String, Future<WikiDoc>> itemMemoizer = {};
+
+  Future<WikiDoc> fetchItem(String site) {
     // If we have not retrieved the item before, save it
     if (!itemMemoizer.containsKey(site)) {
       itemMemoizer[site] = _fetchSite(site);
@@ -17,7 +32,7 @@ class Wiki {
   }
 
   // * Get all data required to display an item
-  Future<Map<String, dynamic>> _fetchSite(String site) async {
+  Future<WikiDoc> _fetchSite(String site) async {
     // Pull in wiki content
     try {
       final images = _queryWiki(site, 'images');
@@ -26,11 +41,11 @@ class Wiki {
       // Image selection
       final imageUrl = _parseImageUrl(data[0]);
       // Return data
-      return {
+      return WikiDoc.fromMap({
         'site': site,
         'image': imageUrl,
-        'content': _parseContent(data[1])
-      };
+        'content': _parseContent(data[1]),
+      });
     } catch (e) {
       throw Exception('Failed to retrieve wikipedia info: $e');
     }
