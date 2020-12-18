@@ -8,32 +8,20 @@ import 'package:PassionFruit/helpers/firebase.dart';
 class Storage extends ChangeNotifier {
   final _db = DBService();
   // data
-  Map<String, bool> _settings = {};
-  Map<String, int> _feed = {};
-  List<String> _items = [];
+  Settings _settings;
+  Map<String, int> _feed;
+  List<String> _items;
 
-  Storage({Map settings, Map feed, List items}) {
-    _settings = settings.cast<String, bool>();
+  Storage({Settings settings, Map feed, List items}) {
+    // ! NEED A BETTER WAY TO DEEP COPY
+    _settings = settings;
     _feed = feed.cast<String, int>();
     _items = items.cast<String>();
   }
 
   factory Storage.fromMap(Map map) {
     return Storage(
-      settings: map['settings'] ??
-          {
-            'People': true,
-            'History': true,
-            'Geography': true,
-            'Arts': true,
-            'Philosophy_and_religion': true,
-            'Everyday_life': true,
-            'Society_and_social_sciences': true,
-            'Biological_and_health_sciences': true,
-            'Physical_sciences': true,
-            'Technology': true,
-            'Mathematics': true,
-          },
+      settings: Settings.fromMap(map),
       items: map['items'] ?? [], // 'LeBron_James'
       feed: map['feed'] ?? {},
     );
@@ -41,14 +29,14 @@ class Storage extends ChangeNotifier {
 
   Map<String, dynamic> toMap() {
     return {
-      'settings': settings,
+      'settings': settings.toMap(),
       'items': items,
       'feed': feed,
     };
   }
 
   // * GETTERS
-  Map<String, bool> get settings => _settings;
+  Settings get settings => _settings;
   List<String> get items => _items;
   Map<String, int> get feed => _feed;
 
@@ -95,13 +83,66 @@ class Storage extends ChangeNotifier {
   }
 
   // Settings
-  updateSetting(String category, bool state) {
-    assert(_settings.containsKey(category),
-        'Category not found in settings: $category');
-    _settings[category] = state;
+  updateCategory(String key, bool state) {
+    assert(_settings.category.containsKey(key),
+        'Category setting not found: $key');
+    _settings.category[key] = state;
     // If all are false, set them to true
-    if (!settings.containsValue(true))
-      _settings.updateAll((key, value) => true);
+    if (!settings.category.containsValue(true))
+      _settings.category.updateAll((key, value) => true);
     _update();
   }
+
+  updateData(String key, bool state) {
+    assert(_settings.data.containsKey(key), 'Setting not found: $key');
+    _settings.data[key] = state;
+    _update();
+  }
+
+  deleteData(context) {
+    _feed = {};
+    _items = [];
+    _db.deleteData(context);
+    _update();
+  }
+}
+
+class Settings {
+  Map<String, bool> _category;
+  Map<String, bool> _data;
+
+  Settings({category, data}) {
+    _category = Map.from(category);
+    _data = Map.from(data);
+  }
+
+  factory Settings.fromMap(Map map) {
+    return Settings(
+      category: map['category'] ??
+          {
+            'People': true,
+            'History': true,
+            'Geography': true,
+            'Arts': true,
+            'Philosophy_and_religion': true,
+            'Everyday_life': true,
+            'Society_and_social_sciences': true,
+            'Biological_and_health_sciences': true,
+            'Physical_sciences': true,
+            'Technology': true,
+            'Mathematics': true,
+          },
+      data: map['data'] ??
+          {
+            'show_image': true,
+          },
+    );
+  }
+
+  Map toMap() {
+    return {'category': category, 'data': data};
+  }
+
+  Map<String, bool> get category => _category;
+  Map<String, bool> get data => _data;
 }

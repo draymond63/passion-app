@@ -33,7 +33,7 @@ class Suggestor {
     final validSuggestions = vitals
         .where((row) =>
             !userInfo.containsKey(row[siteCol]) &&
-            settings[row[VitCol.l0.index]])
+            settings.category[row[VitCol.l0.index]])
         .toList();
 
     final infoRows =
@@ -67,11 +67,11 @@ class Suggestor {
     return sites;
   }
 
-  Map<String, int> trimData(Map<String, int> info, Map<String, bool> settings) {
+  Map<String, int> trimData(Map<String, int> info, Settings settings) {
     final userInfo = <String, int>{};
     info.forEach((key, value) {
       final row = vitals.firstWhere((row) => row[siteCol] == key);
-      if (settings[row[VitCol.l0.index]]) userInfo[key] = value;
+      if (settings.category[row[VitCol.l0.index]]) userInfo[key] = value;
     });
     return userInfo;
   }

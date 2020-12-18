@@ -70,6 +70,12 @@ class DBService {
     });
   }
 
+  void deleteData(BuildContext context) {
+    final user = getUser(context, listen: false);
+    final doc = _getDoc(user.uid);
+    doc.delete();
+  }
+
   void _updateData(BuildContext context, Map info) async {
     final user = getUser(context, listen: false);
     final doc = _getDoc(user.uid);
