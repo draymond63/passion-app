@@ -15,15 +15,18 @@ class BaseItem extends StatefulWidget {
 
 class _BaseItemState extends State<BaseItem> {
   void addLikedItem(BuildContext context, String name, String site) {
+    String message = 'Added $name to your bookmarks!';
     // Add item to the list
     final db = Provider.of<Storage>(context, listen: false);
     final status = db.addItem(site, context);
-    if (!status) db.removeItem(site, context);
+    if (!status) {
+      db.removeItem(site, context);
+      message = 'Removed $name from your bookmarks';
+    }
     // Show feedback
     Scaffold.of(context).showSnackBar(SnackBar(
       backgroundColor: Color(MAIN_ACCENT_COLOR),
-      content: Text('Added $name to your bookmarks!', // ! UPDATE TEXT ON DELETE
-          style: TextStyle(color: Color(MAIN_COLOR))),
+      content: Text(message, style: TextStyle(color: Color(MAIN_COLOR))),
     ));
   }
 
@@ -61,15 +64,19 @@ class _BaseItemState extends State<BaseItem> {
     return [
       // * IMAGE
       widget.buildImage(image),
-      Center(child: Text(info[VitCol.name.index], style: ItemHeader)),
+      Center(
+          child: Text(
+        info[VitCol.name.index] ?? widget.site,
+        style: ItemHeader,
+      )),
       // * BUTTONS
-      buildButton(context, info),
+      buildLikeButton(context, info),
       // * TEXT
       Container(padding: EdgeInsets.all(8), child: Text(doc.content)),
     ];
   }
 
-  Widget buildButton(BuildContext context, List info) {
+  Widget buildLikeButton(BuildContext context, List info) {
     final store = Provider.of<Storage>(context);
     Color color = Color(0xFFAAAAAA);
     if (store.items.contains(widget.site)) color = Color(MAIN_COLOR);

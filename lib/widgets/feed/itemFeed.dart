@@ -1,19 +1,15 @@
 import 'package:PassionFruit/widgets/feed/itemBase.dart';
 import 'package:flutter/material.dart';
 
-class FeedItem extends StatefulWidget {
+class FeedItem extends StatelessWidget {
   final String site;
   const FeedItem(this.site);
-  @override
-  _FeedItemState createState() => _FeedItemState();
-}
 
-class _FeedItemState extends State<FeedItem> {
   @override
   Widget build(BuildContext context) {
     return Container(
       child: BaseItem(
-        site: widget.site,
+        site: site,
         buildImage: buildImage,
       ),
       // * FORMATTING
