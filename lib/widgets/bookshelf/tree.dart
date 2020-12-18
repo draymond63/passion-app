@@ -1,8 +1,10 @@
 import 'package:PassionFruit/helpers/globals.dart';
 import 'package:PassionFruit/helpers/storage.dart';
 import 'package:PassionFruit/widgets/bookshelf/treeNode.dart';
+import 'package:PassionFruit/widgets/feed/itemView.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
 
 class TreeViewer extends StatefulWidget {
@@ -32,26 +34,36 @@ class _TreeViewerState extends State<TreeViewer> {
     data = csv.where((row) => items.contains(row[VitCol.site.index])).toList();
   }
 
-  List getItems() {
+  Map<String, int> getItems() {
     Iterable trim = data;
     // Strip vitals down to children of the parent (path.last)
     if (depth != 0)
       trim = trim.where((row) => row[_columns[depth - 1].index] == path.last);
     // Get the appriorate column
     trim = trim.map((row) => row[_columns[depth].index]);
-    // Get a unique list
-    return trim.toSet().toList();
+    // Count each entry
+    final count = <String, int>{};
+    trim.forEach((i) => count.containsKey(i) ? count[i]++ : count[i] = 1);
+    return count;
   }
 
   // * Updates tree depth and associated items
-  void selectBranch(String selection) {
+  void selectBranch(String selection, {bool firstPress = true}) {
     if (depth != _columns.length - 1) {
       // Update state
       setState(() => path.add(selection));
       setState(() => depth++);
       // Dive deeper into the tree if there's only one child
       final children = getItems();
-      if (children.length == 1) selectBranch(children.first);
+      if (children.length == 1)
+        selectBranch(children.keys.first, firstPress: false);
+    } else if (firstPress == true) {
+      pushNewScreen(
+        context,
+        withNavBar: false,
+        pageTransitionAnimation: PageTransitionAnimation.fade,
+        screen: ViewItem(selection),
+      );
     }
   }
 
@@ -65,7 +77,15 @@ class _TreeViewerState extends State<TreeViewer> {
   }
 
   // * Builds the rendered tree
-  List<Widget> buildTree(List items, BuildContext context) {
+  List<Widget> buildTree(BuildContext context) {
+    final items = getItems();
+    final sites = <String>[];
+    final counts = <int>[];
+    items.forEach((key, value) {
+      sites.add(key);
+      counts.add(value);
+    });
+
     return [
       Align(
         alignment: Alignment.topLeft,
@@ -75,16 +95,17 @@ class _TreeViewerState extends State<TreeViewer> {
       ...List.generate(
         items.length,
         (i) => InkWell(
-          onTap: () => selectBranch(items[i]),
-          child: TreeNode(items[i], depth != _columns.length - 1),
+          onTap: () => selectBranch(sites[i]),
+          child: TreeNode(sites[i], counts[i], depth != _columns.length - 1),
         ),
       ),
       // * PATH
       FittedBox(
-          child: path.length > 0
-              // ! PATH ORDER NOT GUARANTEED WITH SET
-              ? Text(path.toSet().join(' -> ').replaceAll('_', ' '))
-              : Container(width: 1, height: 1)),
+        child: path.length > 0
+            // ! PATH ORDER NOT GUARANTEED WITH SET
+            ? Text(path.toSet().join(' -> ').replaceAll('_', ' '))
+            : Container(width: 1, height: 1),
+      ),
       // * Back button
       depth != 0
           ? IconButton(
@@ -105,7 +126,7 @@ class _TreeViewerState extends State<TreeViewer> {
     return Container(
       width: MediaQuery.of(context).size.width,
       child: Column(
-        children: buildTree(getItems(), context),
+        children: buildTree(context),
       ),
     );
   }

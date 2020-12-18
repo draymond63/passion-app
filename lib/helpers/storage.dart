@@ -100,8 +100,8 @@ class Storage extends ChangeNotifier {
         'Category not found in settings: $category');
     _settings[category] = state;
     // If all are false, set them to true
-    if (!_settings.values.contains(true))
-      settings.updateAll((key, value) => true);
+    if (!settings.containsValue(true))
+      _settings.updateAll((key, value) => true);
     _update();
   }
 }
