@@ -30,35 +30,39 @@ class Suggestor {
 
     // ? COMBINE INTO ONE ITERATION ?
     // Remove all rows that have been seen or are ignored by user settings
-    final rowsConst = vitals
+    final validSuggestions = vitals
         .where((row) =>
             !userInfo.containsKey(row[siteCol]) &&
             settings[row[VitCol.l0.index]])
         .toList();
-    final userConst =
+
+    final infoRows =
         vitals.where((row) => userInfo.containsKey(row[siteCol])).toList();
 
     // ? IMPROVE EFFICIENCY BY SELECTING ALL SITES TOGETHER ?
     final sites = <String>[];
     for (int ii = 0; ii < k; ii++) {
       // Create a new instance that will get filtered
-      List<List> rows = rowsConst;
-      List<List> userRows = userConst;
+      List<List> rows = validSuggestions;
       for (final col in columns) {
-        Map<String, double> probs = getWeights(col, userInfo, userRows);
-        // Add columns to probs that have never been seen (pass by reference)
-        adjustWeights(col, probs, rows);
+        // Get the options for this column
+        final options = getOptions(col, rows);
+        // Get the weights for each option
+        Map<String, double> probs =
+            getWeights(col, userInfo, options, infoRows);
+        // If some options have never been seen, give them a chance
+        adjustWeights(col, probs, options);
         // Choose an option!
         final selection = randomChoice(probs.keys, probs.values);
         // Keep rows with the selection
         rows = rows.where((r) => r[col.index] == selection).toList();
-        // Filter out user data that's not relevant anymore
-        userRows = userRows.where((r) => r[col.index] == selection).toList();
         if (rows.length == 0)
           throw Exception('Suggestion Selection not found: $selection');
       }
       final site = randomChoice<String>(rows.map((r) => r[siteCol]));
       sites.add(site);
+      // Remove site from future suggestions
+      validSuggestions.removeWhere((row) => row[siteCol] == site);
     }
     return sites;
   }
@@ -72,18 +76,19 @@ class Suggestor {
     return userInfo;
   }
 
-  Map<String, double> getWeights(VitCol col, Map info, List<List> userRows) {
+  List<String> getOptions(VitCol col, List<List> rows) {
+    return rows.map((row) => row[col.index] as String).toSet().toList();
+  }
+
+  Map<String, double> getWeights(
+      VitCol col, Map info, List<String> options, List<List> infoRows) {
     // Get all categories that have been seen
     final probs = <String, double>{};
 
     for (final site in info.keys) {
-      final row = userRows
-          .firstWhere((r) => r[siteCol] == site, orElse: () => [])
-          .toList();
-      // Because userRows gets trimmed in every iteration,
-      // sometimes it won't find the site
-      if (row.length != 0) {
-        final category = row[col.index];
+      final row = infoRows.firstWhere((r) => r[siteCol] == site).toList();
+      final category = row[col.index];
+      if (options.contains(category)) {
         if (!probs.containsKey(category)) probs[category] = 0;
         probs[category] += info[site].toDouble();
       }
@@ -91,7 +96,7 @@ class Suggestor {
     return probs; // Normalization is not required
   }
 
-  void adjustWeights(VitCol col, Map probs, List<List> rows) {
+  void adjustWeights(VitCol col, Map probs, List<String> options) {
     double mean = 0;
     if (probs.length != 0) {
       probs.forEach((key, value) => mean += value);
@@ -100,9 +105,8 @@ class Suggestor {
       mean = 1;
     }
 
-    rows.forEach((row) {
-      final category = row[col.index];
-      if (!probs.containsKey(category)) probs[category] = mean;
+    options.forEach((opt) {
+      if (!probs.containsKey(opt)) probs[opt] = mean;
     });
   }
 }
