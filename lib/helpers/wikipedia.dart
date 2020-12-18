@@ -43,7 +43,7 @@ class Wiki {
       // Return data
       return WikiDoc.fromMap({
         'site': site,
-        'image': imageUrl,
+        'imageUrl': imageUrl,
         'content': _parseContent(data[1]),
       });
     } catch (e) {
