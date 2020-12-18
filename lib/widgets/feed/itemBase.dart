@@ -39,14 +39,17 @@ class _BaseItemState extends State<BaseItem> {
       future: wiki.fetchItem(widget.site),
       builder: (context, snap) {
         if (snap.hasData)
-          return ListView(children: buildContent(snap.data, vitals));
+          return ListView(children: buildContent(context, snap.data, vitals));
         if (snap.hasError) return Center(child: Text('${snap.error}'));
         return LoadingWidget;
       },
     );
   }
 
-  List<Widget> buildContent(WikiDoc doc, List<List> vitals) {
+  List<Widget> buildContent(
+      BuildContext context, WikiDoc doc, List<List> vitals) {
+    final showImage = Provider.of<Storage>(context).settings.data['show_image'];
+
     // Get vitals row info for the site
     final info = vitals.firstWhere(
       (row) => row[VitCol.site.index] == widget.site,
@@ -54,16 +57,18 @@ class _BaseItemState extends State<BaseItem> {
     );
 
     // Check to see if any images were available
-    final image = doc.imageUrl == ''
-        ? Image.asset('assets/fruit.png', fit: BoxFit.cover)
-        : Image(
-            image: CachedNetworkImageProvider(doc.imageUrl),
-            fit: BoxFit.cover,
-          );
+    Image image;
+    if (showImage)
+      image = doc.imageUrl == ''
+          ? Image.asset('assets/fruit.png', fit: BoxFit.cover)
+          : Image(
+              image: CachedNetworkImageProvider(doc.imageUrl),
+              fit: BoxFit.cover,
+            );
 
     return [
       // * IMAGE
-      widget.buildImage(image),
+      if (showImage) widget.buildImage(image),
       Center(
           child: Text(
         info[VitCol.name.index] ?? widget.site,
