@@ -49,13 +49,11 @@ class _BaseItemState extends State<BaseItem> {
   List<Widget> buildContent(
       BuildContext context, WikiDoc doc, List<List> vitals) {
     final showImage = Provider.of<Storage>(context).settings.data['show_image'];
-
     // Get vitals row info for the site
     final info = vitals.firstWhere(
       (row) => row[VitCol.site.index] == widget.site,
       orElse: () => List.filled(VitCol.values.length, ''),
     );
-
     // Check to see if any images were available
     Image image;
     if (showImage)
