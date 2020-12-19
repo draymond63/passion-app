@@ -12,6 +12,8 @@ class BookShelfPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final data = Provider.of<Storage>(context);
+    if (data.items.length == 0) return buildEmptyPage(context);
+
     final pageItems = [
       SizedBox(),
       UserStatistics(),
@@ -36,16 +38,23 @@ class BookShelfPage extends StatelessWidget {
       children: [
         Text('Bookmarks', style: ItemHeader),
         ConstrainedBox(
-          // ! PROBABLY SHOULDN'T HARDCODE
-          constraints: BoxConstraints(maxHeight: 115),
-          child: sites.length != 0
-              ? ListView.builder(
-                  itemCount: sites.length,
-                  scrollDirection: Axis.horizontal,
-                  itemBuilder: (_, i) => PreviewItem(sites[i]),
-                )
-              : Text("There's nothing here ¯\\_(ツ)_/¯", style: ItemSubtitle),
-        ),
+            // ! PROBABLY SHOULDN'T HARDCODE
+            constraints: BoxConstraints(maxHeight: 115),
+            child: ListView.builder(
+              itemCount: sites.length,
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (_, i) => PreviewItem(sites[i]),
+            )),
+      ],
+    );
+  }
+
+  Widget buildEmptyPage(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text('Check your feed to start using this page!', style: ItemSubtitle),
+        Text(' ¯\\_(ツ)_/¯', style: ItemSubtitle),
       ],
     );
   }
