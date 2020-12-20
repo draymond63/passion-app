@@ -11,7 +11,7 @@ const SECOND_ACCENT_COLOR = 0xFF8B92A2;
 const TEXT_COLOR = 0xFF6D7690;
 
 enum VitCol { site, l0, l1, l2, l3, l4, name }
-enum MapCol { name, l0, x, y }
+enum MapCol { site, x, y, l0 }
 
 // * STYLES
 const ItemHeader = const TextStyle(

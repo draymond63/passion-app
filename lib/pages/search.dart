@@ -1,3 +1,5 @@
+import 'package:PassionFruit/helpers/csv.dart';
+import 'package:PassionFruit/helpers/globals.dart';
 import 'package:flutter/material.dart';
 // import 'package:charts_flutter/flutter.dart' as chart;
 // import 'package:PassionFruit/helpers/globals.dart';
@@ -8,49 +10,25 @@ class SearchPage extends StatefulWidget {
   _SearchPageState createState() => _SearchPageState();
 }
 
-final double _initScale = 10;
-
 class _SearchPageState extends State<SearchPage> {
-  final _zoomer = TransformationController();
-  double scale = _initScale;
-
-  // Set initial zoom and translation (!translation not working)
-  void center(double x, double y) {
-    // ! NOT FULLY CENTERING
-    _zoomer.value = Matrix4.translationValues(-x / 2 - 200, -y / 2, 1) *
-        Matrix4.diagonal3Values(_initScale, _initScale, 1);
-  }
-
-  setScale(_) {
-    final _scale = _zoomer.value.getMaxScaleOnAxis();
-    setState(() => scale = _scale);
-  }
-
-  @override
-  void dispose() {
-    _zoomer.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: buildSearchBar(),
-        // Improves render efficiencQy
-        body: ClipRect(
-          clipBehavior: Clip.hardEdge,
-          child: InteractiveViewer(
-              maxScale: 20,
-              minScale: 1,
-              constrained: false,
-              transformationController: _zoomer,
-              onInteractionEnd: setScale,
-              // Graph
-              child: Graph(
-                scale: scale,
-                updateViewer: center,
-              )),
-        ));
+      appBar: buildSearchBar(),
+      body: FutureBuilder(
+        future: loadMap(),
+        builder: (context, AsyncSnapshot snap) {
+          if (snap.hasData) {
+            print(snap.data);
+            final map = CSV(csv: snap.data);
+            return Container(
+                width: MediaQuery.of(context).size.width, child: Graph(map));
+          }
+          if (snap.hasError) return Text('${snap.error}');
+          return LoadingWidget;
+        },
+      ),
+    );
   }
 
   // * SEARCH BAR
