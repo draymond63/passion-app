@@ -1,9 +1,6 @@
-import 'package:PassionFruit/helpers/csv.dart';
-import 'package:PassionFruit/helpers/globals.dart';
 import 'package:flutter/material.dart';
-// import 'package:charts_flutter/flutter.dart' as chart;
-// import 'package:PassionFruit/helpers/globals.dart';
-import 'package:PassionFruit/widgets/map.dart';
+import 'package:PassionFruit/helpers/globals.dart';
+import 'package:PassionFruit/widgets/search/map.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -19,10 +16,10 @@ class _SearchPageState extends State<SearchPage> {
         future: loadMap(),
         builder: (context, AsyncSnapshot snap) {
           if (snap.hasData) {
-            print(snap.data);
-            final map = CSV(csv: snap.data);
             return Container(
-                width: MediaQuery.of(context).size.width, child: Graph(map));
+              width: MediaQuery.of(context).size.width,
+              child: Graph(snap.data),
+            );
           }
           if (snap.hasError) return Text('${snap.error}');
           return LoadingWidget;
