@@ -13,29 +13,52 @@ class Graph extends StatefulWidget {
 }
 
 class _GraphState extends State<Graph> {
-  String centerSite = '';
-  double scale = 1;
-  double _scale = 1;
+  final _zoomer = TransformationController();
+  List<Point> points;
+  Size mapSize;
+  double scale = 10;
+
+  @override
+  void initState() {
+    super.initState();
+    // Only needs to run once
+    points = getPlotData();
+    mapSize = getMapSize();
+    // Viewer config
+    _zoomer.value.scale(scale, scale);
+    // Requires context
+    Future.delayed(Duration(seconds: 0), () {
+      final items = Provider.of<Storage>(context, listen: false).items;
+      final userCoords = getUserCoords(items);
+      // Calculate the plot data
+      points.add(Point(userCoords.dx, userCoords.dy));
+      // Center on the user's position
+      focusMapOn(userCoords, context);
+      setState(() {}); // Update UI
+    });
+  }
+
+  @override
+  void dispose() {
+    _zoomer.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Calculate user position
-    final items = Provider.of<Storage>(context).items;
-    final userCoords = getUserCoords(items, context);
-    // ? Calculate borders around the graph
-    // Calculate the plot data
-    final points = getPlotData();
-    points.add(Point(userCoords.dx, userCoords.dy));
-
+    // Reruns whenever user interacts
     return InteractiveViewer(
-      onInteractionUpdate: (details) => _scale = details.scale,
-      onInteractionEnd: (_) => setState(() => scale *= _scale),
-      maxScale: 100,
-      minScale: 20,
+      transformationController: _zoomer,
+      onInteractionEnd: (_) => setState(
+        () => scale = _zoomer.value.getMaxScaleOnAxis(),
+      ),
+      scaleEnabled: false,
+      // maxScale: 100,
+      // minScale: 1,
       child: Center(
         child: CustomPaint(
           painter: GraphPainter(points, scale: scale),
-          size: MediaQuery.of(context).size,
+          size: mapSize,
           isComplex: true,
           willChange: false,
         ),
@@ -43,7 +66,33 @@ class _GraphState extends State<Graph> {
     );
   }
 
-  Offset getUserCoords(List<String> sites, BuildContext context) {
+  void focusMapOn(Offset coords, BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    _zoomer.value.translate(
+      coords.dx * scale - screenSize.width / 2,
+      coords.dy * scale - screenSize.height / 2,
+    );
+  }
+
+  Size getMapSize() {
+    double xMin = widget.map[0][MapCol.x.index];
+    double xMax = xMin;
+    double yMin = widget.map[0][MapCol.y.index];
+    double yMax = yMin;
+    widget.map.forEach((row) {
+      final xNew = row[MapCol.x.index];
+      final yNew = row[MapCol.y.index];
+      if (xNew > xMax)
+        xMax = xNew;
+      else if (xNew < xMin) xMin = xNew;
+      if (yNew > yMax)
+        yMax = yNew;
+      else if (yNew < yMin) yMin = yNew;
+    });
+    return Size(xMax - xMin + 50, yMax - yMin + 50);
+  }
+
+  Offset getUserCoords(List<String> sites) {
     final rows = widget.map
         .where((row) => sites.contains(row[MapCol.site.index]))
         .toList();

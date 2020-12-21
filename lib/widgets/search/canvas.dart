@@ -2,19 +2,20 @@ import 'package:flutter/material.dart';
 
 class GraphPainter extends CustomPainter {
   final List<Point> data;
+  final double radius;
   final double scale;
-  GraphPainter(this.data, {this.scale = 1});
+  GraphPainter(this.data, {this.radius = 8, this.scale = 1});
 
   paint(Canvas canvas, Size size) {
     final paint = Paint();
     final offsetX = size.width / 2;
     final offsetY = size.height / 2;
-    final radius = 5 / this.scale;
+    final scaledRadius = radius / this.scale;
 
     data.forEach((point) {
       paint.color = point.color ?? Colors.grey;
       canvas.drawCircle(
-          point.offset.translate(offsetX, offsetY), radius, paint);
+          point.offset.translate(offsetX, offsetY), scaledRadius, paint);
     });
   }
 
