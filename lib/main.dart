@@ -66,20 +66,9 @@ class ProviderApp extends StatelessWidget {
 
 // Configures local data and theme data
 class DataApp extends StatelessWidget {
-  final db = DBService();
-
   @override
   Widget build(BuildContext context) {
-    // If the user is not logged in, redirect to the login page
-    final user = db.getUser(context);
-    if (user == null) {
-      db.login();
-      return MaterialApp(
-          home: Scaffold(
-              body: Center(
-        child: Text('Please wait', style: ItemSubtitle),
-      )));
-    }
+    DBService().login(); // Login to firebase
 
     return MaterialApp(
         title: 'PassionFruit',

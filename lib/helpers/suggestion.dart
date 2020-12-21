@@ -86,6 +86,7 @@ class Suggestor {
     final probs = <String, double>{};
 
     for (final site in info.keys) {
+      // ! THIS IS A BIG INEFFICIENCY
       final row = infoRows.firstWhere((r) => r[siteCol] == site).toList();
       final category = row[col.index];
       if (options.contains(category)) {
