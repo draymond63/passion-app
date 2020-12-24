@@ -33,7 +33,7 @@ class _BaseItemState extends State<BaseItem> {
   @override
   Widget build(BuildContext context) {
     final wiki = Provider.of<Wiki>(context);
-    final vitals = Provider.of<List<List>>(context);
+    final vitals = Provider.of<Map>(context);
 
     return FutureBuilder<WikiDoc>(
       future: wiki.fetchItem(widget.site),
@@ -46,14 +46,10 @@ class _BaseItemState extends State<BaseItem> {
     );
   }
 
-  List<Widget> buildContent(
-      BuildContext context, WikiDoc doc, List<List> vitals) {
+  List<Widget> buildContent(BuildContext context, WikiDoc doc, Map vitals) {
     final showImage = Provider.of<Storage>(context).settings.data['show_image'];
     // Get vitals row info for the site
-    final info = vitals.firstWhere(
-      (row) => row[VitCol.site.index] == widget.site,
-      orElse: () => List.filled(VitCol.values.length, ''),
-    );
+    final info = vitals[widget.site];
     // Check to see if any images were available
     Image image;
     if (showImage)
@@ -69,7 +65,7 @@ class _BaseItemState extends State<BaseItem> {
       if (showImage) widget.buildImage(image),
       Center(
           child: Text(
-        info[VitCol.name.index] ?? widget.site,
+        info['name'] ?? widget.site,
         style: ItemHeader,
       )),
       // * BUTTONS
@@ -79,7 +75,7 @@ class _BaseItemState extends State<BaseItem> {
     ];
   }
 
-  Widget buildLikeButton(BuildContext context, List info) {
+  Widget buildLikeButton(BuildContext context, Map info) {
     final store = Provider.of<Storage>(context);
     Color color = Color(0xFFAAAAAA);
     if (store.items.contains(widget.site)) color = Color(MAIN_COLOR);
@@ -88,8 +84,7 @@ class _BaseItemState extends State<BaseItem> {
       child: IconButton(
         icon: Icon(Icons.thumb_up_rounded),
         color: color,
-        onPressed: () =>
-            addLikedItem(context, info[VitCol.name.index], widget.site),
+        onPressed: () => addLikedItem(context, info['name'], widget.site),
       ),
     );
   }

@@ -14,36 +14,31 @@ class TreeViewer extends StatefulWidget {
 
 class _TreeViewerState extends State<TreeViewer> {
   // Each row of the tree represents one of the columns in this list
-  final _columns = [
-    VitCol.l0,
-    VitCol.l1,
-    VitCol.l2,
-    VitCol.l3,
-    VitCol.l4,
-    VitCol.name
-  ];
+  final _columns = ['l0', 'l1', 'l2', 'l3', 'l4', 'name'];
   int depth = 0; // How many layers deep the tree is showing (0-5)
   List<String> path = []; // Current route to items
-  List<List> data = [[]];
+  List<MapEntry> data = [];
 
   // * Updates user data and initialization
-  void buildTreeData(List<List> csv, List items) {
+  void buildTreeData(Map csv, List items) {
     // For future loading
     if (csv.length == 0) return;
     // Strip vitals down to liked items
-    data = csv.where((row) => items.contains(row[VitCol.site.index])).toList();
+    data = csv.entries.where((row) => items.contains(row.key)).toList();
   }
 
   Map<String, int> getItems() {
     Iterable trim = data;
     // Strip vitals down to children of the parent (path.last)
     if (depth != 0)
-      trim = trim.where((row) => row[_columns[depth - 1].index] == path.last);
+      trim = trim.where((row) => row.value[_columns[depth - 1]] == path.last);
     // Get the appriorate column
-    trim = trim.map((row) => row[_columns[depth].index]);
+    trim = trim.map((row) => row.value[_columns[depth]]);
     // Count each entry
     final count = <String, int>{};
-    trim.forEach((i) => count.containsKey(i) ? count[i]++ : count[i] = 1);
+    trim.forEach(
+      (i) => count.containsKey(i) ? count[i]++ : count[i] = 1,
+    );
     return count;
   }
 
@@ -119,7 +114,7 @@ class _TreeViewerState extends State<TreeViewer> {
   // * Builds the data
   @override
   Widget build(BuildContext context) {
-    final vitals = Provider.of<List<List>>(context);
+    final vitals = Provider.of<Map>(context);
     final user = Provider.of<Storage>(context);
     buildTreeData(vitals, user.items);
 

@@ -12,15 +12,12 @@ class PreviewItem extends StatefulWidget {
 }
 
 class _PreviewItemState extends State<PreviewItem> {
-  List info = [];
+  Map info = {};
 
   @override
   Widget build(BuildContext context) {
-    final vitals = Provider.of<List<List>>(context);
-    setState(() => info = vitals.firstWhere(
-          (row) => row[VitCol.site.index] == widget.site,
-          orElse: () => <String>[],
-        ));
+    final vitals = Provider.of<Map>(context);
+    setState(() => info = vitals[widget.site] ?? {});
 
     return GestureDetector(
       onTap: () {
@@ -44,10 +41,9 @@ class _PreviewItemState extends State<PreviewItem> {
             color: Colors.white,
             borderRadius: BorderRadius.all(Radius.circular(16))),
         // * ITEMS
-        child: info.length == VitCol.values.length
+        child: info.length == VitCol.length
             ? Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                FittedBox(
-                    child: Text(info[VitCol.name.index], style: ItemHeader)),
+                FittedBox(child: Text(info['name'], style: ItemHeader)),
                 FittedBox(child: buildPath())
               ])
             : LoadingWidget,
@@ -57,11 +53,11 @@ class _PreviewItemState extends State<PreviewItem> {
 
   Widget buildPath() {
     List<String> row = [
-      info[VitCol.l0.index].replaceAll('_', ' '),
-      info[VitCol.l1.index].replaceAll('_', ' '),
-      info[VitCol.l2.index].replaceAll('_', ' '),
-      info[VitCol.l3.index].replaceAll('_', ' '),
-      info[VitCol.l4.index].replaceAll('_', ' ')
+      info['l0'].replaceAll('_', ' '),
+      info['l1'].replaceAll('_', ' '),
+      info['l2'].replaceAll('_', ' '),
+      info['l3'].replaceAll('_', ' '),
+      info['l4'].replaceAll('_', ' ')
     ];
     row = row.toSet().toList(); // Remove duplicates
     return Text(row.join(' -> '));

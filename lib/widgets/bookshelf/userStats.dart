@@ -11,11 +11,11 @@ class UserStatistics extends StatefulWidget {
 }
 
 class _UserStatisticsState extends State<UserStatistics> {
-  List<String> getPopularL0s(List<List> vitals, Storage user) {
+  List<String> getPopularL0s(Map vitals, Storage user) {
     // Get all current l0s
     final items = user.items;
-    final rows = vitals.where((row) => items.contains(row[VitCol.site.index]));
-    final l0s = rows.map((row) => row[VitCol.l0.index]).toList();
+    final rows = vitals.entries.where((row) => items.contains(row.key));
+    final l0s = rows.map((entry) => entry.value['l0']).toList();
     // Counts frequency
     final map = Map();
     l0s.forEach((element) =>
@@ -32,7 +32,7 @@ class _UserStatisticsState extends State<UserStatistics> {
 
   @override
   Widget build(BuildContext context) {
-    final vitals = Provider.of<List<List>>(context);
+    final vitals = Provider.of<Map>(context);
     final user = Provider.of<Storage>(context);
 
     final popList = getPopularL0s(vitals, user);

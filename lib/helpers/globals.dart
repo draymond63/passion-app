@@ -10,7 +10,7 @@ const MAIN_ACCENT_COLOR = 0xFFCFD1D8;
 const SECOND_ACCENT_COLOR = 0xFF8B92A2;
 const TEXT_COLOR = 0xFF6D7690;
 
-enum VitCol { site, l0, l1, l2, l3, l4, name }
+const VitCol = ['l0', 'l1', 'l2', 'l3', 'l4', 'name'];
 enum MapCol { site, x, y, l0 }
 
 // * STYLES
@@ -25,18 +25,14 @@ const LoadingWidget = Center(
 );
 
 // * FUNCTIONS
-Future<List<List>> loadVitals() async {
-  return _getAsset('vitals.csv', shouldParseNumbers: false);
+Future<Map<String, dynamic>> loadVitals() async {
+  final json = await rootBundle.loadString('assets/vitals.json');
+  return jsonDecode(json) as Map<String, dynamic>;
 }
 
 Future<List<List>> loadMap() async {
-  return _getAsset('map.csv');
-}
-
-Future<List<List>> _getAsset(String name, {shouldParseNumbers = true}) async {
-  final csvString = await rootBundle.loadString('assets/' + name);
-  return CsvToListConverter()
-      .convert(csvString, shouldParseNumbers: shouldParseNumbers);
+  final csvString = await rootBundle.loadString('assets/map.csv');
+  return CsvToListConverter().convert(csvString);
 }
 
 // * DATA PERSISTENCE

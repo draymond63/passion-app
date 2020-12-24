@@ -39,9 +39,7 @@ class ProviderApp extends StatelessWidget {
                     // List<List>
                     FutureProvider(
                       create: (_) => loadVitals(),
-                      initialData: [
-                        List.generate(VitCol.values.length, (_) => '')
-                      ],
+                      initialData: {},
                       lazy: false,
                     ),
                     // Wiki
