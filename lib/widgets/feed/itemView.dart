@@ -8,7 +8,10 @@ class ViewItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.arrow_back),
+        onPressed: Navigator.of(context).pop,
+      ),
       body: Container(
         child: BaseItem(
           site: site,

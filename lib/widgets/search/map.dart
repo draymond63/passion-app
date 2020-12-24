@@ -15,7 +15,8 @@ class _GraphState extends State<Graph> {
   final _zoomer = TransformationController();
   List<Point> points;
   Size mapSize;
-  double scale = 2;
+  Size canvasSize;
+  double scale = 20;
 
   /* Type   | Dim | Scale | Size   | Translate | Ratio 
    * screen | w   | 10    | 411.4  | 41        | 10.03
@@ -40,12 +41,12 @@ class _GraphState extends State<Graph> {
     // print(mapSize); // Size(1257.2, 1180.0)
     // print(screenSize); // Size(411.4, 845.7)
     // TRANSLATE BY CANVAS SIZE TO MOVE 1 WHOLE MAP
-    _zoomer.value.translate(-411.4, -721.0);
+    // _zoomer.value.translate(-400.0, -700.0);
     // Add the user
     final userCoords = getUserCoords(widget.items);
     points.add(Point(userCoords.dx, userCoords.dy, 'You'));
     // Center on the user's position
-    // Future.delayed(Duration(seconds: 0), () => focusMapOn(userCoords, context));
+    Future.delayed(Duration(seconds: 0), () => focusMapOn(userCoords, context));
   }
 
   @override
@@ -71,7 +72,12 @@ class _GraphState extends State<Graph> {
         // maxScale: 100,
         // minScale: 1,
         child: CustomPaint(
-          painter: GraphPainter(points, scale: scale),
+          painter: GraphPainter(
+            points,
+            mapSize,
+            setCanvasSize,
+            scale: scale,
+          ),
           isComplex: true,
           willChange: false,
           size: mapSize,
@@ -80,10 +86,13 @@ class _GraphState extends State<Graph> {
     );
   }
 
+  void setCanvasSize(Size size) => canvasSize = size;
+
   void focusMapOn(Offset coords, BuildContext context) {
+    assert(canvasSize.width != null);
+    final xScale = canvasSize.width / mapSize.width;
+    final yScale = canvasSize.height / mapSize.height;
     final screenSize = MediaQuery.of(context).size; // ! NOT THIS SCREEN SIZE
-    final xScale = screenSize.width / mapSize.width;
-    final yScale = screenSize.height / mapSize.height;
 
     setState(
       () => _zoomer.value.translate(

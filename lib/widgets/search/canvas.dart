@@ -2,21 +2,37 @@ import 'package:flutter/material.dart';
 
 class GraphPainter extends CustomPainter {
   final List<Point> data;
+  final Size mapSize;
+  final Function(Size) setSize;
   final double radius;
   final double scale;
-  GraphPainter(this.data, {this.radius = 8, this.scale = 1});
+  GraphPainter(
+    this.data,
+    this.mapSize,
+    this.setSize, {
+    this.radius = 8,
+    this.scale = 1,
+  });
 
   // ! GIVEN SCREEN SIZE (411.4, 720.7), NOT PASSED SIZE
   // Size given has navbar and searchbar removed
   paint(Canvas canvas, Size size) {
+    setSize(size);
     final paint = Paint();
     final scaledRadius = radius / this.scale;
+    // Keep everything in the bounds of the canvas
+    Offset posScale = Offset(1, 1);
+    if (size.width > 0 && size.height > 0)
+      posScale = Offset(
+        size.width / mapSize.width,
+        size.height / mapSize.height,
+      );
 
     // DRAWS VALUES OUTSIZE OF SIZE
     data.forEach((point) {
       paint.color = point.color ?? Colors.grey;
       canvas.drawCircle(
-        point.offset,
+        point.offset.scale(posScale.dx, posScale.dy),
         point.site == 'You' ? scaledRadius * 1.5 : scaledRadius,
         paint,
       );
