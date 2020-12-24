@@ -16,6 +16,7 @@ class _GraphState extends State<Graph> {
   List<Point> points;
   Size mapSize;
   Size canvasSize;
+  Offset userCoords;
   double scale = 20;
 
   /* Type   | Dim | Scale | Size   | Translate | Ratio 
@@ -35,18 +36,12 @@ class _GraphState extends State<Graph> {
     // Only needs to run once
     points = getPlotData();
     mapSize = getMapSize();
-    print(mapSize);
-    // Viewer config
-    _zoomer.value.scale(scale, scale);
-    // print(mapSize); // Size(1257.2, 1180.0)
-    // print(screenSize); // Size(411.4, 845.7)
-    // TRANSLATE BY CANVAS SIZE TO MOVE 1 WHOLE MAP
-    // _zoomer.value.translate(-400.0, -700.0);
     // Add the user
-    final userCoords = getUserCoords(widget.items);
+    userCoords = getUserCoords(widget.items);
     points.add(Point(userCoords.dx, userCoords.dy, 'You'));
     // Center on the user's position
-    Future.delayed(Duration(seconds: 0), () => focusMapOn(userCoords, context));
+    Future.delayed(
+        Duration(seconds: 0), () => focusCoords(userCoords, context));
   }
 
   @override
@@ -60,22 +55,21 @@ class _GraphState extends State<Graph> {
     // Reruns whenever user interacts
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.ac_unit),
-        onPressed: () => setState(() => _zoomer.value.translate(-10.0)),
+        child: Icon(Icons.home),
+        onPressed: () => focusCoords(userCoords, context),
       ),
       body: InteractiveViewer(
         transformationController: _zoomer,
         onInteractionEnd: (_) => setState(
           () => scale = _zoomer.value.getMaxScaleOnAxis(),
         ),
-        scaleEnabled: false,
-        // maxScale: 100,
-        // minScale: 1,
+        maxScale: 75,
+        minScale: 5,
         child: CustomPaint(
           painter: GraphPainter(
             points,
-            mapSize,
-            setCanvasSize,
+            mapSize, // ! THIS COULD PROBABLY BE BETTER
+            setCanvasSize, // ! ~
             scale: scale,
           ),
           isComplex: true,
@@ -86,14 +80,26 @@ class _GraphState extends State<Graph> {
     );
   }
 
+  // ? Make this less sloppy ?
   void setCanvasSize(Size size) => canvasSize = size;
 
-  void focusMapOn(Offset coords, BuildContext context) {
-    assert(canvasSize.width != null);
+  void focusSite(String site, BuildContext context) {
+    final info = widget.map.firstWhere((row) => row[MapCol.site.index]);
+    final x = info[MapCol.x.index];
+    final y = info[MapCol.y.index];
+    focusCoords(Offset(x, y), context);
+  }
+
+  // Translates map coordinates to viewer coordinates
+  // ! Assumes starting in the top left
+  void focusCoords(Offset coords, BuildContext context) {
+    assert(canvasSize != null);
     final xScale = canvasSize.width / mapSize.width;
     final yScale = canvasSize.height / mapSize.height;
-    final screenSize = MediaQuery.of(context).size; // ! NOT THIS SCREEN SIZE
-
+    final screenSize = MediaQuery.of(context).size;
+    // Reset position
+    _zoomer.value = Matrix4.diagonal3Values(scale, scale, 1);
+    // Move to coordinates
     setState(
       () => _zoomer.value.translate(
         -coords.dx * xScale + (screenSize.width / scale / 2),

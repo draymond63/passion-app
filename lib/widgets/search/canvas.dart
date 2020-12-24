@@ -14,10 +14,9 @@ class GraphPainter extends CustomPainter {
     this.scale = 1,
   });
 
-  // ! GIVEN SCREEN SIZE (411.4, 720.7), NOT PASSED SIZE
-  // Size given has navbar and searchbar removed
+  // Size is different from MediaQuery.size from parent
   paint(Canvas canvas, Size size) {
-    setSize(size);
+    setSize(size); // Tells parent about size
     final paint = Paint();
     final scaledRadius = radius / this.scale;
     // Keep everything in the bounds of the canvas
@@ -37,31 +36,6 @@ class GraphPainter extends CustomPainter {
         paint,
       );
     });
-    double corner = 0;
-    paint
-      ..strokeWidth = 5.0
-      ..color = Colors.black;
-    // ! TEMP LINES
-    canvas.drawLine(
-      Offset(corner, corner),
-      Offset(corner, size.height - corner),
-      paint,
-    );
-    canvas.drawLine(
-      Offset(corner, corner),
-      Offset(size.width - corner, corner),
-      paint,
-    );
-    canvas.drawLine(
-      Offset(size.width, size.height),
-      Offset(corner, size.height - corner),
-      paint,
-    );
-    canvas.drawLine(
-      Offset(size.width, size.height),
-      Offset(size.width - corner, corner),
-      paint,
-    );
   }
 
   shouldRepaint(GraphPainter oldPainter) =>
