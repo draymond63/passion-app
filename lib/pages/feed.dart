@@ -69,7 +69,7 @@ class _FeedPageState extends State<FeedPage> {
   @override
   Widget build(BuildContext context) {
     sg = Suggestor(context);
-    if (sites.length == 0) sites.addAll(sg.suggest());
+    if (sites.length == 0) sites.addAll(sg.suggest(widget.loadBuffer + 1));
 
     return Scaffold(
         appBar: AppBar(
@@ -88,7 +88,7 @@ class _FeedPageState extends State<FeedPage> {
     return PageView.builder(
       controller: _swiper,
       itemBuilder: (BuildContext context, int i) {
-        if (sites.length <= i) {
+        if (sites.length - widget.loadBuffer <= i) {
           final suggestions = sg.suggest();
           sites.addAll(suggestions);
           return LoadingWidget;
