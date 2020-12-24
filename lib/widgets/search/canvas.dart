@@ -6,17 +6,46 @@ class GraphPainter extends CustomPainter {
   final double scale;
   GraphPainter(this.data, {this.radius = 8, this.scale = 1});
 
+  // ! GIVEN SCREEN SIZE (411.4, 720.7), NOT PASSED SIZE
+  // Size given has navbar and searchbar removed
   paint(Canvas canvas, Size size) {
     final paint = Paint();
-    final offsetX = size.width / 2;
-    final offsetY = size.height / 2;
     final scaledRadius = radius / this.scale;
 
+    // DRAWS VALUES OUTSIZE OF SIZE
     data.forEach((point) {
       paint.color = point.color ?? Colors.grey;
       canvas.drawCircle(
-          point.offset.translate(offsetX, offsetY), scaledRadius, paint);
+        point.offset,
+        point.site == 'You' ? scaledRadius * 1.5 : scaledRadius,
+        paint,
+      );
     });
+    double corner = 0;
+    paint
+      ..strokeWidth = 5.0
+      ..color = Colors.black;
+    // ! TEMP LINES
+    canvas.drawLine(
+      Offset(corner, corner),
+      Offset(corner, size.height - corner),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(corner, corner),
+      Offset(size.width - corner, corner),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(size.width, size.height),
+      Offset(corner, size.height - corner),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(size.width, size.height),
+      Offset(size.width - corner, corner),
+      paint,
+    );
   }
 
   shouldRepaint(GraphPainter oldPainter) =>
@@ -26,8 +55,9 @@ class GraphPainter extends CustomPainter {
 class Point {
   final double x;
   final double y;
+  final String site;
   final MaterialColor color;
-  Point(this.x, this.y, {this.color = Colors.grey});
+  Point(this.x, this.y, this.site, {this.color = Colors.grey});
 
   Offset get offset => Offset(x, y);
 }

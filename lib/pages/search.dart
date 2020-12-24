@@ -1,6 +1,8 @@
+import 'package:PassionFruit/helpers/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:PassionFruit/helpers/globals.dart';
 import 'package:PassionFruit/widgets/search/map.dart';
+import 'package:provider/provider.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -10,6 +12,8 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
+    final items = Provider.of<Storage>(context).items;
+
     return Scaffold(
       appBar: buildSearchBar(),
       body: FutureBuilder(
@@ -18,7 +22,7 @@ class _SearchPageState extends State<SearchPage> {
           if (snap.hasData) {
             return Container(
               width: MediaQuery.of(context).size.width,
-              child: Graph(snap.data),
+              child: Graph(snap.data, items),
             );
           }
           if (snap.hasError) return Text('${snap.error}');

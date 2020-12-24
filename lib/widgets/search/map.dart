@@ -1,13 +1,12 @@
 import 'package:PassionFruit/widgets/search/canvas.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:PassionFruit/helpers/globals.dart';
-import 'package:PassionFruit/helpers/storage.dart';
 // import 'package:PassionFruit/widgets/feed/itemView.dart';
 
 class Graph extends StatefulWidget {
   final List<List> map;
-  Graph(this.map);
+  final List<String> items;
+  Graph(this.map, this.items);
   @override
   _GraphState createState() => _GraphState();
 }
@@ -16,7 +15,18 @@ class _GraphState extends State<Graph> {
   final _zoomer = TransformationController();
   List<Point> points;
   Size mapSize;
-  double scale = 10;
+  double scale = 2;
+
+  /* Type   | Dim | Scale | Size   | Translate | Ratio 
+   * screen | w   | 10    | 411.4  | 41        | 10.03
+   * screen | h   | 10    | 845.7  | 72        | 11.74
+   * map    | w   | 10    | 1307.2 | 411       | 3.18
+   * map    | h   | 10    | 1230.0 | 720       | 1.71
+   * screen | w   | 15    | 411.4  | 27.3      | 15.07
+   * screen | h   | 15    | 845.7  | 48        | 17.62
+   * map    | w   | 15    | 1307.2 | 438       | 2.98
+   * map    | h   | 15    | 1230.0 | 768       | 1.6
+   */
 
   @override
   void initState() {
@@ -24,18 +34,18 @@ class _GraphState extends State<Graph> {
     // Only needs to run once
     points = getPlotData();
     mapSize = getMapSize();
+    print(mapSize);
     // Viewer config
     _zoomer.value.scale(scale, scale);
-    // Requires context
-    Future.delayed(Duration(seconds: 0), () {
-      final items = Provider.of<Storage>(context, listen: false).items;
-      final userCoords = getUserCoords(items);
-      // Calculate the plot data
-      points.add(Point(userCoords.dx, userCoords.dy));
-      // Center on the user's position
-      focusMapOn(userCoords, context);
-      setState(() {}); // Update UI
-    });
+    // print(mapSize); // Size(1257.2, 1180.0)
+    // print(screenSize); // Size(411.4, 845.7)
+    // TRANSLATE BY CANVAS SIZE TO MOVE 1 WHOLE MAP
+    _zoomer.value.translate(-411.4, -721.0);
+    // Add the user
+    final userCoords = getUserCoords(widget.items);
+    points.add(Point(userCoords.dx, userCoords.dy, 'You'));
+    // Center on the user's position
+    // Future.delayed(Duration(seconds: 0), () => focusMapOn(userCoords, context));
   }
 
   @override
@@ -47,49 +57,53 @@ class _GraphState extends State<Graph> {
   @override
   Widget build(BuildContext context) {
     // Reruns whenever user interacts
-    return InteractiveViewer(
-      transformationController: _zoomer,
-      onInteractionEnd: (_) => setState(
-        () => scale = _zoomer.value.getMaxScaleOnAxis(),
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.ac_unit),
+        onPressed: () => setState(() => _zoomer.value.translate(-10.0)),
       ),
-      scaleEnabled: false,
-      // maxScale: 100,
-      // minScale: 1,
-      child: Center(
+      body: InteractiveViewer(
+        transformationController: _zoomer,
+        onInteractionEnd: (_) => setState(
+          () => scale = _zoomer.value.getMaxScaleOnAxis(),
+        ),
+        scaleEnabled: false,
+        // maxScale: 100,
+        // minScale: 1,
         child: CustomPaint(
           painter: GraphPainter(points, scale: scale),
-          size: mapSize,
           isComplex: true,
           willChange: false,
+          size: mapSize,
         ),
       ),
     );
   }
 
   void focusMapOn(Offset coords, BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    _zoomer.value.translate(
-      coords.dx * scale - screenSize.width / 2,
-      coords.dy * scale - screenSize.height / 2,
+    final screenSize = MediaQuery.of(context).size; // ! NOT THIS SCREEN SIZE
+    final xScale = screenSize.width / mapSize.width;
+    final yScale = screenSize.height / mapSize.height;
+
+    setState(
+      () => _zoomer.value.translate(
+        -coords.dx * xScale + (screenSize.width / scale / 2),
+        -coords.dy * yScale + (screenSize.height / scale / 2),
+      ),
     );
   }
 
   Size getMapSize() {
-    double xMin = widget.map[0][MapCol.x.index];
-    double xMax = xMin;
-    double yMin = widget.map[0][MapCol.y.index];
-    double yMax = yMin;
+    // Data starts at 0, 0 - we don't need to keep track of mins
+    double xMax = widget.map[0][MapCol.x.index];
+    double yMax = widget.map[0][MapCol.y.index];
     widget.map.forEach((row) {
       final xNew = row[MapCol.x.index];
       final yNew = row[MapCol.y.index];
-      if (xNew > xMax)
-        xMax = xNew;
-      else if (xNew < xMin) xMin = xNew;
-      if (yNew > yMax)
-        yMax = yNew;
-      else if (yNew < yMin) yMin = yNew;
+      if (xNew > xMax) xMax = xNew;
+      if (yNew > yMax) yMax = yNew;
     });
-    return Size(xMax - xMin + 50, yMax - yMin + 50);
+    return Size(xMax, yMax);
   }
 
   Offset getUserCoords(List<String> sites) {
@@ -111,6 +125,7 @@ class _GraphState extends State<Graph> {
       return Point(
         info[MapCol.x.index],
         info[MapCol.y.index],
+        info[MapCol.site.index].toString(),
         color: categoryColors[info[MapCol.l0.index]],
       );
     });
