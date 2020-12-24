@@ -36,16 +36,18 @@ class DBService {
   final auth = FirebaseAuth.instance;
 
   // * READING
-  User getUser(BuildContext context, {bool listen = true}) {
-    return Provider.of<User>(context, listen: listen);
+  Future<User> _getUser(BuildContext context, {bool listen = true}) async {
+    User user = Provider.of<User>(context, listen: listen);
+    if (user == null) user = await login();
+    return user;
   }
 
-  void login() async {
-    await auth.signInAnonymously();
+  Future<User> login() async {
+    return auth.signInAnonymously().then((creds) => creds.user);
   }
 
   Stream<UserDoc> getUserData(BuildContext context) {
-    final user = getUser(context, listen: false);
+    final user = Provider.of<User>(context, listen: false); // Assumes logged-in
     // print('User ID: ${user.uid}');
     final query = _getDoc(user.uid).snapshots();
     return query.map((doc) => UserDoc.fromMap(doc.data()));
@@ -70,14 +72,14 @@ class DBService {
     });
   }
 
-  void deleteData(BuildContext context) {
-    final user = getUser(context, listen: false);
+  void deleteData(BuildContext context) async {
+    final user = await _getUser(context, listen: false);
     final doc = _getDoc(user.uid);
     doc.delete();
   }
 
   void _updateData(BuildContext context, Map info) async {
-    final user = getUser(context, listen: false);
+    final user = await _getUser(context, listen: false);
     final doc = _getDoc(user.uid);
     // CHANGE THIS TO WRITE ALL ON APP CLOSE?
     if ((await doc.get()).exists)
