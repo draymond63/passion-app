@@ -1,3 +1,4 @@
+import 'package:PassionFruit/widgets/bookshelf/itemPreview.dart';
 import 'package:PassionFruit/widgets/search/canvas.dart';
 import 'package:flutter/material.dart';
 import 'package:PassionFruit/helpers/globals.dart';
@@ -40,9 +41,10 @@ class _GraphState extends State<Graph> {
     final userCoords = getUserCoords(widget.items);
     userPoint = Point(userCoords.dx, userCoords.dy, 'You');
     // Center on the user's position
+    // Future required because canvas must be built
     Future.delayed(
       Duration(seconds: 0),
-      () => focusCoords(userCoords, context),
+      () => focusCoords(userCoords),
     );
   }
 
@@ -58,15 +60,14 @@ class _GraphState extends State<Graph> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.home),
-        onPressed: () => focusCoords(userPoint.offset, context),
+        onPressed: () => focusCoords(userPoint.offset),
       ),
       body: GestureDetector(
         onTapUp: (details) => clickItem(details.localPosition, context),
         child: InteractiveViewer(
           transformationController: _zoomer,
-          onInteractionEnd: (_) => setState(
-            () => scale = _zoomer.value.getMaxScaleOnAxis(),
-          ),
+          onInteractionStart: startPan,
+          onInteractionEnd: endPan,
           maxScale: 200,
           minScale: 10,
           child: CustomPaint(
@@ -89,26 +90,32 @@ class _GraphState extends State<Graph> {
   // ? Make this less sloppy ?
   void setCanvasSize(Size size) => canvasSize = size;
 
+  void startPan(details) => hideItem();
+
+  void endPan(ScaleEndDetails details) {
+    // Set scale
+    setState(() => scale = _zoomer.value.getMaxScaleOnAxis());
+  }
+
   void focusSite(String site, BuildContext context) {
     final info = widget.map.firstWhere((row) => row[MapCol.site.index]);
     final x = info[MapCol.x.index];
     final y = info[MapCol.y.index];
-    focusCoords(Offset(x, y), context);
+    focusCoords(Offset(x, y));
   }
 
   // Translates map coordinates to viewer coordinates
-  void focusCoords(Offset coords, BuildContext context) {
+  void focusCoords(Offset coords) {
     assert(canvasSize != null);
     final xScale = canvasSize.width / mapSize.width;
     final yScale = canvasSize.height / mapSize.height;
-    final screenSize = MediaQuery.of(context).size;
     // Reset position
     _zoomer.value = Matrix4.diagonal3Values(scale, scale, 1);
     // Move to coordinates
     setState(
       () => _zoomer.value.translate(
-        -coords.dx * xScale + (screenSize.width / scale / 2),
-        -coords.dy * yScale + (screenSize.height / scale / 2),
+        -coords.dx * xScale + (canvasSize.width / scale / 2),
+        -coords.dy * yScale + (canvasSize.height / scale / 2),
       ),
     );
   }
@@ -152,6 +159,7 @@ class _GraphState extends State<Graph> {
   }
 
   // *** CLICK FUNCTIONS
+  // Calculates which item was clicked
   clickItem(Offset clickCoords, BuildContext context) {
     // * Translate click to map coordinates
     // Convert screen to canvas coordinates
@@ -170,8 +178,30 @@ class _GraphState extends State<Graph> {
       (row) =>
           row[MapCol.x.index].round() == coords.dx &&
           row[MapCol.y.index].round() == coords.dy,
-      orElse: () => [],
+      orElse: () => null,
     );
-    if (info.length > 0) print(info[MapCol.site.index]);
+    if (info != null)
+      displayItem(info[MapCol.site.index], clickCoords, context);
+    else
+      hideItem();
+  }
+
+  OverlayEntry itemPrompt;
+
+  displayItem(String site, Offset coords, BuildContext context) {
+    hideItem(); // Remove last item
+    itemPrompt = OverlayEntry(
+      builder: (context) => Positioned(
+        left: coords.dx - 150, // Preview Item is 300 width
+        top: coords.dy + 5,
+        child: Material(child: PreviewItem(site)),
+      ),
+    );
+    Overlay.of(context).insert(itemPrompt);
+  }
+
+  hideItem() {
+    if (itemPrompt != null) itemPrompt.remove();
+    itemPrompt = null;
   }
 }
