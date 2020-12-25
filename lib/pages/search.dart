@@ -1,3 +1,4 @@
+import 'package:PassionFruit/widgets/bookshelf/itemPreview.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dart_random_choice/dart_random_choice.dart';
@@ -12,6 +13,8 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  final _searcher = FloatingSearchBarController();
+  String _query = '';
   String focusedSite = '';
 
   @override
@@ -33,7 +36,7 @@ class _SearchPageState extends State<SearchPage> {
                 child: Graph(snap.data, items, focusedSite),
               );
             }
-            if (snap.hasError) return Text('${snap.error}');
+            if (snap.hasError) return Center(child: Text('${snap.error}'));
             return LoadingWidget;
           },
         ),
@@ -44,24 +47,15 @@ class _SearchPageState extends State<SearchPage> {
 
   // * SEARCH BAR
   Widget buildSearchBar() {
-    final isPortrait =
-        MediaQuery.of(context).orientation == Orientation.portrait;
-
     return FloatingSearchBar(
       hint: 'Search...',
+      controller: _searcher,
       scrollPadding: const EdgeInsets.only(top: 16, bottom: 56),
       transitionDuration: const Duration(milliseconds: 800),
       transitionCurve: Curves.easeInOut,
       physics: const BouncingScrollPhysics(),
-      axisAlignment: isPortrait ? 0.0 : -1.0,
-      openAxisAlignment: 0.0,
-      maxWidth: isPortrait ? 600 : 500,
       debounceDelay: const Duration(milliseconds: 500),
-      onQueryChanged: (query) {
-        // Call your model, bloc, controller here.
-      },
-      // Specify a custom transition to be used for
-      // animating between opened and closed stated.
+      onQueryChanged: (query) => setState(() => _query = query.toLowerCase()),
       transition: CircularFloatingSearchBarTransition(),
       actions: [
         FloatingSearchBarAction(
@@ -71,31 +65,59 @@ class _SearchPageState extends State<SearchPage> {
             onPressed: () => focusRandom(context),
           ),
         ),
-        FloatingSearchBarAction.searchToClear(
-          showIfClosed: false,
-        ),
+        FloatingSearchBarAction.searchToClear(showIfClosed: false),
       ],
       builder: (context, anim) => ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: Material(
           color: Colors.white,
-          elevation: 4.0,
+          elevation: 8.0,
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: Colors.accents.map((color) {
-              return Container(height: 112, color: color);
-            }).toList(),
+            children: buildSearchItems(context),
           ),
         ),
       ),
     );
   }
 
-  // Search Functions
+  List<Widget> buildSearchItems(BuildContext context) {
+    final vitals = Provider.of<Map>(context);
+    if (vitals.length == 0) return [];
+    final sites = _query.length > 0 ? getSearchResults(vitals) : [];
+
+    return List<PreviewItem>.generate(
+      sites.length,
+      (i) => PreviewItem(
+        sites[i],
+        width: MediaQuery.of(context).size.width,
+        onClick: () => clickSearchItem(sites[i]),
+      ),
+    );
+  }
+
+  // * Search Functions
+  List<String> getSearchResults(Map vitals, {maxAmount = 5}) {
+    final entries = vitals.entries.where(
+      (entry) => entry.value['name'].toLowerCase().contains(_query),
+    );
+    final results = entries.map((entry) => entry.key).toList().cast<String>();
+    if (results.length > maxAmount)
+      return results.getRange(0, maxAmount).toList();
+    else
+      return results;
+  }
+
+  clickSearchItem(String site) {
+    focusSite(site);
+    _searcher.close();
+  }
+
   void focusRandom(BuildContext context) {
     final vitals = Provider.of<Map>(context, listen: false);
     focusSite(randomChoice(vitals.keys));
   }
 
+  // Updating focusedSite causes Graph to reposition
   void focusSite(String site) => setState(() => focusedSite = site);
 }

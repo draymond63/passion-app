@@ -6,7 +6,9 @@ import 'package:PassionFruit/helpers/globals.dart';
 
 class PreviewItem extends StatefulWidget {
   final String site;
-  const PreviewItem(this.site);
+  final double width;
+  final Function() onClick;
+  const PreviewItem(this.site, {this.width = 300, this.onClick});
   @override
   _PreviewItemState createState() => _PreviewItemState();
 }
@@ -20,14 +22,14 @@ class _PreviewItemState extends State<PreviewItem> {
     setState(() => info = vitals[widget.site] ?? {});
 
     return GestureDetector(
-      onTap: () {
-        pushNewScreen(context,
-            withNavBar: false,
-            pageTransitionAnimation: PageTransitionAnimation.fade,
-            screen: ViewItem(widget.site));
-      },
+      onTap: () => widget.onClick == null
+          ? pushNewScreen(context,
+              withNavBar: false,
+              pageTransitionAnimation: PageTransitionAnimation.fade,
+              screen: ViewItem(widget.site))
+          : widget.onClick(),
       child: Container(
-        width: 300,
+        width: widget.width,
         margin: EdgeInsets.all(8),
         padding: EdgeInsets.all(8),
         decoration: BoxDecoration(

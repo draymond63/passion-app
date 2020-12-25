@@ -92,14 +92,17 @@ class _GraphState extends State<Graph> {
 
   void startPan(_) => hideItem();
 
-  void endPan(ScaleEndDetails details) {
+  void endPan(_) {
     // Set scale
     final _scale = _zoomer.value.getMaxScaleOnAxis();
     if (scale != _scale) setState(() => scale = _scale);
   }
 
   void focusSite(String site, BuildContext context) {
-    final info = widget.map.firstWhere((row) => row[MapCol.site.index] == site);
+    final info = widget.map.singleWhere(
+      (row) => row[MapCol.site.index] == site,
+      orElse: () => throw Exception('site not found'),
+    );
     final x = info[MapCol.x.index];
     final y = info[MapCol.y.index];
     focusCoords(Offset(x, y), context);
