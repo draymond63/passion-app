@@ -63,11 +63,11 @@ class _BaseItemState extends State<BaseItem> {
     return [
       // * IMAGE
       if (showImage) widget.buildImage(image),
-      Center(
-          child: Text(
+      Text(
         info['name'] ?? widget.site,
+        textAlign: TextAlign.center,
         style: ItemHeader,
-      )),
+      ),
       // * BUTTONS
       buildLikeButton(context, info),
       // * TEXT

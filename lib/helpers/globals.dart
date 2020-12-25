@@ -15,13 +15,22 @@ enum MapCol { site, x, y, l0 }
 
 // * STYLES
 const ItemHeader = const TextStyle(
-    fontSize: 30, color: Color(MAIN_COLOR), fontWeight: FontWeight.w500);
+  fontSize: 30,
+  color: Color(MAIN_COLOR),
+  fontWeight: FontWeight.w500,
+);
 const ItemSubtitle = const TextStyle(
-    fontSize: 20, color: Color(MAIN_COLOR), fontWeight: FontWeight.w500);
+  fontSize: 20,
+  color: Color(MAIN_COLOR),
+  fontWeight: FontWeight.w500,
+);
 
 const LoadingWidget = Center(
   child: CircularProgressIndicator(
-      valueColor: AlwaysStoppedAnimation<Color>(Color(MAIN_COLOR))),
+    valueColor: AlwaysStoppedAnimation<Color>(
+      Color(MAIN_COLOR),
+    ),
+  ),
 );
 
 // * FUNCTIONS
