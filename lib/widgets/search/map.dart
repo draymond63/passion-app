@@ -173,7 +173,8 @@ class _GraphState extends State<Graph> {
       coords.dx.roundToDouble(),
       coords.dy.roundToDouble(),
     );
-    // * Search for point in data
+    // * Search for point in data (max ~ 14 milleseconds)
+    // ! Clicks are too inprecise
     final info = widget.map.firstWhere(
       (row) =>
           row[MapCol.x.index].round() == coords.dx &&

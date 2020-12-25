@@ -41,7 +41,7 @@ class Storage extends ChangeNotifier {
   Map<String, int> get feed => _feed;
 
   // * FUNCTIONS
-  _update() {
+  void _update() {
     notifyListeners();
     _writeUserFile(toMap());
   }
@@ -73,7 +73,7 @@ class Storage extends ChangeNotifier {
   }
 
   // Feed
-  updateTime(String site, int time, BuildContext context) {
+  void updateTime(String site, int time, BuildContext context) {
     if (feed.containsKey(site))
       _feed[site] += time;
     else
@@ -83,7 +83,7 @@ class Storage extends ChangeNotifier {
   }
 
   // Settings
-  updateCategory(String key, bool state) {
+  void updateCategory(String key, bool state) {
     assert(_settings.category.containsKey(key),
         'Category setting not found: $key');
     _settings.category[key] = state;
@@ -93,13 +93,13 @@ class Storage extends ChangeNotifier {
     _update();
   }
 
-  updateData(String key, bool state) {
+  void updateData(String key, bool state) {
     assert(_settings.data.containsKey(key), 'Setting not found: $key');
     _settings.data[key] = state;
     _update();
   }
 
-  deleteData(context) {
+  void deleteData(context) {
     _feed = {};
     _items = [];
     _db.deleteData(context);
@@ -135,6 +135,7 @@ class Settings {
       data: map['data'] ??
           {
             'show_image': true,
+            'send_data': true,
           },
     );
   }
