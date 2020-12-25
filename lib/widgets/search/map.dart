@@ -15,10 +15,9 @@ class Graph extends StatefulWidget {
 class _GraphState extends State<Graph> {
   final _zoomer = TransformationController();
   List<Point> points;
-  Size mapSize;
-  Size canvasSize;
   Point userPoint;
-  double scale = 70;
+  Size mapSize;
+  double scale = 50;
 
   /* Type   | Dim | Scale | Size   | Translate | Ratio 
    * screen | w   | 10    | 411.4  | 41        | 10.03
@@ -44,7 +43,7 @@ class _GraphState extends State<Graph> {
     // Future required because canvas must be built
     Future.delayed(
       Duration(seconds: 0),
-      () => focusCoords(userCoords),
+      () => focusCoords(userCoords, context),
     );
   }
 
@@ -60,22 +59,22 @@ class _GraphState extends State<Graph> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.home),
-        onPressed: () => focusCoords(userPoint.offset),
+        onPressed: () => focusCoords(userPoint.offset, context),
       ),
       body: GestureDetector(
         onTapUp: (details) => clickItem(details.localPosition, context),
+        // Lets paint use the mapSize even if it breaks constraints
         child: InteractiveViewer(
           transformationController: _zoomer,
           onInteractionStart: startPan,
           onInteractionEnd: endPan,
           maxScale: 200,
-          minScale: 10,
+          minScale: 5,
+          constrained: false, // Let painting take mapSize
           child: CustomPaint(
             painter: GraphPainter(
               points,
               userPoint,
-              mapSize, // ! THIS COULD PROBABLY BE BETTER
-              setCanvasSize, // ! ~
               scale: scale,
             ),
             isComplex: true,
@@ -86,9 +85,6 @@ class _GraphState extends State<Graph> {
       ),
     );
   }
-
-  // ? Make this less sloppy ?
-  void setCanvasSize(Size size) => canvasSize = size;
 
   void startPan(details) => hideItem();
 
@@ -101,21 +97,19 @@ class _GraphState extends State<Graph> {
     final info = widget.map.firstWhere((row) => row[MapCol.site.index]);
     final x = info[MapCol.x.index];
     final y = info[MapCol.y.index];
-    focusCoords(Offset(x, y));
+    focusCoords(Offset(x, y), context);
   }
 
   // Translates map coordinates to viewer coordinates
-  void focusCoords(Offset coords) {
-    assert(canvasSize != null);
-    final xScale = canvasSize.width / mapSize.width;
-    final yScale = canvasSize.height / mapSize.height;
+  void focusCoords(Offset coords, BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
     // Reset position
     _zoomer.value = Matrix4.diagonal3Values(scale, scale, 1);
     // Move to coordinates
     setState(
       () => _zoomer.value.translate(
-        -coords.dx * xScale + (canvasSize.width / scale / 2),
-        -coords.dy * yScale + (canvasSize.height / scale / 2),
+        -coords.dx + (screenSize.width / scale / 2),
+        -coords.dy + (screenSize.height / scale / 2),
       ),
     );
   }
@@ -162,13 +156,8 @@ class _GraphState extends State<Graph> {
   // Calculates which item was clicked
   clickItem(Offset clickCoords, BuildContext context) {
     // * Translate click to map coordinates
-    // Convert screen to canvas coordinates
+    // Convert screen to canvas/map coordinates
     Offset coords = _zoomer.toScene(clickCoords);
-    // Converts canvas to map coordinates
-    coords = coords.scale(
-      mapSize.width / canvasSize.width,
-      mapSize.height / canvasSize.height,
-    );
     coords = Offset(
       coords.dx.roundToDouble(),
       coords.dy.roundToDouble(),

@@ -3,47 +3,31 @@ import 'package:flutter/material.dart';
 class GraphPainter extends CustomPainter {
   final List<Point> data;
   final Point user;
-  final Size mapSize;
-  final Function(Size) setSize;
   final double radius;
   final double scale;
   GraphPainter(
     this.data,
-    this.user,
-    this.mapSize,
-    this.setSize, {
+    this.user, {
     this.radius = 10,
     this.scale = 1,
   });
 
   // Size is different from MediaQuery.size from parent
   paint(Canvas canvas, Size size) {
-    setSize(size); // Tells parent about size
     final paint = Paint();
     final scaledRadius = radius / this.scale;
-    // Keep everything in the bounds of the canvas
-    Offset posScale = Offset(1, 1);
-    if (size.width > 0 && size.height > 0)
-      posScale = Offset(
-        size.width / mapSize.width,
-        size.height / mapSize.height,
-      );
-
     // DRAWS VALUES OUTSIZE OF SIZE
     data.forEach((point) {
       paint.color = point.color ?? Colors.grey;
       canvas.drawCircle(
-        point.offset.scale(posScale.dx, posScale.dy),
+        point.offset,
         scaledRadius,
         paint,
       );
     });
     paint.color = user.color ?? Colors.grey;
     canvas.drawRect(
-      Rect.fromCircle(
-        center: user.offset.scale(posScale.dx, posScale.dy),
-        radius: scaledRadius * 1.75,
-      ),
+      Rect.fromCircle(center: user.offset, radius: scaledRadius * 1.75),
       paint,
     );
   }
