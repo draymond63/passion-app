@@ -1,13 +1,13 @@
-import 'package:PassionFruit/widgets/bookshelf/itemPreview.dart';
-import 'package:PassionFruit/widgets/search/canvas.dart';
 import 'package:flutter/material.dart';
 import 'package:PassionFruit/helpers/globals.dart';
-// import 'package:PassionFruit/widgets/feed/itemView.dart';
+import 'package:PassionFruit/widgets/search/canvas.dart';
+import 'package:PassionFruit/widgets/bookshelf/itemPreview.dart';
 
 class Graph extends StatefulWidget {
   final List<List> map;
   final List<String> items;
-  Graph(this.map, this.items);
+  final String focusedSite;
+  Graph(this.map, this.items, this.focusedSite);
   @override
   _GraphState createState() => _GraphState();
 }
@@ -40,11 +40,21 @@ class _GraphState extends State<Graph> {
     final userCoords = getUserCoords(widget.items);
     userPoint = Point(userCoords.dx, userCoords.dy, 'You');
     // Center on the user's position
-    // Future required because canvas must be built
+    // Future required for context
     Future.delayed(
       Duration(seconds: 0),
       () => focusCoords(userCoords, context),
     );
+  }
+
+  // Checks if dependencies change
+  @override
+  void didUpdateWidget(covariant Graph oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.focusedSite == '')
+      focusCoords(userPoint.offset, context);
+    else
+      focusSite(widget.focusedSite, context);
   }
 
   @override
@@ -56,45 +66,40 @@ class _GraphState extends State<Graph> {
   @override
   Widget build(BuildContext context) {
     // Reruns whenever user interacts
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.home),
-        onPressed: () => focusCoords(userPoint.offset, context),
-      ),
-      body: GestureDetector(
-        onTapUp: (details) => clickItem(details.localPosition, context),
-        // Lets paint use the mapSize even if it breaks constraints
-        child: InteractiveViewer(
-          transformationController: _zoomer,
-          onInteractionStart: startPan,
-          onInteractionEnd: endPan,
-          maxScale: 200,
-          minScale: 5,
-          constrained: false, // Let painting take mapSize
-          child: CustomPaint(
-            painter: GraphPainter(
-              points,
-              userPoint,
-              scale: scale,
-            ),
-            isComplex: true,
-            willChange: false,
-            size: mapSize,
+    return GestureDetector(
+      onTapUp: (details) => clickItem(details.localPosition, context),
+      // Lets paint use the mapSize even if it breaks constraints
+      child: InteractiveViewer(
+        transformationController: _zoomer,
+        onInteractionStart: startPan,
+        onInteractionEnd: endPan,
+        maxScale: 200,
+        minScale: 5,
+        constrained: false, // Let painting take mapSize
+        child: CustomPaint(
+          painter: GraphPainter(
+            points,
+            userPoint,
+            scale: scale,
           ),
+          isComplex: true,
+          willChange: false,
+          size: mapSize,
         ),
       ),
     );
   }
 
-  void startPan(details) => hideItem();
+  void startPan(_) => hideItem();
 
   void endPan(ScaleEndDetails details) {
     // Set scale
-    setState(() => scale = _zoomer.value.getMaxScaleOnAxis());
+    final _scale = _zoomer.value.getMaxScaleOnAxis();
+    if (scale != _scale) setState(() => scale = _scale);
   }
 
   void focusSite(String site, BuildContext context) {
-    final info = widget.map.firstWhere((row) => row[MapCol.site.index]);
+    final info = widget.map.firstWhere((row) => row[MapCol.site.index] == site);
     final x = info[MapCol.x.index];
     final y = info[MapCol.y.index];
     focusCoords(Offset(x, y), context);
@@ -102,6 +107,7 @@ class _GraphState extends State<Graph> {
 
   // Translates map coordinates to viewer coordinates
   void focusCoords(Offset coords, BuildContext context) {
+    hideItem(); // Just in case any overlay is showing
     final screenSize = MediaQuery.of(context).size;
     // Reset position
     _zoomer.value = Matrix4.diagonal3Values(scale, scale, 1);

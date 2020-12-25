@@ -12,7 +12,7 @@ class GraphPainter extends CustomPainter {
     this.scale = 1,
   });
 
-  // Size is different from MediaQuery.size from parent
+  // Size must be mapSize or it will draw out of bounds
   paint(Canvas canvas, Size size) {
     final paint = Paint();
     final scaledRadius = radius / this.scale;

@@ -1,8 +1,10 @@
-import 'package:PassionFruit/helpers/storage.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:dart_random_choice/dart_random_choice.dart';
+import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:PassionFruit/helpers/globals.dart';
 import 'package:PassionFruit/widgets/search/map.dart';
-import 'package:provider/provider.dart';
+import 'package:PassionFruit/helpers/storage.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -10,45 +12,90 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  String focusedSite = '';
+
   @override
   Widget build(BuildContext context) {
     final items = Provider.of<Storage>(context).items;
-
+    // Scaffold required for search bar positioning
     return Scaffold(
-      appBar: buildSearchBar(),
-      body: FutureBuilder(
-        future: loadMap(),
-        builder: (context, AsyncSnapshot snap) {
-          if (snap.hasData) {
-            return Container(
-              width: MediaQuery.of(context).size.width,
-              child: Graph(snap.data, items),
-            );
-          }
-          if (snap.hasError) return Text('${snap.error}');
-          return LoadingWidget;
-        },
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.home),
+        onPressed: () => focusSite(''),
       ),
+      body: Stack(children: [
+        FutureBuilder(
+          future: loadMap(),
+          builder: (context, AsyncSnapshot snap) {
+            if (snap.hasData) {
+              return Container(
+                width: MediaQuery.of(context).size.width,
+                child: Graph(snap.data, items, focusedSite),
+              );
+            }
+            if (snap.hasError) return Text('${snap.error}');
+            return LoadingWidget;
+          },
+        ),
+        buildSearchBar(),
+      ]),
     );
   }
 
   // * SEARCH BAR
   Widget buildSearchBar() {
-    return AppBar(
-      title: TextField(
-          decoration:
-              InputDecoration(border: InputBorder.none, hintText: 'Search...')),
-      leadingWidth: 0,
-      toolbarHeight: 45,
-      toolbarOpacity: 0.1,
-      backgroundColor: Color(0xFFF2F2F2),
-      shadowColor: Color(0xFF888888),
+    final isPortrait =
+        MediaQuery.of(context).orientation == Orientation.portrait;
+
+    return FloatingSearchBar(
+      hint: 'Search...',
+      scrollPadding: const EdgeInsets.only(top: 16, bottom: 56),
+      transitionDuration: const Duration(milliseconds: 800),
+      transitionCurve: Curves.easeInOut,
+      physics: const BouncingScrollPhysics(),
+      axisAlignment: isPortrait ? 0.0 : -1.0,
+      openAxisAlignment: 0.0,
+      maxWidth: isPortrait ? 600 : 500,
+      debounceDelay: const Duration(milliseconds: 500),
+      onQueryChanged: (query) {
+        // Call your model, bloc, controller here.
+      },
+      // Specify a custom transition to be used for
+      // animating between opened and closed stated.
+      transition: CircularFloatingSearchBarTransition(),
       actions: [
-        Icon(
-          Icons.search,
-          color: Colors.grey,
-        )
+        FloatingSearchBarAction(
+          showIfOpened: false,
+          child: CircularButton(
+            icon: const Icon(Icons.shuffle_rounded),
+            onPressed: () => focusRandom(context),
+          ),
+        ),
+        FloatingSearchBarAction.searchToClear(
+          showIfClosed: false,
+        ),
       ],
+      builder: (context, anim) => ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Material(
+          color: Colors.white,
+          elevation: 4.0,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: Colors.accents.map((color) {
+              return Container(height: 112, color: color);
+            }).toList(),
+          ),
+        ),
+      ),
     );
   }
+
+  // Search Functions
+  void focusRandom(BuildContext context) {
+    final vitals = Provider.of<Map>(context, listen: false);
+    focusSite(randomChoice(vitals.keys));
+  }
+
+  void focusSite(String site) => setState(() => focusedSite = site);
 }
