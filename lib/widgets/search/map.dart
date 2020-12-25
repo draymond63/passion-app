@@ -16,8 +16,8 @@ class _GraphState extends State<Graph> {
   List<Point> points;
   Size mapSize;
   Size canvasSize;
-  Offset userCoords;
-  double scale = 20;
+  Point userPoint;
+  double scale = 70;
 
   /* Type   | Dim | Scale | Size   | Translate | Ratio 
    * screen | w   | 10    | 411.4  | 41        | 10.03
@@ -37,11 +37,13 @@ class _GraphState extends State<Graph> {
     points = getPlotData();
     mapSize = getMapSize();
     // Add the user
-    userCoords = getUserCoords(widget.items);
-    points.add(Point(userCoords.dx, userCoords.dy, 'You'));
+    final userCoords = getUserCoords(widget.items);
+    userPoint = Point(userCoords.dx, userCoords.dy, 'You');
     // Center on the user's position
     Future.delayed(
-        Duration(seconds: 0), () => focusCoords(userCoords, context));
+      Duration(seconds: 0),
+      () => focusCoords(userCoords, context),
+    );
   }
 
   @override
@@ -56,25 +58,29 @@ class _GraphState extends State<Graph> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.home),
-        onPressed: () => focusCoords(userCoords, context),
+        onPressed: () => focusCoords(userPoint.offset, context),
       ),
-      body: InteractiveViewer(
-        transformationController: _zoomer,
-        onInteractionEnd: (_) => setState(
-          () => scale = _zoomer.value.getMaxScaleOnAxis(),
-        ),
-        maxScale: 75,
-        minScale: 5,
-        child: CustomPaint(
-          painter: GraphPainter(
-            points,
-            mapSize, // ! THIS COULD PROBABLY BE BETTER
-            setCanvasSize, // ! ~
-            scale: scale,
+      body: GestureDetector(
+        onTapUp: (details) => clickItem(details.localPosition, context),
+        child: InteractiveViewer(
+          transformationController: _zoomer,
+          onInteractionEnd: (_) => setState(
+            () => scale = _zoomer.value.getMaxScaleOnAxis(),
           ),
-          isComplex: true,
-          willChange: false,
-          size: mapSize,
+          maxScale: 200,
+          minScale: 10,
+          child: CustomPaint(
+            painter: GraphPainter(
+              points,
+              userPoint,
+              mapSize, // ! THIS COULD PROBABLY BE BETTER
+              setCanvasSize, // ! ~
+              scale: scale,
+            ),
+            isComplex: true,
+            willChange: false,
+            size: mapSize,
+          ),
         ),
       ),
     );
@@ -91,7 +97,6 @@ class _GraphState extends State<Graph> {
   }
 
   // Translates map coordinates to viewer coordinates
-  // ! Assumes starting in the top left
   void focusCoords(Offset coords, BuildContext context) {
     assert(canvasSize != null);
     final xScale = canvasSize.width / mapSize.width;
@@ -144,5 +149,29 @@ class _GraphState extends State<Graph> {
         color: categoryColors[info[MapCol.l0.index]],
       );
     });
+  }
+
+  // *** CLICK FUNCTIONS
+  clickItem(Offset clickCoords, BuildContext context) {
+    // * Translate click to map coordinates
+    // Convert screen to canvas coordinates
+    Offset coords = _zoomer.toScene(clickCoords);
+    // Converts canvas to map coordinates
+    coords = coords.scale(
+      mapSize.width / canvasSize.width,
+      mapSize.height / canvasSize.height,
+    );
+    coords = Offset(
+      coords.dx.roundToDouble(),
+      coords.dy.roundToDouble(),
+    );
+    // * Search for point in data
+    final info = widget.map.firstWhere(
+      (row) =>
+          row[MapCol.x.index].round() == coords.dx &&
+          row[MapCol.y.index].round() == coords.dy,
+      orElse: () => [],
+    );
+    if (info.length > 0) print(info[MapCol.site.index]);
   }
 }
