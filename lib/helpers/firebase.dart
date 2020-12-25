@@ -1,3 +1,4 @@
+import 'package:PassionFruit/helpers/storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -38,12 +39,21 @@ class DBService {
   // * READING
   Future<User> _getUser(BuildContext context, {bool listen = true}) async {
     User user = Provider.of<User>(context, listen: listen);
-    if (user == null) user = await login();
+    if (user == null) user = await _login(context);
     return user;
   }
 
-  Future<User> login() async {
-    return auth.signInAnonymously().then((creds) => creds.user);
+  Future<User> _login(BuildContext context) async {
+    if (_doUpload(context))
+      return auth.signInAnonymously().then((creds) => creds.user);
+    else
+      return null;
+  }
+
+  bool _doUpload(BuildContext context) {
+    return Provider.of<Storage>(context, listen: false)
+        .settings
+        .data['show_data'];
   }
 
   Stream<UserDoc> getUserData(BuildContext context) {
@@ -74,12 +84,14 @@ class DBService {
 
   void deleteData(BuildContext context) async {
     final user = await _getUser(context, listen: false);
+    if (user == null) return;
     final doc = _getDoc(user.uid);
     doc.delete();
   }
 
   void _updateData(BuildContext context, Map info) async {
     final user = await _getUser(context, listen: false);
+    if (user == null) return;
     final doc = _getDoc(user.uid);
     // CHANGE THIS TO WRITE ALL ON APP CLOSE?
     if ((await doc.get()).exists)

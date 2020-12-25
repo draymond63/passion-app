@@ -9,7 +9,6 @@ import 'package:provider/provider.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
 
 import './helpers/globals.dart';
-import './helpers/firebase.dart';
 import './helpers/wikipedia.dart';
 import 'widgets/navigation.dart';
 
@@ -66,8 +65,6 @@ class ProviderApp extends StatelessWidget {
 class DataApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    DBService().login(); // Login to firebase
-
     return MaterialApp(
         title: 'PassionFruit',
         theme: ThemeData(

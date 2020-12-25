@@ -37,7 +37,7 @@ class _GraphState extends State<Graph> {
     points = getPlotData();
     mapSize = getMapSize();
     // Add the user
-    final userCoords = getUserCoords(widget.items);
+    final userCoords = getUserCoords();
     userPoint = Point(userCoords.dx, userCoords.dy, 'You');
     // Center on the user's position
     // Future required for context
@@ -136,9 +136,10 @@ class _GraphState extends State<Graph> {
     return Size(xMax, yMax);
   }
 
-  Offset getUserCoords(List<String> sites) {
+  Offset getUserCoords() {
+    if (widget.items.length == 0) return mapSize.center(Offset.zero);
     final rows = widget.map
-        .where((row) => sites.contains(row[MapCol.site.index]))
+        .where((row) => widget.items.contains(row[MapCol.site.index]))
         .toList();
     double x =
         rows.map((row) => row[MapCol.x.index]).reduce((acc, x) => acc + x);

@@ -22,10 +22,13 @@ class _SearchPageState extends State<SearchPage> {
     final items = Provider.of<Storage>(context).items;
     // Scaffold required for search bar positioning
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.home),
-        onPressed: () => focusSite(''),
-      ),
+      // Only show home button if the user has
+      floatingActionButton: items.length > 0
+          ? FloatingActionButton(
+              child: Icon(Icons.home),
+              onPressed: () => focusSite(''),
+            )
+          : null,
       body: Stack(children: [
         FutureBuilder(
           future: loadMap(),
