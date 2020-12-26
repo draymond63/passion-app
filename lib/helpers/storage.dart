@@ -6,7 +6,7 @@ import 'package:PassionFruit/helpers/firebase.dart';
 
 // * Interface for user file
 class Storage extends ChangeNotifier {
-  final _db = DBService();
+  final db = DBService();
   // data
   Settings _settings;
   Map<String, int> _feed;
@@ -56,7 +56,7 @@ class Storage extends ChangeNotifier {
   bool addItem(String site, BuildContext context) {
     if (!items.contains(site)) {
       _items.add(site);
-      _db.addItem(context, site);
+      db.addItem(context, site);
       _update();
       return true;
     }
@@ -66,7 +66,7 @@ class Storage extends ChangeNotifier {
   bool removeItem(String site, BuildContext context) {
     final status = _items.remove(site);
     if (status) {
-      _db.removeItem(context, site);
+      db.removeItem(context, site);
       _update();
     }
     return status;
@@ -78,7 +78,7 @@ class Storage extends ChangeNotifier {
       _feed[site] += time;
     else
       _feed[site] = time;
-    _db.updateTime(context, site, time);
+    db.updateTime(context, site, time);
     _update();
   }
 
@@ -102,7 +102,7 @@ class Storage extends ChangeNotifier {
   void deleteData(context) {
     _feed = {};
     _items = [];
-    _db.deleteData(context);
+    db.deleteData(context);
     _update();
   }
 }

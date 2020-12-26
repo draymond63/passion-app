@@ -66,7 +66,7 @@ class _SettingsPageState extends State<SettingsPage> {
           style: Theme.of(context).textTheme.headline2,
         ),
         value: store.settings.data['send_data'],
-        onChanged: (newState) => store.updateData('send_data', newState),
+        onChanged: (newState) => updateDataTransmission(newState, context),
       ),
       TextButton(
         onPressed: () => showDeletionWarning(context),
@@ -79,18 +79,32 @@ class _SettingsPageState extends State<SettingsPage> {
     ];
   }
 
+  updateDataTransmission(bool state, BuildContext context) {
+    final store = Provider.of<Storage>(context, listen: false);
+    store.db.deleteData(context); // Delete data for a sync or to remove user
+    store.updateData('send_data', state); // Update local settings
+    if (state) store.db.syncData(context); // If statement for legability
+  }
+
   OverlayEntry deletionPrompt;
 
-  showDeletionWarning(BuildContext context) {
+  void showDeletionWarning(BuildContext context) {
     deletionPrompt = OverlayEntry(
       builder: (context) => Center(
         child: Material(
             child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Are you sure you want to delete all your data?',
-                style: ItemHeader),
-            Text('This will give you a fresh start', style: ItemSubtitle),
+            Text(
+              'Are you sure you want to delete all your data?',
+              style: ItemHeader,
+              textAlign: TextAlign.center,
+            ),
+            Text(
+              'This will give you a fresh start',
+              style: ItemSubtitle,
+              textAlign: TextAlign.center,
+            ),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               buildButton('Yes', Colors.red, () {
                 Provider.of<Storage>(context, listen: false)

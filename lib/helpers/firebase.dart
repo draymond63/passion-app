@@ -53,7 +53,7 @@ class DBService {
   bool _doUpload(BuildContext context) {
     return Provider.of<Storage>(context, listen: false)
         .settings
-        .data['show_data'];
+        .data['send_data'];
   }
 
   Stream<UserDoc> getUserData(BuildContext context) {
@@ -83,15 +83,15 @@ class DBService {
   }
 
   void deleteData(BuildContext context) async {
+    if (!_doUpload(context)) return;
     final user = await _getUser(context, listen: false);
-    if (user == null) return;
     final doc = _getDoc(user.uid);
     doc.delete();
   }
 
   void _updateData(BuildContext context, Map info) async {
+    if (!_doUpload(context)) return;
     final user = await _getUser(context, listen: false);
-    if (user == null) return;
     final doc = _getDoc(user.uid);
     // CHANGE THIS TO WRITE ALL ON APP CLOSE?
     if ((await doc.get()).exists)
@@ -102,6 +102,12 @@ class DBService {
 
   void _initUser(User user, Map<String, dynamic> initData) {
     db.collection('users').doc(user.uid).set(initData);
+  }
+
+  void syncData(BuildContext context) async {
+    final data = Provider.of<Storage>(context, listen: false).toMap();
+    data.remove('settings'); // Not keeping track of this
+    _updateData(context, data);
   }
 
   // * GENERAL
