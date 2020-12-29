@@ -14,6 +14,7 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final _searcher = FloatingSearchBarController();
+  bool _isSearching = false;
   String _query = '';
   String focusedSite = '';
 
@@ -36,7 +37,7 @@ class _SearchPageState extends State<SearchPage> {
             if (snap.hasData) {
               return Container(
                 width: MediaQuery.of(context).size.width,
-                child: Graph(snap.data, items, focusedSite),
+                child: Graph(snap.data, items, focusedSite, _isSearching),
               );
             }
             if (snap.hasError) return Center(child: Text('${snap.error}'));
@@ -58,8 +59,9 @@ class _SearchPageState extends State<SearchPage> {
       transitionCurve: Curves.easeInOut,
       physics: const BouncingScrollPhysics(),
       debounceDelay: const Duration(milliseconds: 500),
-      onQueryChanged: (query) => setState(() => _query = query.toLowerCase()),
       transition: CircularFloatingSearchBarTransition(),
+      onFocusChanged: (status) => setState(() => _isSearching = status),
+      onQueryChanged: (query) => setState(() => _query = query.toLowerCase()),
       actions: [
         FloatingSearchBarAction(
           showIfOpened: false,
@@ -100,6 +102,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   // * Search Functions
+  // ! MAKE ASYNC
   List<String> getSearchResults(Map vitals, {maxAmount = 5}) {
     final entries = vitals.entries.where(
       (entry) => entry.value['name'].toLowerCase().contains(_query),

@@ -7,7 +7,8 @@ class Graph extends StatefulWidget {
   final List<List> map;
   final List<String> items;
   final String focusedSite;
-  Graph(this.map, this.items, this.focusedSite);
+  final bool isSearching;
+  Graph(this.map, this.items, this.focusedSite, this.isSearching);
   @override
   _GraphState createState() => _GraphState();
 }
@@ -55,6 +56,8 @@ class _GraphState extends State<Graph> {
       focusCoords(userPoint.offset, context);
     else
       focusSite(widget.focusedSite, context);
+    // Check if the user has entered search mode
+    if (widget.isSearching) hideItem();
   }
 
   @override
