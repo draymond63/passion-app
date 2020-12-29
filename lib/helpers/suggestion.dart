@@ -14,44 +14,33 @@ class Suggestor {
     vitals = Provider.of<Map>(context);
   }
 
-  // ? Takes ~ 1 second
-  List<String> suggest([int k = 10]) {
-    if (vitals.length == 0) return []; // Null safety
+  Future<String> suggest() async {
+    if (vitals.length == 0) return ''; // Null safety
     final store = Provider.of<Storage>(context);
     final settings = store.settings;
     // Remove all entries that don't want to be seen
     final userInfo = trimData(store.feed, settings);
 
     // Remove all rows that have been seen or are ignored by user settings
-    final validSuggestions = {...vitals};
-    validSuggestions.removeWhere((key, row) =>
+    final rows = {...vitals};
+    rows.removeWhere((key, row) =>
         userInfo.containsKey(key) || !settings.category[row['l0']]);
 
-    // ? IMPROVE EFFICIENCY BY SELECTING ALL SITES TOGETHER ?
-    final sites = <String>[];
-    for (int ii = 0; ii < k; ii++) {
-      // Create a new instance that will get filtered
-      Map rows = {...validSuggestions};
-      for (final col in columns) {
-        // Get the options for this column
-        final options = getOptions(col, rows);
-        // Get the weights for each option
-        Map<String, double> probs = getWeights(col, userInfo, options);
-        // If some options have never been seen, give them a chance
-        adjustWeights(probs, options);
-        // Choose an option!
-        final selection = randomChoice(probs.keys, probs.values);
-        // Keep rows with the selection
-        rows.removeWhere((_, r) => r[col] != selection);
-        if (rows.length == 0)
-          throw Exception('Suggestion Selection not found: $selection');
-      }
-      final site = randomChoice<String>(rows.keys.cast<String>());
-      sites.add(site);
-      // Remove site from future suggestions
-      validSuggestions.remove(site);
+    for (final col in columns) {
+      // Get the options for this column
+      final options = getOptions(col, rows);
+      // Get the weights for each option
+      Map<String, double> probs = getWeights(col, userInfo, options);
+      // If some options have never been seen, give them a chance
+      adjustWeights(probs, options);
+      // Choose an option!
+      final selection = randomChoice(probs.keys, probs.values);
+      // Keep rows with the selection
+      rows.removeWhere((_, r) => r[col] != selection);
+      if (rows.length == 0)
+        throw Exception('Suggestion Selection not found: $selection');
     }
-    return sites;
+    return randomChoice<String>(rows.keys.cast<String>());
   }
 
   Map<String, int> trimData(Map<String, int> info, Settings settings) {

@@ -24,7 +24,6 @@ class _FlagItemPageState extends State<FlagItemPage> {
   void initState() {
     super.initState();
     _states = Map.fromIterable(problems, value: (_) => false);
-    print(_states);
   }
 
   @override
