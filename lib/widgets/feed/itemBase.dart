@@ -1,5 +1,7 @@
+import 'package:PassionFruit/widgets/feed/itemFlag.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
 import 'package:PassionFruit/helpers/storage.dart';
 import 'package:PassionFruit/helpers/wikipedia.dart';
@@ -69,23 +71,36 @@ class _BaseItemState extends State<BaseItem> {
         style: ItemHeader,
       ),
       // * BUTTONS
-      buildLikeButton(context, info),
+      buildButtons(context, info),
       // * TEXT
       Container(padding: EdgeInsets.all(8), child: Text(doc.content)),
     ];
   }
 
-  Widget buildLikeButton(BuildContext context, Map info) {
+  Widget buildButtons(BuildContext context, Map info) {
+    Color color = Color(SECOND_ACCENT_COLOR);
     final store = Provider.of<Storage>(context);
-    Color color = Color(0xFFAAAAAA);
     if (store.items.contains(widget.site)) color = Color(MAIN_COLOR);
 
-    return Center(
-      child: IconButton(
-        icon: Icon(Icons.thumb_up_rounded),
-        color: color,
-        onPressed: () => addLikedItem(context, info['name'], widget.site),
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // Only give the option to flag if the user is willing to send data
+        if (store.settings.data['send_data'])
+          IconButton(
+              icon: Icon(Icons.flag),
+              color: Color(SECOND_ACCENT_COLOR),
+              onPressed: () => pushNewScreen(context,
+                  screen: FlagItemPage(widget.site),
+                  pageTransitionAnimation: PageTransitionAnimation.fade)),
+        // Spacing for two icons
+        if (store.settings.data['send_data']) SizedBox(width: 50),
+        // Like button
+        IconButton(
+            icon: Icon(Icons.thumb_up_rounded),
+            color: color,
+            onPressed: () => addLikedItem(context, info['name'], widget.site)),
+      ],
     );
   }
 }

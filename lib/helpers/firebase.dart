@@ -50,10 +50,8 @@ class DBService {
       return null;
   }
 
-  bool _doUpload(BuildContext context) {
-    return Provider.of<Storage>(context, listen: false)
-        .settings
-        .data['send_data'];
+  DocumentReference _getDoc(String id) {
+    return db.collection('users').doc(id);
   }
 
   Stream<UserDoc> getUserData(BuildContext context) {
@@ -111,7 +109,17 @@ class DBService {
   }
 
   // * GENERAL
-  DocumentReference _getDoc(String id) {
-    return db.collection('users').doc(id);
+  bool _doUpload(BuildContext context) {
+    return Provider.of<Storage>(context, listen: false)
+        .settings
+        .data['send_data'];
+  }
+
+  void sendFlag(BuildContext context, String site, Map info) async {
+    // Make sure the user has a uid
+    if (!_doUpload(context)) throw Exception('User must enable firebase');
+    // User uid == warning key
+    final id = (await _getUser(context, listen: false)).uid;
+    db.collection('errors').doc(site).set({id: info}, SetOptions(merge: true));
   }
 }

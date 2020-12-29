@@ -89,6 +89,7 @@ class _SettingsPageState extends State<SettingsPage> {
   OverlayEntry deletionPrompt;
 
   void showDeletionWarning(BuildContext context) {
+    // ! USE NAVIGATOR INSTEAD OF OVERLAY
     deletionPrompt = OverlayEntry(
       builder: (context) => Center(
         child: Material(
