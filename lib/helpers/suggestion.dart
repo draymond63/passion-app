@@ -15,7 +15,7 @@ class Suggestor {
   }
 
   Future<String> suggest() async {
-    if (vitals.length == 0) return ''; // Null safety
+    if (vitals.length == 0) return ''; // ! Null safety
     final store = Provider.of<Storage>(context);
     final settings = store.settings;
     // Remove all entries that don't want to be seen

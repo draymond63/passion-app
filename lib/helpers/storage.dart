@@ -11,9 +11,11 @@ class Storage extends ChangeNotifier {
   Settings _settings;
   Map<String, int> _feed;
   List<String> _items;
+  // ! ASSUMES 3 PAGES
+  List<DateTime> _pageStartTimes = List.filled(3, DateTime.now());
+  List<DateTime> _pageEndTimes = List.filled(3, DateTime.now());
 
   Storage({Settings settings, Map feed, List items}) {
-    // ! NEED A BETTER WAY TO DEEP COPY
     _settings = settings;
     _feed = feed.cast<String, int>();
     _items = items.cast<String>();
@@ -39,6 +41,9 @@ class Storage extends ChangeNotifier {
   Settings get settings => _settings;
   List<String> get items => _items;
   Map<String, int> get feed => _feed;
+
+  List<DateTime> getPageStamps(int index) =>
+      [_pageStartTimes[index], _pageEndTimes[index]];
 
   // * FUNCTIONS
   void _update() {
@@ -80,6 +85,12 @@ class Storage extends ChangeNotifier {
       _feed[site] = time;
     db.updateTime(context, site, time);
     _update();
+  }
+
+  void timeStampPage({int oldPage, int newPage}) {
+    final timeStamp = DateTime.now();
+    if (newPage != null) _pageStartTimes[newPage] = timeStamp;
+    if (oldPage != null) _pageEndTimes[oldPage] = timeStamp;
   }
 
   // Settings

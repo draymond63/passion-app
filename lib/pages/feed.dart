@@ -11,11 +11,6 @@ import 'package:PassionFruit/pages/settings.dart';
 
 class FeedPage extends StatefulWidget {
   final loadBuffer = 3; // How many items to preload
-  final _state = _FeedPageState();
-
-  pause(context, int i) {
-    _state.pageSwitch(context, i);
-  }
 
   @override
   _FeedPageState createState() => _FeedPageState();
@@ -37,28 +32,42 @@ class _FeedPageState extends State<FeedPage> {
     super.dispose();
   }
 
-  // * Uses page indexes to
-  pageSwitch(context, int i) async {
-    String newSite = NO_ITEM; // ! MISTAKE ON FIRST VIEW
-    // ignore: invalid_use_of_protected_member
-    if (_swiper.positions.isNotEmpty)
-      newSite = await sites[_swiper.page.round()];
-    timePage(context, newSite);
-  }
-
-  timePage(context, newSite) {
+  // * TIMING FUNCTIONS
+  timePage(context, index) async {
+    // Get the page in question
+    final newSite = await sites[index];
     // If the page has switched, change the currentSite
     if (currentSite != newSite) {
-      final endTime = DateTime.now();
-      final duration = endTime.difference(startTime).inMilliseconds ~/ 100;
+      final duration = getDuration();
       final db = Provider.of<Storage>(context, listen: false);
-      // print('$currentSite: ${duration / 10}');
+      print('$currentSite: ${duration / 10}');
       // Send to the database
       if (currentSite != NO_ITEM) db.updateTime(currentSite, duration, context);
-      // Setup for new page tracking
-      startTime = endTime;
       currentSite = newSite;
     }
+  }
+
+  // Get the time when this page came into focus
+  List<DateTime> pageStamps() {
+    return Provider.of<Storage>(context, listen: false).getPageStamps(0);
+  }
+
+  // Restart timer and calculate duration
+  int getDuration() {
+    final endTime = DateTime.now();
+    int milli = endTime.difference(startTime).inMilliseconds;
+    // If page lost focus, subtract the duration lost
+    final pageTimes = pageStamps();
+    final arrival = pageTimes[0];
+    final departure = pageTimes[1];
+    if (startTime.difference(arrival).isNegative) {
+      final timeLost = arrival.difference(departure).inMilliseconds;
+      milli -= timeLost;
+    }
+    // Reset item timestamp
+    startTime = endTime;
+    // Return duration in deciseconds
+    return milli ~/ 100;
   }
 
   // * Rendering
@@ -79,7 +88,7 @@ class _FeedPageState extends State<FeedPage> {
     // ? https://pub.dev/packages/preload_page_view
     return PageView.builder(
       controller: _swiper,
-      onPageChanged: (i) => pageSwitch(context, i),
+      onPageChanged: (i) => timePage(context, i),
       itemBuilder: (BuildContext context, int i) {
         if (sites.length - widget.loadBuffer <= i) sites.add(sg.suggest());
         // Get suggestion

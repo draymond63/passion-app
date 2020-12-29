@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
 import 'package:PassionFruit/helpers/globals.dart';
-
+import 'package:PassionFruit/helpers/storage.dart';
 import 'package:PassionFruit/pages/feed.dart';
 import 'package:PassionFruit/pages/bookshelf.dart';
 import 'package:PassionFruit/pages/search.dart';
-// import 'package:PassionFruit/pages/login.dart';
+import 'package:provider/provider.dart';
 
 class PageRouter extends StatefulWidget {
   @override
@@ -15,22 +15,22 @@ class PageRouter extends StatefulWidget {
 
 class _PageRouterState extends State<PageRouter> {
   static const double _iconSize = 36;
+  int _prevPageIndex;
   PersistentTabController _controller = PersistentTabController(
     initialIndex: 1,
   );
 
   @override
   void initState() {
-    Future.delayed(
-      Duration(seconds: 0),
-      () => _controller
-          .addListener(() => _pages[0].pause(context, _controller.index)),
-    );
     super.initState();
+    _controller.addListener(() {
+      final store = Provider.of<Storage>(context, listen: false);
+      store.timeStampPage(oldPage: _prevPageIndex, newPage: _controller.index);
+      _prevPageIndex = _controller.index;
+    });
   }
 
-  // Needs to be dynamic so pause function can be called above
-  final _pages = <dynamic>[
+  final _pages = <Widget>[
     FeedPage(),
     BookShelfPage(),
     SearchPage(),
@@ -41,7 +41,7 @@ class _PageRouterState extends State<PageRouter> {
     return PersistentTabView(
       navBarStyle: NavBarStyle.style13,
       controller: _controller,
-      screens: List<Widget>.from(_pages),
+      screens: _pages,
       handleAndroidBackButtonPress: true,
       resizeToAvoidBottomInset: true,
       hideNavigationBarWhenKeyboardShows: true,
