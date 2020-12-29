@@ -1,5 +1,6 @@
 import 'package:PassionFruit/helpers/globals.dart';
 import 'package:flutter/material.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
 import 'package:PassionFruit/helpers/storage.dart';
 
@@ -86,39 +87,36 @@ class _SettingsPageState extends State<SettingsPage> {
     if (state) store.db.syncData(context); // If statement for legability
   }
 
-  OverlayEntry deletionPrompt;
-
+  // Warning Screen
   void showDeletionWarning(BuildContext context) {
-    // ! USE NAVIGATOR INSTEAD OF OVERLAY
-    deletionPrompt = OverlayEntry(
-      builder: (context) => Center(
-        child: Material(
-            child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Are you sure you want to delete all your data?',
-              style: ItemHeader,
-              textAlign: TextAlign.center,
+    pushNewScreen(
+      context,
+      screen: Material(
+          child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Are you sure you want to delete all your data?',
+            style: ItemHeader,
+            textAlign: TextAlign.center,
+          ),
+          Text(
+            'This will give you a fresh start',
+            style: ItemSubtitle,
+            textAlign: TextAlign.center,
+          ),
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            buildButton(
+              'Yes',
+              Colors.red,
+              () => Provider.of<Storage>(context, listen: false)
+                  .deleteData(context),
             ),
-            Text(
-              'This will give you a fresh start',
-              style: ItemSubtitle,
-              textAlign: TextAlign.center,
-            ),
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              buildButton('Yes', Colors.red, () {
-                Provider.of<Storage>(context, listen: false)
-                    .deleteData(context);
-                Navigator.of(context).pop();
-              }),
-              buildButton('No', Colors.green),
-            ]),
-          ],
-        )),
-      ),
+            buildButton('No', Colors.green),
+          ]),
+        ],
+      )),
     );
-    Overlay.of(context).insert(deletionPrompt);
   }
 
   Widget buildButton(String text, Color color, [Function() onPressed]) {
@@ -130,7 +128,7 @@ class _SettingsPageState extends State<SettingsPage> {
           foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
         ),
         onPressed: () {
-          deletionPrompt.remove();
+          Navigator.of(context).pop();
           if (onPressed != null) onPressed();
         },
       ),
