@@ -44,6 +44,8 @@ class Point {
   Point(this.x, this.y, this.site, {this.color = Colors.grey});
 
   Offset get offset => Offset(x, y);
+
+  String toString() => '$site ($x, $y)';
 }
 
 Map<String, Color> categoryColors = {

@@ -168,30 +168,65 @@ class _GraphState extends State<Graph> {
   // *** CLICK FUNCTIONS
   // Calculates which item was clicked
   clickItem(Offset clickCoords, BuildContext context) {
-    // * Translate click to map coordinates
     // Convert screen to canvas/map coordinates
-    Offset coords = _zoomer.toScene(clickCoords);
-    coords = Offset(
-      coords.dx.roundToDouble(),
-      coords.dy.roundToDouble(),
-    );
-    // * Search for point in data (max ~ 14 milleseconds)
-    // ! Clicks are too inprecise
-    final info = widget.map.firstWhere(
-      (row) =>
-          row[MapCol.x.index].round() == coords.dx &&
-          row[MapCol.y.index].round() == coords.dy,
-      orElse: () => null,
-    );
-    if (info != null)
-      displayItem(info[MapCol.site.index], clickCoords, context);
+    final coords = _zoomer.toScene(clickCoords);
+    // Get distances to viable points (Roughly 6X using onscreenPoints)
+    final dists = getDistances(onscreenPoints, coords);
+    // Search for point in data (max ~ 14 milleseconds)
+    final result = selectDistance(dists);
+    // Possibly display item info
+    if (result != null)
+      displayItem(result.site, clickCoords);
     else
       hideItem();
   }
 
+  // * Get list of points on screen (5 milliseconds)
+  List<Point> get onscreenPoints {
+    final screenSize = MediaQuery.of(context).size;
+    // Get max and min offset of map on screen
+    final mapTopLeft = _zoomer.toScene(Offset.zero);
+    final mapBottomRight = _zoomer.toScene(screenSize.bottomRight(Offset.zero));
+    // Filter points to only those within the restraints
+    return points
+        .where((point) =>
+            point.x >= mapTopLeft.dx &&
+            point.x <= mapBottomRight.dx &&
+            point.y >= mapTopLeft.dy &&
+            point.y <= mapBottomRight.dy)
+        .toList();
+  }
+
+  // * Get distances of the points given
+  Map<Point, double> getDistances(List<Point> sites, Offset coords) {
+    return Map<Point, double>.fromIterable(
+      sites,
+      key: (point) => point,
+      value: (point) =>
+          square(point.x - coords.dx) + square(point.y - coords.dy),
+    );
+  }
+
+  Point selectDistance(Map<Point, double> distances, {thresh = 10}) {
+    Point closestPoint = distances.keys.first;
+    double closestDist = distances.values.first;
+    // Iterate through distances
+    distances.forEach((point, dist) {
+      if (dist < closestDist) {
+        closestPoint = point;
+        closestDist = dist;
+      }
+    });
+    print(closestDist);
+    print(thresh / scale);
+    return closestDist < thresh / scale ? closestPoint : null;
+  }
+
+  double square(double val) => val * val;
+
   OverlayEntry itemPrompt;
 
-  displayItem(String site, Offset coords, BuildContext context) {
+  void displayItem(String site, Offset coords) {
     hideItem(); // Remove last item
     itemPrompt = OverlayEntry(
       builder: (context) => Positioned(
@@ -203,7 +238,7 @@ class _GraphState extends State<Graph> {
     Overlay.of(context).insert(itemPrompt);
   }
 
-  hideItem() {
+  void hideItem() {
     if (itemPrompt != null) itemPrompt.remove();
     itemPrompt = null;
   }
