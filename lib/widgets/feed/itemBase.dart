@@ -1,11 +1,13 @@
-import 'package:PassionFruit/widgets/feed/itemFlag.dart';
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+
+import 'package:PassionFruit/helpers/globals.dart';
+import 'package:PassionFruit/widgets/feed/itemFlag.dart';
 import 'package:PassionFruit/helpers/storage.dart';
 import 'package:PassionFruit/helpers/wikipedia.dart';
-import 'package:PassionFruit/helpers/globals.dart';
 
 class BaseItem extends StatefulWidget {
   final String site;
@@ -58,7 +60,13 @@ class _BaseItemState extends State<BaseItem> {
       image = doc.imageUrl == ''
           ? Image.asset('assets/fruit.png', fit: BoxFit.cover)
           : Image(
-              image: CachedNetworkImageProvider(doc.imageUrl),
+              image: CachedNetworkImageProvider(doc.imageUrl,
+                  // ! TEST IF THIS WORKS
+                  cacheManager: CacheManager(Config(
+                    DefaultCacheManager.key,
+                    maxNrOfCacheObjects: 20,
+                    stalePeriod: Duration(days: 1),
+                  ))),
               fit: BoxFit.cover,
             );
 

@@ -27,6 +27,7 @@ dependencies:
   async: ^2.4.2
   path_provider: ^1.6.24 # Storage
   cached_network_image: 2.3.3 # Item Images
+  flutter_cache_manager: ^2.1.0 # To set cache stale duration
   csv: ^4.1.0 # Map
   http: ^0.12.2 # Wiki
   persistent_bottom_nav_bar: any # NavBar
