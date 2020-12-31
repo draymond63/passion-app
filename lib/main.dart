@@ -55,6 +55,7 @@ class ProviderApp extends StatelessWidget {
                     child: DataApp(),
                   ));
             } else
+              // ! Replace with splash page
               return Material(child: LoadingWidget);
           }),
     );

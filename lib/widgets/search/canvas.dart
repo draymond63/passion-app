@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 
 class GraphPainter extends CustomPainter {
   final List<Point> data;
-  final Point user;
   final double radius;
   final double scale;
   GraphPainter(
-    this.data,
-    this.user, {
+    this.data, {
     this.radius = 10,
     this.scale = 1,
   });
@@ -16,20 +14,11 @@ class GraphPainter extends CustomPainter {
   paint(Canvas canvas, Size size) {
     final paint = Paint();
     final scaledRadius = radius / this.scale;
-    // DRAWS VALUES OUTSIZE OF SIZE
+    // Draws each point in the data given
     data.forEach((point) {
       paint.color = point.color ?? Colors.grey;
-      canvas.drawCircle(
-        point.offset,
-        scaledRadius,
-        paint,
-      );
+      canvas.drawCircle(point.offset, scaledRadius, paint);
     });
-    paint.color = user.color ?? Colors.grey;
-    canvas.drawRect(
-      Rect.fromCircle(center: user.offset, radius: scaledRadius * 1.75),
-      paint,
-    );
   }
 
   shouldRepaint(GraphPainter oldPainter) =>

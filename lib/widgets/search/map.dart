@@ -9,6 +9,10 @@ class Graph extends StatefulWidget {
   final String focusedSite;
   final bool isSearching;
   Graph(this.map, this.items, this.focusedSite, this.isSearching);
+
+  // Graph constants
+  final userRadius = 17.5;
+
   @override
   _GraphState createState() => _GraphState();
 }
@@ -20,17 +24,6 @@ class _GraphState extends State<Graph> {
   Size mapSize;
   double scale = 50;
 
-  /* Type   | Dim | Scale | Size   | Translate | Ratio 
-   * screen | w   | 10    | 411.4  | 41        | 10.03
-   * screen | h   | 10    | 845.7  | 72        | 11.74
-   * map    | w   | 10    | 1307.2 | 411       | 3.18
-   * map    | h   | 10    | 1230.0 | 720       | 1.71
-   * screen | w   | 15    | 411.4  | 27.3      | 15.07
-   * screen | h   | 15    | 845.7  | 48        | 17.62
-   * map    | w   | 15    | 1307.2 | 438       | 2.98
-   * map    | h   | 15    | 1230.0 | 768       | 1.6
-   */
-
   @override
   void initState() {
     super.initState();
@@ -38,14 +31,10 @@ class _GraphState extends State<Graph> {
     points = getPlotData();
     mapSize = getMapSize();
     // Add the user
-    final userCoords = getUserCoords();
-    userPoint = Point(userCoords.dx, userCoords.dy, 'You');
-    // Center on the user's position
-    // Future required for context
-    Future.delayed(
-      Duration(seconds: 0),
-      () => focusCoords(userCoords, context),
-    );
+    final coords = userCoords;
+    userPoint = Point(coords.dx, coords.dy, 'You');
+    // Center on the user's position (Future required for context)
+    Future.microtask(() => focusCoords(userPoint.offset, context));
   }
 
   // Checks if dependencies change
@@ -77,22 +66,38 @@ class _GraphState extends State<Graph> {
         onInteractionStart: startPan,
         onInteractionEnd: endPan,
         maxScale: 200,
-        minScale: 5,
+        minScale: 1,
         constrained: false, // Let painting take mapSize
-        child: CustomPaint(
-          painter: GraphPainter(
-            points,
-            userPoint,
-            scale: scale,
-          ),
-          isComplex: true,
-          willChange: false,
-          size: mapSize,
+        boundaryMargin: EdgeInsets.all(16), // Give space for border points
+        child: Stack(
+          alignment: Alignment.topLeft,
+          children: [
+            CustomPaint(
+              painter: GraphPainter(points, scale: scale),
+              isComplex: true,
+              willChange: false,
+              size: mapSize,
+            ),
+            // * User Node
+            Positioned(
+              child: Container(
+                decoration: BoxDecoration(
+                    border: Border.all(
+                  width: widget.userRadius / scale,
+                  color: Colors.amber,
+                )),
+              ),
+              // Default positioned puts top left at the coordinates
+              left: userPoint.x - widget.userRadius / scale,
+              top: userPoint.y - widget.userRadius / scale,
+            ),
+          ],
         ),
       ),
     );
   }
 
+  // *** INTERACTIVE VIEWER FUNCTIONS
   void startPan(_) => hideItem();
 
   void endPan(_) {
@@ -101,17 +106,16 @@ class _GraphState extends State<Graph> {
     if (scale != _scale) setState(() => scale = _scale);
   }
 
+  // * Centers viewer on given site
   void focusSite(String site, BuildContext context) {
-    final info = widget.map.singleWhere(
-      (row) => row[MapCol.site.index] == site,
+    final point = points.singleWhere(
+      (point) => point.site == site,
       orElse: () => throw Exception('site not found'),
     );
-    final x = info[MapCol.x.index];
-    final y = info[MapCol.y.index];
-    focusCoords(Offset(x, y), context);
+    focusCoords(point.offset, context);
   }
 
-  // Translates map coordinates to viewer coordinates
+  // * Centers viewer coordinates on given map coordinates
   void focusCoords(Offset coords, BuildContext context) {
     hideItem(); // Just in case any overlay is showing
     final screenSize = MediaQuery.of(context).size;
@@ -126,6 +130,8 @@ class _GraphState extends State<Graph> {
     );
   }
 
+  // *** MAP FUNCTIONS
+  // * Get the size of the total map
   Size getMapSize() {
     // Data starts at 0, 0 - we don't need to keep track of mins
     double xMax = widget.map[0][MapCol.x.index];
@@ -139,7 +145,8 @@ class _GraphState extends State<Graph> {
     return Size(xMax, yMax);
   }
 
-  Offset getUserCoords() {
+  // * Calculate coordinates of the user
+  Offset get userCoords {
     if (widget.items.length == 0) return mapSize.center(Offset.zero);
     final rows = widget.map
         .where((row) => widget.items.contains(row[MapCol.site.index]))
@@ -153,6 +160,7 @@ class _GraphState extends State<Graph> {
     return Offset(x, y);
   }
 
+  // * Convert table data into a list of objects
   List<Point> getPlotData() {
     return List<Point>.generate(widget.map.length, (i) {
       final info = widget.map[i];
@@ -163,22 +171,6 @@ class _GraphState extends State<Graph> {
         color: categoryColors[info[MapCol.l0.index]],
       );
     });
-  }
-
-  // *** CLICK FUNCTIONS
-  // Calculates which item was clicked
-  clickItem(Offset clickCoords, BuildContext context) {
-    // Convert screen to canvas/map coordinates
-    final coords = _zoomer.toScene(clickCoords);
-    // Get distances to viable points (Roughly 6X using onscreenPoints)
-    final dists = getDistances(onscreenPoints, coords);
-    // Search for point in data (max ~ 14 milleseconds)
-    final result = selectDistance(dists);
-    // Possibly display item info
-    if (result != null)
-      displayItem(result.site, clickCoords);
-    else
-      hideItem();
   }
 
   // * Get list of points on screen (5 milliseconds)
@@ -197,6 +189,22 @@ class _GraphState extends State<Graph> {
         .toList();
   }
 
+  // *** CLICK FUNCTIONS
+  // * Calculates which item was clicked
+  clickItem(Offset clickCoords, BuildContext context) {
+    // Convert screen to canvas/map coordinates
+    final coords = _zoomer.toScene(clickCoords);
+    // Get distances to viable points (Roughly 6X using onscreenPoints)
+    final dists = getDistances(onscreenPoints, coords);
+    // Search for point in data
+    final result = selectDistance(dists);
+    // Possibly display item info
+    if (result != null)
+      displayItem(result.site, clickCoords);
+    else
+      hideItem();
+  }
+
   // * Get distances of the points given
   Map<Point, double> getDistances(List<Point> sites, Offset coords) {
     return Map<Point, double>.fromIterable(
@@ -207,7 +215,9 @@ class _GraphState extends State<Graph> {
     );
   }
 
+  // * Select the minimum distance from a map of points
   Point selectDistance(Map<Point, double> distances, {thresh = 10}) {
+    if (distances.length == 0) return null;
     Point closestPoint = distances.keys.first;
     double closestDist = distances.values.first;
     // Iterate through distances
@@ -217,13 +227,12 @@ class _GraphState extends State<Graph> {
         closestDist = dist;
       }
     });
-    print(closestDist);
-    print(thresh / scale);
     return closestDist < thresh / scale ? closestPoint : null;
   }
 
   double square(double val) => val * val;
 
+  // *** ITEM OVERLAY FUNCTIONS
   OverlayEntry itemPrompt;
 
   void displayItem(String site, Offset coords) {
