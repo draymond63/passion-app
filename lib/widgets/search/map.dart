@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+
 import 'package:PassionFruit/helpers/globals.dart';
 import 'package:PassionFruit/widgets/search/canvas.dart';
-import 'package:PassionFruit/widgets/bookshelf/itemPreview.dart';
+import 'package:PassionFruit/widgets/feed/itemView.dart';
+import 'package:provider/provider.dart';
 
 class Graph extends StatefulWidget {
   final List<List> map;
@@ -19,20 +22,19 @@ class Graph extends StatefulWidget {
 
 class _GraphState extends State<Graph> {
   final _zoomer = TransformationController();
-  List<Point> points;
+  List<Point> map;
+  List<Point> onScreenPoints = [];
   Point userPoint;
   Size mapSize;
+  bool showLabels = true;
   double scale = 50;
 
   @override
   void initState() {
     super.initState();
     // Only needs to run once
-    points = getPlotData();
+    map = getPlotData();
     mapSize = getMapSize();
-    // Add the user
-    final coords = userCoords;
-    userPoint = Point(coords.dx, coords.dy, 'You');
     // Center on the user's position (Future required for context)
     Future.microtask(() => focusCoords(userPoint.offset, context));
   }
@@ -45,8 +47,6 @@ class _GraphState extends State<Graph> {
       focusCoords(userPoint.offset, context);
     else
       focusSite(widget.focusedSite, context);
-    // Check if the user has entered search mode
-    if (widget.isSearching) hideItem();
   }
 
   @override
@@ -57,6 +57,9 @@ class _GraphState extends State<Graph> {
 
   @override
   Widget build(BuildContext context) {
+    // Calculate user point
+    final coords = userCoords;
+    userPoint = Point(coords.dx, coords.dy, 'You');
     // Reruns whenever user interacts
     return GestureDetector(
       onTapUp: (details) => clickItem(details.localPosition, context),
@@ -66,49 +69,52 @@ class _GraphState extends State<Graph> {
         onInteractionStart: startPan,
         onInteractionEnd: endPan,
         maxScale: 200,
-        minScale: 1,
+        minScale: 5,
         constrained: false, // Let painting take mapSize
         boundaryMargin: EdgeInsets.all(16), // Give space for border points
         child: Stack(
           alignment: Alignment.topLeft,
           children: [
-            CustomPaint(
-              painter: GraphPainter(points, scale: scale),
-              isComplex: true,
-              willChange: false,
-              size: mapSize,
-            ),
-            // * User Node
-            Positioned(
-              child: Container(
-                decoration: BoxDecoration(
-                    border: Border.all(
-                  width: widget.userRadius / scale,
-                  color: Colors.amber,
-                )),
-              ),
-              // Default positioned puts top left at the coordinates
-              left: userPoint.x - widget.userRadius / scale,
-              top: userPoint.y - widget.userRadius / scale,
-            ),
-          ],
+                CustomPaint(
+                  painter: GraphPainter(map, scale: scale),
+                  isComplex: true,
+                  willChange: false,
+                  size: mapSize,
+                ),
+                // * User Node
+                Positioned(
+                  child: Container(
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                      width: widget.userRadius / scale,
+                      color: Colors.amber,
+                    )),
+                  ),
+                  // Default positioned puts top left at the coordinates
+                  left: userPoint.x - widget.userRadius / scale,
+                  top: userPoint.y - widget.userRadius / scale,
+                ),
+              ] +
+              getLabels(),
         ),
       ),
     );
   }
 
   // *** INTERACTIVE VIEWER FUNCTIONS
-  void startPan(_) => hideItem();
+  void startPan(_) => setState(() => showLabels = false);
 
   void endPan(_) {
     // Set scale
     final _scale = _zoomer.value.getMaxScaleOnAxis();
     if (scale != _scale) setState(() => scale = _scale);
+    updateOnScreenPoints(); // ! RUN ON MOTION STOP, NOT USER RELEASE
+    setState(() => showLabels = true);
   }
 
   // * Centers viewer on given site
   void focusSite(String site, BuildContext context) {
-    final point = points.singleWhere(
+    final point = map.singleWhere(
       (point) => point.site == site,
       orElse: () => throw Exception('site not found'),
     );
@@ -117,7 +123,6 @@ class _GraphState extends State<Graph> {
 
   // * Centers viewer coordinates on given map coordinates
   void focusCoords(Offset coords, BuildContext context) {
-    hideItem(); // Just in case any overlay is showing
     final screenSize = MediaQuery.of(context).size;
     // Reset position
     _zoomer.value = Matrix4.diagonal3Values(scale, scale, 1);
@@ -128,6 +133,7 @@ class _GraphState extends State<Graph> {
         -coords.dy + (screenSize.height / scale / 2),
       ),
     );
+    updateOnScreenPoints();
   }
 
   // *** MAP FUNCTIONS
@@ -174,19 +180,47 @@ class _GraphState extends State<Graph> {
   }
 
   // * Get list of points on screen (5 milliseconds)
-  List<Point> get onscreenPoints {
+  updateOnScreenPoints() {
     final screenSize = MediaQuery.of(context).size;
     // Get max and min offset of map on screen
     final mapTopLeft = _zoomer.toScene(Offset.zero);
     final mapBottomRight = _zoomer.toScene(screenSize.bottomRight(Offset.zero));
     // Filter points to only those within the restraints
-    return points
+    setState(() => onScreenPoints = map
         .where((point) =>
             point.x >= mapTopLeft.dx &&
             point.x <= mapBottomRight.dx &&
             point.y >= mapTopLeft.dy &&
             point.y <= mapBottomRight.dy)
-        .toList();
+        .toList());
+  }
+
+  // * Labels
+  List<Widget> getLabels({max = 100}) {
+    final vitals = Provider.of<Map>(context);
+    final screenPoints = onScreenPoints;
+    if (screenPoints.length > max) return []; // Improves render efficiency
+    return List<Widget>.generate(
+      screenPoints.length,
+      (i) {
+        final point = screenPoints[i];
+        return Positioned(
+          child: AnimatedOpacity(
+            duration: Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            opacity: showLabels ? 1 : 0,
+            child: Text(
+              vitals[point.site]['name'],
+              textScaleFactor: 1 / scale,
+              style: TextStyle(fontSize: 15),
+            ),
+          ),
+          left: point.x,
+          top: point.y,
+        );
+      },
+      growable: false,
+    );
   }
 
   // *** CLICK FUNCTIONS
@@ -194,15 +228,12 @@ class _GraphState extends State<Graph> {
   clickItem(Offset clickCoords, BuildContext context) {
     // Convert screen to canvas/map coordinates
     final coords = _zoomer.toScene(clickCoords);
-    // Get distances to viable points (Roughly 6X using onscreenPoints)
-    final dists = getDistances(onscreenPoints, coords);
+    // Get distances to viable points (Roughly 6X using onScreenPoints)
+    final dists = getDistances(onScreenPoints, coords);
     // Search for point in data
     final result = selectDistance(dists);
     // Possibly display item info
-    if (result != null)
-      displayItem(result.site, clickCoords);
-    else
-      hideItem();
+    if (result != null) displayItem(result.site);
   }
 
   // * Get distances of the points given
@@ -214,6 +245,8 @@ class _GraphState extends State<Graph> {
           square(point.x - coords.dx) + square(point.y - coords.dy),
     );
   }
+
+  double square(double val) => val * val;
 
   // * Select the minimum distance from a map of points
   Point selectDistance(Map<Point, double> distances, {thresh = 10}) {
@@ -230,25 +263,10 @@ class _GraphState extends State<Graph> {
     return closestDist < thresh / scale ? closestPoint : null;
   }
 
-  double square(double val) => val * val;
-
-  // *** ITEM OVERLAY FUNCTIONS
-  OverlayEntry itemPrompt;
-
-  void displayItem(String site, Offset coords) {
-    hideItem(); // Remove last item
-    itemPrompt = OverlayEntry(
-      builder: (context) => Positioned(
-        left: coords.dx - 150, // Preview Item is 300 width
-        top: coords.dy + 5,
-        child: Material(child: PreviewItem(site)),
-      ),
-    );
-    Overlay.of(context).insert(itemPrompt);
-  }
-
-  void hideItem() {
-    if (itemPrompt != null) itemPrompt.remove();
-    itemPrompt = null;
-  }
+  void displayItem(String site) => pushNewScreen(
+        context,
+        screen: ViewItem(site),
+        pageTransitionAnimation: PageTransitionAnimation.fade,
+        withNavBar: false,
+      );
 }

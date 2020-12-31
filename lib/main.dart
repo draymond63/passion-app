@@ -56,7 +56,9 @@ class ProviderApp extends StatelessWidget {
                   ));
             } else
               // ! Replace with splash page
-              return Material(child: LoadingWidget);
+              return Material(
+                child: Center(child: Image.asset('assets/fruit.png')),
+              );
           }),
     );
   }
