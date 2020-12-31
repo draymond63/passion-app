@@ -14,25 +14,37 @@ class TreeNode extends StatelessWidget {
       margin: EdgeInsets.symmetric(vertical: 4),
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-                color: Color(0xFFDDDDDD),
-                spreadRadius: 1,
-                offset: Offset(2, 2),
-                blurRadius: 2)
-          ],
-          borderRadius: BorderRadius.all(Radius.circular(8))),
-      child: showArrow
-          ? Row(
-              children: [
-                Text(site.replaceAll('_', ' '), style: ItemSubtitle),
-                Flexible(child: Container()), // Right align arrow
-                Text('$count'),
-                Icon(Icons.arrow_right_rounded),
-              ],
-            )
-          : Text(site.replaceAll('_', ' '), style: ItemSubtitle),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+              color: Color(0xFFDDDDDD),
+              spreadRadius: 1,
+              offset: Offset(2, 2),
+              blurRadius: 2)
+        ],
+        borderRadius: BorderRadius.all(Radius.circular(8)),
+      ),
+      child: Stack(
+        children: [
+          Container(
+            width: MediaQuery.of(context).size.width - 85, // Prevents overlap
+            child: Text(
+              site.replaceAll('_', ' '),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: ItemSubtitle,
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              // Right align arrow
+              Text('$count'),
+              if (showArrow) Icon(Icons.arrow_right_rounded),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
