@@ -53,7 +53,7 @@ class _BaseItemState extends State<BaseItem> {
   List<Widget> buildContent(BuildContext context, WikiDoc doc, Map vitals) {
     final showImage = Provider.of<Storage>(context).settings.data['show_image'];
     // Get vitals row info for the site
-    final info = vitals[widget.site];
+    final info = vitals[widget.site] ?? {};
     // Check to see if any images were available
     Image image;
     if (showImage)
@@ -81,7 +81,7 @@ class _BaseItemState extends State<BaseItem> {
       // * BUTTONS
       buildButtons(context, info),
       // * TEXT
-      Container(padding: EdgeInsets.all(8), child: Text(doc.content)),
+      Container(padding: EdgeInsets.all(8), child: buildText(doc.content)),
     ];
   }
 
@@ -110,5 +110,30 @@ class _BaseItemState extends State<BaseItem> {
             onPressed: () => addLikedItem(context, info['name'], widget.site)),
       ],
     );
+  }
+
+  buildText(String content) {
+    final sections = parseContent(content);
+    final text = getTextSpans(sections);
+    return Text.rich(TextSpan(children: text));
+  }
+
+  /* Data format
+   *  [
+   *    {
+   *      "type": "header"
+   *      "text": "..."
+   *    },
+   *    ...
+   *  ]
+   */
+  List<Map<String, dynamic>> parseContent(String content) {
+    return [
+      {'text': content}
+    ];
+  }
+
+  List<TextSpan> getTextSpans(List<Map<String, dynamic>> data) {
+    return List.generate(data.length, (i) => TextSpan(text: data[i]['text']));
   }
 }

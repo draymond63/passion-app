@@ -3,8 +3,8 @@ import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
 import 'package:PassionFruit/helpers/globals.dart';
 import 'package:PassionFruit/widgets/search/canvas.dart';
+import 'package:PassionFruit/widgets/search/itemTag.dart';
 import 'package:PassionFruit/widgets/feed/itemView.dart';
-import 'package:provider/provider.dart';
 
 class Graph extends StatefulWidget {
   final List<List> map;
@@ -196,8 +196,7 @@ class _GraphState extends State<Graph> {
   }
 
   // * Labels
-  List<Widget> getLabels({max = 100}) {
-    final vitals = Provider.of<Map>(context);
+  List<Widget> getLabels({max = 50}) {
     final screenPoints = onScreenPoints;
     if (screenPoints.length > max) return []; // Improves render efficiency
     return List<Widget>.generate(
@@ -205,16 +204,7 @@ class _GraphState extends State<Graph> {
       (i) {
         final point = screenPoints[i];
         return Positioned(
-          child: AnimatedOpacity(
-            duration: Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            opacity: showLabels ? 1 : 0,
-            child: Text(
-              vitals[point.site]['name'],
-              textScaleFactor: 1 / scale,
-              style: TextStyle(fontSize: 15),
-            ),
-          ),
+          child: ItemTag(visible: showLabels, site: point.site, scale: scale),
           left: point.x,
           top: point.y,
         );
