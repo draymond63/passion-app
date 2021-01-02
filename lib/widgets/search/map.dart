@@ -27,7 +27,7 @@ class _GraphState extends State<Graph> {
   Point userPoint;
   Size mapSize;
   bool showLabels = true;
-  double scale = 50;
+  double scale = 0.7;
 
   @override
   void initState() {
@@ -57,6 +57,7 @@ class _GraphState extends State<Graph> {
 
   @override
   Widget build(BuildContext context) {
+    print(scale);
     // Calculate user point
     final coords = userCoords;
     userPoint = Point(coords.dx, coords.dy, 'You');
@@ -68,8 +69,8 @@ class _GraphState extends State<Graph> {
         transformationController: _zoomer,
         onInteractionStart: startPan,
         onInteractionEnd: endPan,
-        maxScale: 200, // ! TOO LARGE, BREAKS CERTAIN WIDGETS
-        minScale: 5,
+        maxScale: 3,
+        minScale: .1,
         constrained: false, // Let painting take mapSize
         boundaryMargin: EdgeInsets.all(16), // Give space for border points
         child: Stack(

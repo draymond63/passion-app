@@ -21,12 +21,22 @@ class ItemTag extends StatelessWidget {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
       opacity: visible ? 0.9 : 0,
-      child: Text(vitals[site]['name'],
+      child: Container(
+        padding: EdgeInsets.all(5 / scale),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(width: 1 / scale),
+          borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(64),
+              bottomRight: Radius.circular(64),
+              topRight: Radius.circular(64)),
+        ),
+        child: Text(
+          vitals[site]['name'],
           textScaleFactor: 1 / scale,
-          style: const TextStyle(
-            fontSize: 15,
-            backgroundColor: Colors.white,
-          )),
+          style: const TextStyle(fontSize: 20),
+        ),
+      ),
     );
   }
 }
