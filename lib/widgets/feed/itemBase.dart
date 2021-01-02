@@ -112,28 +112,55 @@ class _BaseItemState extends State<BaseItem> {
     );
   }
 
-  buildText(String content) {
+  Widget buildText(String content) {
     final sections = parseContent(content);
-    final text = getTextSpans(sections);
-    return Text.rich(TextSpan(children: text));
+    return Text.rich(TextSpan(children: sections));
   }
 
-  /* Data format
-   *  [
-   *    {
-   *      "type": "header"
-   *      "text": "..."
-   *    },
-   *    ...
-   *  ]
-   */
-  List<Map<String, dynamic>> parseContent(String content) {
-    return [
-      {'text': content}
-    ];
-  }
+  List<TextSpan> parseContent(String content) {
+    final patterns = {
+      // Double equals
+      RegExp('\n==[^=]+==\n'): TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 20,
+      ),
+      // Triple equals
+      RegExp('\n===[^=]+===\n'): TextStyle(fontWeight: FontWeight.bold),
+    };
 
-  List<TextSpan> getTextSpans(List<Map<String, dynamic>> data) {
-    return List.generate(data.length, (i) => TextSpan(text: data[i]['text']));
+    var data = [TextSpan(text: content)];
+
+    patterns.forEach((regex, style) {
+      // Temporary list for each pattern
+      final newData = List<TextSpan>.from(data);
+      // Check for the pattern in every textspan
+      for (int ii = 0; ii < data.length; ii++) {
+        final span = data[ii];
+        int startingIndex = 0; // Tells matches where the previous left off
+        int insertOffset = 0; // Shifts ii to configure with insertion
+
+        final matches = regex.allMatches(span.text).toList();
+        for (final m in matches) {
+          print('ITERATION');
+          // Get relevant text from match
+          final matchedText = span.text.substring(m.start, m.end);
+          print(matchedText);
+          // Split textSpan and insert stylized text
+          newData[ii + insertOffset] = TextSpan(
+            text: span.text.substring(startingIndex, m.start),
+            style: span.style,
+          );
+          newData.insertAll(ii + 1 + insertOffset, [
+            TextSpan(text: matchedText, style: style),
+            TextSpan(text: span.text.substring(m.end)),
+          ]);
+          // Update variables to keep track of insertion
+          insertOffset += 2;
+          startingIndex = m.end;
+        }
+      }
+      data = newData;
+    });
+    return data;
   }
 }
