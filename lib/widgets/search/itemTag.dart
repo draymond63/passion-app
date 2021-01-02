@@ -34,7 +34,7 @@ class ItemTag extends StatelessWidget {
         child: Text(
           vitals[site]['name'],
           textScaleFactor: 1 / scale,
-          style: const TextStyle(fontSize: 20),
+          style: const TextStyle(fontSize: 15),
         ),
       ),
     );

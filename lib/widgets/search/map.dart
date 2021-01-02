@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
 import 'package:PassionFruit/helpers/globals.dart';
@@ -27,6 +28,7 @@ class _GraphState extends State<Graph> {
   Point userPoint;
   Size mapSize;
   bool showLabels = true;
+  bool isPanning = false;
   double scale = 0.7;
 
   @override
@@ -103,14 +105,29 @@ class _GraphState extends State<Graph> {
   }
 
   // *** INTERACTIVE VIEWER FUNCTIONS
-  void startPan(_) => setState(() => showLabels = false);
+  void startPan(_) {
+    isPanning = true;
+    setState(() => showLabels = false);
+  }
 
-  void endPan(_) {
+  void endPan(ScaleEndDetails details) async {
+    isPanning = false;
+    // Make sure previously on screen points aren't accidentally clicked
+    onScreenPoints = [];
     // Set scale
     final _scale = _zoomer.value.getMaxScaleOnAxis();
     if (scale != _scale) setState(() => scale = _scale);
-    updateOnScreenPoints(); // ! RUN ON MOTION STOP, NOT USER RELEASE
-    setState(() => showLabels = true);
+    // Calculate end speed
+    final vel = details.velocity.pixelsPerSecond;
+    final speed = math.sqrt(square(vel.dx) + square(vel.dy));
+    // Delay the label showing
+    Future.delayed(Duration(milliseconds: speed ~/ 10), () {
+      // Make sure a new pan hasn't started
+      if (!isPanning) {
+        updateOnScreenPoints();
+        setState(() => showLabels = true);
+      }
+    });
   }
 
   // * Centers viewer on given site
@@ -126,7 +143,7 @@ class _GraphState extends State<Graph> {
   void focusCoords(Offset coords) {
     final screenSize = MediaQuery.of(context).size;
     // Reset position
-    _zoomer.value = Matrix4.diagonal3Values(scale, scale, 1);
+    _zoomer.value = Matrix4.diagonal3Values(scale, scale, scale);
     // Move to coordinates
     setState(
       () => _zoomer.value.translate(
