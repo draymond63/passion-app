@@ -77,20 +77,20 @@ class _SearchPageState extends State<SearchPage> {
         child: Material(
           color: Colors.white,
           elevation: 8.0,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: buildSearchItems(),
-          ),
+          child: FutureBuilder(
+              future: getSearchResults(),
+              builder: (context, snap) {
+                if (snap.hasData)
+                  return Column(children: buildSearchItems(snap.data));
+                else
+                  return LoadingWidget;
+              }),
         ),
       ),
     );
   }
 
-  List<Widget> buildSearchItems() {
-    final vitals = Provider.of<Map>(context);
-    if (vitals.length == 0) return [];
-    final sites = _query.length > 0 ? getSearchResults(vitals) : [];
-
+  List<Widget> buildSearchItems(List<String> sites) {
     return List<PreviewItem>.generate(
       sites.length,
       (i) => PreviewItem(
@@ -102,11 +102,15 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   // * Search Functions
-  // ! MAKE ASYNC
-  List<String> getSearchResults(Map vitals, {maxAmount = 5}) {
+  Future<List<String>> getSearchResults({maxAmount = 5}) async {
+    final vitals = Provider.of<Map>(context);
+    // Sanity checks
+    if (vitals.length == 0 || _query.length == 0) return [];
+    // Search algorithm
     final entries = vitals.entries.where(
       (entry) => entry.value['name'].toLowerCase().contains(_query),
     );
+    // Convert to list of keys
     final results = entries.map((entry) => entry.key).toList().cast<String>();
     if (results.length > maxAmount)
       return results.getRange(0, maxAmount).toList();
