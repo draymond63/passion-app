@@ -13,7 +13,7 @@ class Graph extends StatefulWidget {
   Graph(this.map, this.items, this.focusedSite, this.isSearching);
 
   // Graph constants
-  final userRadius = 17.5;
+  final userRadius = 50;
 
   @override
   _GraphState createState() => _GraphState();
@@ -80,16 +80,14 @@ class _GraphState extends State<Graph> {
               ),
               // * User Node
               Positioned(
-                child: Container(
-                  decoration: BoxDecoration(
-                      border: Border.all(
-                    width: widget.userRadius / scale,
-                    color: Colors.amber,
-                  )),
+                child: Icon(
+                  Icons.star,
+                  size: widget.userRadius / scale,
+                  color: Colors.amber,
                 ),
                 // Default positioned puts top left at the coordinates
-                left: userPoint.x - widget.userRadius / scale,
-                top: userPoint.y - widget.userRadius / scale,
+                left: userPoint.x - widget.userRadius / scale / 2,
+                top: userPoint.y - widget.userRadius / scale / 2,
               ),
             ] +
             getLabels(),
