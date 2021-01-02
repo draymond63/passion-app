@@ -153,11 +153,11 @@ class _BaseItemState extends State<BaseItem> {
       final newData = List<TextSpan>.from(data);
       // Check for the pattern in every textspan
       for (int ii = 0; ii < data.length; ii++) {
-        final span = data[ii];
+        final span = data[ii]; // Iterate through old data
         int startingIndex = 0; // Tells matches where the previous left off
         int insertOffset = 0; // Shifts ii to configure with insertion
 
-        final matches = regex.allMatches(span.text).toList();
+        final matches = regex.allMatches(span.text);
         for (final m in matches) {
           // Get relevant text from match
           final matchedText = span.text.substring(m.start, m.end);
