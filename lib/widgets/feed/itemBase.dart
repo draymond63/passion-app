@@ -18,7 +18,7 @@ class BaseItem extends StatefulWidget {
 }
 
 class _BaseItemState extends State<BaseItem> {
-  void addLikedItem(BuildContext context, String name, String site) {
+  void addLikedItem(String name, String site) {
     String message = 'Added $name to your bookmarks!';
     // Add item to the list
     final db = Provider.of<Storage>(context, listen: false);
@@ -43,14 +43,14 @@ class _BaseItemState extends State<BaseItem> {
       future: wiki.fetchItem(widget.site),
       builder: (context, snap) {
         if (snap.hasData)
-          return ListView(children: buildContent(context, snap.data, vitals));
+          return ListView(children: buildContent(snap.data, vitals));
         if (snap.hasError) return Center(child: Text('${snap.error}'));
         return LoadingWidget;
       },
     );
   }
 
-  List<Widget> buildContent(BuildContext context, WikiDoc doc, Map vitals) {
+  List<Widget> buildContent(WikiDoc doc, Map vitals) {
     final showImage = Provider.of<Storage>(context).settings.data['show_image'];
     // Get vitals row info for the site
     final info = vitals[widget.site] ?? {};
@@ -79,13 +79,13 @@ class _BaseItemState extends State<BaseItem> {
         style: ItemHeader,
       ),
       // * BUTTONS
-      buildButtons(context, info),
+      buildButtons(info),
       // * TEXT
       Container(padding: EdgeInsets.all(8), child: buildText(doc.content)),
     ];
   }
 
-  Widget buildButtons(BuildContext context, Map info) {
+  Widget buildButtons(Map info) {
     Color color = Color(SECOND_ACCENT_COLOR);
     final store = Provider.of<Storage>(context);
     if (store.items.contains(widget.site)) color = Color(MAIN_COLOR);
@@ -107,7 +107,7 @@ class _BaseItemState extends State<BaseItem> {
         IconButton(
             icon: Icon(Icons.thumb_up_rounded),
             color: color,
-            onPressed: () => addLikedItem(context, info['name'], widget.site)),
+            onPressed: () => addLikedItem(info['name'], widget.site)),
       ],
     );
   }
@@ -119,18 +119,36 @@ class _BaseItemState extends State<BaseItem> {
 
   List<TextSpan> parseContent(String content) {
     final patterns = {
-      // Double equals
-      RegExp('\n==[^=]+==\n'): TextStyle(
-        fontWeight: FontWeight.bold,
-        fontSize: 20,
+      // 2x equals
+      RegExp('\n==[^=]+==\n'): ContentStyle(
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        trimmer: (String s) => '\n' + s.substring(3, s.length - 3) + '\n',
       ),
-      // Triple equals
-      RegExp('\n===[^=]+===\n'): TextStyle(fontWeight: FontWeight.bold),
+      // 3x equals
+      RegExp('\n===[^=]+===\n'): ContentStyle(
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+        trimmer: (String s) => '\n' + s.substring(4, s.length - 4) + '\n',
+      ),
+      // 4x equals
+      RegExp('\n====[^=]+====\n'): ContentStyle(
+        style: TextStyle(fontStyle: FontStyle.italic, fontSize: 15),
+        trimmer: (String s) => '\n' + s.substring(5, s.length - 5) + '\n',
+      ),
+      // 5x equals
+      RegExp('\n=====[^=]+=====\n'): ContentStyle(
+        style: TextStyle(fontStyle: FontStyle.italic),
+        trimmer: (String s) => '\n' + s.substring(6, s.length - 6) + '\n',
+      ),
+      // 5x equals
+      RegExp('\n=====[^=]+=====\n'): ContentStyle(
+        style: TextStyle(decoration: TextDecoration.underline),
+        trimmer: (String s) => '\n' + s.substring(7, s.length - 7) + '\n',
+      ),
     };
 
     var data = [TextSpan(text: content)];
 
-    patterns.forEach((regex, style) {
+    patterns.forEach((regex, info) {
       // Temporary list for each pattern
       final newData = List<TextSpan>.from(data);
       // Check for the pattern in every textspan
@@ -141,17 +159,15 @@ class _BaseItemState extends State<BaseItem> {
 
         final matches = regex.allMatches(span.text).toList();
         for (final m in matches) {
-          print('ITERATION');
           // Get relevant text from match
           final matchedText = span.text.substring(m.start, m.end);
-          print(matchedText);
           // Split textSpan and insert stylized text
           newData[ii + insertOffset] = TextSpan(
             text: span.text.substring(startingIndex, m.start),
             style: span.style,
           );
           newData.insertAll(ii + 1 + insertOffset, [
-            TextSpan(text: matchedText, style: style),
+            TextSpan(text: info.trimmer(matchedText), style: info.style),
             TextSpan(text: span.text.substring(m.end)),
           ]);
           // Update variables to keep track of insertion
@@ -163,4 +179,13 @@ class _BaseItemState extends State<BaseItem> {
     });
     return data;
   }
+}
+
+class ContentStyle {
+  final TextStyle style;
+  final String Function(String) trimmer;
+  ContentStyle({
+    @required this.style,
+    @required this.trimmer,
+  });
 }
