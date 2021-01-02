@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
-import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
 import 'package:PassionFruit/helpers/globals.dart';
 import 'package:PassionFruit/widgets/search/canvas.dart';
 import 'package:PassionFruit/widgets/search/itemTag.dart';
-import 'package:PassionFruit/widgets/feed/itemView.dart';
 
 class Graph extends StatefulWidget {
   final List<List> map;
@@ -59,47 +57,42 @@ class _GraphState extends State<Graph> {
 
   @override
   Widget build(BuildContext context) {
-    print(scale);
     // Calculate user point
     final coords = userCoords;
     userPoint = Point(coords.dx, coords.dy, 'You');
     // Reruns whenever user interacts
-    return GestureDetector(
-      onTapUp: (details) => clickItem(details.localPosition),
-      // Lets paint use the mapSize even if it breaks constraints
-      child: InteractiveViewer(
-        transformationController: _zoomer,
-        onInteractionStart: startPan,
-        onInteractionEnd: endPan,
-        maxScale: 3,
-        minScale: .1,
-        constrained: false, // Let painting take mapSize
-        boundaryMargin: EdgeInsets.all(16), // Give space for border points
-        child: Stack(
-          alignment: Alignment.topLeft,
-          children: [
-                CustomPaint(
-                  painter: GraphPainter(map, scale: scale),
-                  isComplex: true,
-                  willChange: false,
-                  size: mapSize,
+    return InteractiveViewer(
+      transformationController: _zoomer,
+      onInteractionStart: startPan,
+      onInteractionEnd: endPan,
+      maxScale: 3,
+      minScale: .1,
+      constrained: false, // Let painting take mapSize
+      boundaryMargin: EdgeInsets.all(16), // Give space for border points
+      child: Stack(
+        alignment: Alignment.topLeft,
+        children: [
+              CustomPaint(
+                painter: GraphPainter(map, scale: scale),
+                isComplex: true,
+                willChange: false,
+                size: mapSize,
+              ),
+              // * User Node
+              Positioned(
+                child: Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                    width: widget.userRadius / scale,
+                    color: Colors.amber,
+                  )),
                 ),
-                // * User Node
-                Positioned(
-                  child: Container(
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                      width: widget.userRadius / scale,
-                      color: Colors.amber,
-                    )),
-                  ),
-                  // Default positioned puts top left at the coordinates
-                  left: userPoint.x - widget.userRadius / scale,
-                  top: userPoint.y - widget.userRadius / scale,
-                ),
-              ] +
-              getLabels(),
-        ),
+                // Default positioned puts top left at the coordinates
+                left: userPoint.x - widget.userRadius / scale,
+                top: userPoint.y - widget.userRadius / scale,
+              ),
+            ] +
+            getLabels(),
       ),
     );
   }
@@ -129,6 +122,8 @@ class _GraphState extends State<Graph> {
       }
     });
   }
+
+  double square(double val) => val * val;
 
   // * Centers viewer on given site
   void focusSite(String site) {
@@ -230,51 +225,4 @@ class _GraphState extends State<Graph> {
       growable: false,
     );
   }
-
-  // *** CLICK FUNCTIONS
-  // * Calculates which item was clicked
-  clickItem(Offset clickCoords) {
-    // Convert screen to canvas/map coordinates
-    final coords = _zoomer.toScene(clickCoords);
-    // Get distances to viable points (Roughly 6X using onScreenPoints)
-    final dists = getDistances(onScreenPoints, coords);
-    // Search for point in data
-    final result = selectDistance(dists);
-    // Possibly display item info
-    if (result != null) displayItem(result.site);
-  }
-
-  // * Get distances of the points given
-  Map<Point, double> getDistances(List<Point> sites, Offset coords) {
-    return Map<Point, double>.fromIterable(
-      sites,
-      key: (point) => point,
-      value: (point) =>
-          square(point.x - coords.dx) + square(point.y - coords.dy),
-    );
-  }
-
-  double square(double val) => val * val;
-
-  // * Select the minimum distance from a map of points
-  Point selectDistance(Map<Point, double> distances, {thresh = 10}) {
-    if (distances.length == 0) return null;
-    Point closestPoint = distances.keys.first;
-    double closestDist = distances.values.first;
-    // Iterate through distances
-    distances.forEach((point, dist) {
-      if (dist < closestDist) {
-        closestPoint = point;
-        closestDist = dist;
-      }
-    });
-    return closestDist < thresh / scale ? closestPoint : null;
-  }
-
-  void displayItem(String site) => pushNewScreen(
-        context,
-        screen: ViewItem(site),
-        pageTransitionAnimation: PageTransitionAnimation.fade,
-        withNavBar: false,
-      );
 }
