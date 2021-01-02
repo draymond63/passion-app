@@ -21,18 +21,18 @@ class _SettingsPageState extends State<SettingsPage> {
             Text('Categories', style: Theme.of(context).textTheme.headline1),
             Text('Decide which type of topics can be suggested',
                 style: Theme.of(context).textTheme.bodyText1),
-            ...buildCategorySettings(context),
+            ...buildCategorySettings(),
             Text('Data Settings', style: Theme.of(context).textTheme.headline1),
             Text('Manage your data the way you want',
                 style: Theme.of(context).textTheme.bodyText1),
-            ...buildDataSettings(context),
+            ...buildDataSettings(),
           ],
         ),
       ),
     );
   }
 
-  List<Widget> buildCategorySettings(BuildContext context) {
+  List<Widget> buildCategorySettings() {
     final store = Provider.of<Storage>(context);
     final settings = store.settings.category;
     final opts = settings.keys.toList();
@@ -50,7 +50,7 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  List<Widget> buildDataSettings(BuildContext context) {
+  List<Widget> buildDataSettings() {
     final store = Provider.of<Storage>(context);
     return [
       SwitchListTile.adaptive(
@@ -67,10 +67,10 @@ class _SettingsPageState extends State<SettingsPage> {
           style: Theme.of(context).textTheme.headline2,
         ),
         value: store.settings.data['send_data'],
-        onChanged: (newState) => updateDataTransmission(newState, context),
+        onChanged: (newState) => updateDataTransmission(newState),
       ),
       TextButton(
-        onPressed: () => showDeletionWarning(context),
+        onPressed: () => showDeletionWarning(),
         child: Text('Delete User Profile'),
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
@@ -80,7 +80,7 @@ class _SettingsPageState extends State<SettingsPage> {
     ];
   }
 
-  updateDataTransmission(bool state, BuildContext context) {
+  updateDataTransmission(bool state) {
     final store = Provider.of<Storage>(context, listen: false);
     store.db.deleteData(context); // Delete data for a sync or to remove user
     store.updateData('send_data', state); // Update local settings
@@ -88,7 +88,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   // Warning Screen
-  void showDeletionWarning(BuildContext context) {
+  void showDeletionWarning() {
     pushNewScreen(
       context,
       screen: Material(

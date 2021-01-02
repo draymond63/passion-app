@@ -67,7 +67,7 @@ class _SearchPageState extends State<SearchPage> {
           showIfOpened: false,
           child: CircularButton(
             icon: const Icon(Icons.shuffle_rounded),
-            onPressed: () => focusRandom(context),
+            onPressed: () => focusRandom(),
           ),
         ),
         FloatingSearchBarAction.searchToClear(showIfClosed: false),
@@ -79,14 +79,14 @@ class _SearchPageState extends State<SearchPage> {
           elevation: 8.0,
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: buildSearchItems(context),
+            children: buildSearchItems(),
           ),
         ),
       ),
     );
   }
 
-  List<Widget> buildSearchItems(BuildContext context) {
+  List<Widget> buildSearchItems() {
     final vitals = Provider.of<Map>(context);
     if (vitals.length == 0) return [];
     final sites = _query.length > 0 ? getSearchResults(vitals) : [];
@@ -119,7 +119,7 @@ class _SearchPageState extends State<SearchPage> {
     _searcher.close();
   }
 
-  void focusRandom(BuildContext context) {
+  void focusRandom() {
     final vitals = Provider.of<Map>(context, listen: false);
     focusSite(randomChoice(vitals.keys));
   }

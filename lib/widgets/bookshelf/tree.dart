@@ -72,7 +72,7 @@ class _TreeViewerState extends State<TreeViewer> {
   }
 
   // * Builds the rendered tree
-  List<Widget> buildTree(BuildContext context) {
+  List<Widget> buildTree() {
     final items = getItems();
     final sites = <String>[];
     final counts = <int>[];
@@ -121,7 +121,7 @@ class _TreeViewerState extends State<TreeViewer> {
     return Container(
       width: MediaQuery.of(context).size.width,
       child: Column(
-        children: buildTree(context),
+        children: buildTree(),
       ),
     );
   }

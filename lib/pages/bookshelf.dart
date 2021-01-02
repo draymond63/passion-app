@@ -12,7 +12,7 @@ class BookShelfPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final data = Provider.of<Storage>(context);
-    if (data.items.length == 0) return buildEmptyPage(context);
+    if (data.items.length == 0) return buildEmptyPage();
 
     final pageItems = [
       SizedBox(),
@@ -49,7 +49,7 @@ class BookShelfPage extends StatelessWidget {
     );
   }
 
-  Widget buildEmptyPage(BuildContext context) {
+  Widget buildEmptyPage() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [

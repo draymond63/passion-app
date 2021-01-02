@@ -36,7 +36,7 @@ class _GraphState extends State<Graph> {
     map = getPlotData();
     mapSize = getMapSize();
     // Center on the user's position (Future required for context)
-    Future.microtask(() => focusCoords(userPoint.offset, context));
+    Future.microtask(() => focusCoords(userPoint.offset));
   }
 
   // Checks if dependencies change
@@ -44,9 +44,9 @@ class _GraphState extends State<Graph> {
   void didUpdateWidget(covariant Graph oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.focusedSite == '')
-      focusCoords(userPoint.offset, context);
+      focusCoords(userPoint.offset);
     else
-      focusSite(widget.focusedSite, context);
+      focusSite(widget.focusedSite);
   }
 
   @override
@@ -62,13 +62,13 @@ class _GraphState extends State<Graph> {
     userPoint = Point(coords.dx, coords.dy, 'You');
     // Reruns whenever user interacts
     return GestureDetector(
-      onTapUp: (details) => clickItem(details.localPosition, context),
+      onTapUp: (details) => clickItem(details.localPosition),
       // Lets paint use the mapSize even if it breaks constraints
       child: InteractiveViewer(
         transformationController: _zoomer,
         onInteractionStart: startPan,
         onInteractionEnd: endPan,
-        maxScale: 200,
+        maxScale: 200, // ! TOO LARGE, BREAKS CERTAIN WIDGETS
         minScale: 5,
         constrained: false, // Let painting take mapSize
         boundaryMargin: EdgeInsets.all(16), // Give space for border points
@@ -113,16 +113,16 @@ class _GraphState extends State<Graph> {
   }
 
   // * Centers viewer on given site
-  void focusSite(String site, BuildContext context) {
+  void focusSite(String site) {
     final point = map.singleWhere(
       (point) => point.site == site,
       orElse: () => throw Exception('site not found'),
     );
-    focusCoords(point.offset, context);
+    focusCoords(point.offset);
   }
 
   // * Centers viewer coordinates on given map coordinates
-  void focusCoords(Offset coords, BuildContext context) {
+  void focusCoords(Offset coords) {
     final screenSize = MediaQuery.of(context).size;
     // Reset position
     _zoomer.value = Matrix4.diagonal3Values(scale, scale, 1);
@@ -215,7 +215,7 @@ class _GraphState extends State<Graph> {
 
   // *** CLICK FUNCTIONS
   // * Calculates which item was clicked
-  clickItem(Offset clickCoords, BuildContext context) {
+  clickItem(Offset clickCoords) {
     // Convert screen to canvas/map coordinates
     final coords = _zoomer.toScene(clickCoords);
     // Get distances to viable points (Roughly 6X using onScreenPoints)
