@@ -44,7 +44,15 @@ class _BaseItemState extends State<BaseItem> {
       builder: (context, snap) {
         if (snap.hasData)
           return ListView(children: buildContent(snap.data, vitals));
-        if (snap.hasError) return Center(child: Text('${snap.error}'));
+        // Error prevention
+        if (snap.hasError) {
+          // Send error over firebase
+          final db = Provider.of<Storage>(context, listen: false).db;
+          db.sendFlag(context, widget.site, {'Render error': snap.error});
+          return Center(
+              child: Text(
+                  "An error occured loading this topic. We have taken note of it and will fix it soon!"));
+        }
         return LoadingWidget;
       },
     );
@@ -81,7 +89,7 @@ class _BaseItemState extends State<BaseItem> {
       // * BUTTONS
       buildButtons(info),
       // * TEXT
-      Container(padding: EdgeInsets.all(8), child: buildText(doc.content)),
+      Container(padding: EdgeInsets.all(24), child: buildText(doc.content)),
     ];
   }
 
