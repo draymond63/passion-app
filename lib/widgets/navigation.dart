@@ -60,17 +60,20 @@ class _PageRouterState extends State<PageRouter> {
       backgroundColor: Color(MAIN_COLOR),
       items: <PersistentBottomNavBarItem>[
         PersistentBottomNavBarItem(
-            icon: Icon(Icons.home, size: _iconSize),
-            inactiveColor: Colors.blueGrey,
-            title: ''),
+          icon: Icon(Icons.home, size: _iconSize),
+          inactiveColor: Colors.blueGrey,
+          title: 'Feed',
+        ),
         PersistentBottomNavBarItem(
-            icon: Icon(Icons.bookmark_rounded, size: _iconSize),
-            inactiveColor: Colors.blueGrey,
-            title: ''),
+          icon: Icon(Icons.bookmark_rounded, size: _iconSize),
+          inactiveColor: Colors.blueGrey,
+          title: 'Saved',
+        ),
         PersistentBottomNavBarItem(
-            icon: Icon(Icons.search, size: _iconSize),
-            inactiveColor: Colors.blueGrey,
-            title: ''),
+          icon: Icon(Icons.search, size: _iconSize),
+          inactiveColor: Colors.blueGrey,
+          title: 'Search',
+        ),
       ],
     );
   }
