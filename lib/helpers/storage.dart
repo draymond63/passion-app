@@ -11,14 +11,16 @@ class Storage extends ChangeNotifier {
   Settings _settings;
   Map<String, int> _feed;
   List<String> _items;
+  bool _initUser;
   // ! ASSUMES 3 PAGES
   List<DateTime> _pageStartTimes = List.filled(3, DateTime.now());
   List<DateTime> _pageEndTimes = List.filled(3, DateTime.now());
 
-  Storage({Settings settings, Map feed, List items}) {
+  Storage({Settings settings, Map feed, List items, initUser}) {
     _settings = settings;
     _feed = feed.cast<String, int>();
     _items = items.cast<String>();
+    _initUser = initUser;
   }
 
   factory Storage.fromMap(Map map) {
@@ -26,6 +28,7 @@ class Storage extends ChangeNotifier {
       settings: Settings.fromMap(map),
       items: map['items'] ?? [], // 'LeBron_James'
       feed: map['feed'] ?? {},
+      initUser: map['initd'] ?? true,
     );
   }
 
@@ -34,6 +37,7 @@ class Storage extends ChangeNotifier {
       'settings': settings.toMap(),
       'items': items,
       'feed': feed,
+      // 'initd': initUser,
     };
   }
 
@@ -41,6 +45,12 @@ class Storage extends ChangeNotifier {
   Settings get settings => _settings;
   List<String> get items => _items;
   Map<String, int> get feed => _feed;
+  bool get initUser => _initUser;
+
+  set initUser(bool v) {
+    _initUser = v;
+    _update();
+  }
 
   List<DateTime> getPageStamps(int index) =>
       [_pageStartTimes[index], _pageEndTimes[index]];

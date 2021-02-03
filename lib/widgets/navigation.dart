@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
 import 'package:PassionFruit/helpers/globals.dart';
@@ -6,7 +7,7 @@ import 'package:PassionFruit/helpers/storage.dart';
 import 'package:PassionFruit/pages/feed.dart';
 import 'package:PassionFruit/pages/bookshelf.dart';
 import 'package:PassionFruit/pages/search.dart';
-import 'package:provider/provider.dart';
+import 'package:PassionFruit/pages/intro.dart';
 
 class PageRouter extends StatefulWidget {
   @override
@@ -23,10 +24,21 @@ class _PageRouterState extends State<PageRouter> {
   @override
   void initState() {
     super.initState();
+    // Timing
     _controller.addListener(() {
       final store = Provider.of<Storage>(context, listen: false);
       store.timeStampPage(oldPage: _prevPageIndex, newPage: _controller.index);
       _prevPageIndex = _controller.index;
+    });
+
+    Future.microtask(() {
+      // Initial overview for new users
+      print(Provider.of<Storage>(context, listen: false).initUser);
+      if (Provider.of<Storage>(context, listen: false).initUser) {
+        OverlayEntry intro; // Page needs to reference itself
+        intro = OverlayEntry(builder: (context) => IntroPage(intro.remove));
+        Overlay.of(context).insert(intro);
+      }
     });
   }
 

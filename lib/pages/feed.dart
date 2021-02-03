@@ -40,7 +40,7 @@ class _FeedPageState extends State<FeedPage> {
     if (currentSite != newSite) {
       final duration = getDuration();
       final db = Provider.of<Storage>(context, listen: false);
-      print('$currentSite: ${duration / 10}');
+      // print('$currentSite: ${duration / 10}');
       // Send to the database
       if (currentSite != NO_ITEM) db.updateTime(currentSite, duration, context);
       currentSite = newSite;

@@ -1,4 +1,3 @@
-import 'package:PassionFruit/helpers/storage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -8,9 +7,10 @@ import 'package:provider/provider.dart';
 // import 'package:firebase_analytics/observer.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
 
-import './helpers/globals.dart';
-import './helpers/wikipedia.dart';
-import 'widgets/navigation.dart';
+import 'package:PassionFruit/helpers/globals.dart';
+import 'package:PassionFruit/helpers/storage.dart';
+import 'package:PassionFruit/helpers/wikipedia.dart';
+import 'package:PassionFruit/widgets/navigation.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
