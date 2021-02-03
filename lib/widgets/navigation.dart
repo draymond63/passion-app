@@ -51,6 +51,7 @@ class _PageRouterState extends State<PageRouter> {
   @override
   Widget build(BuildContext context) {
     return PersistentTabView(
+      context,
       navBarStyle: NavBarStyle.style13,
       controller: _controller,
       screens: _pages,

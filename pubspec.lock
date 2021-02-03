@@ -113,6 +113,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.0.2"
+  device_simulator:
+    dependency: "direct dev"
+    description:
+      name: device_simulator
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.9.0"
   fake_async:
     dependency: transitive
     description:
@@ -365,7 +372,7 @@ packages:
       name: persistent_bottom_nav_bar
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.0"
+    version: "3.1.0"
   petitparser:
     dependency: transitive
     description:
