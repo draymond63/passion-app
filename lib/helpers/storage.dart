@@ -37,7 +37,7 @@ class Storage extends ChangeNotifier {
       'settings': settings.toMap(),
       'items': items,
       'feed': feed,
-      // 'initd': initUser,
+      'initd': initUser,
     };
   }
 
