@@ -1,4 +1,4 @@
-package com.example.PassionFruit
+package com.RaymondDevs.PassionFruit
 
 import io.flutter.embedding.android.FlutterActivity
 
