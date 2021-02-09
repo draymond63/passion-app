@@ -16,6 +16,7 @@ class ViewItem extends StatelessWidget {
         child: BaseItem(
           site: site,
           buildImage: buildImage,
+          buildText: (t) => t, // Leave text unaltered
         ),
         // * FORMATTING
         color: Colors.white,

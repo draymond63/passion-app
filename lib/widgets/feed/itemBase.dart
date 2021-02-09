@@ -12,7 +12,8 @@ import 'package:PassionFruit/helpers/wikipedia.dart';
 class BaseItem extends StatefulWidget {
   final String site;
   final Widget Function(Image) buildImage;
-  BaseItem({this.site, this.buildImage});
+  final String Function(String) buildText;
+  BaseItem({this.site, this.buildImage, this.buildText});
   @override
   _BaseItemState createState() => _BaseItemState();
 }
@@ -37,13 +38,16 @@ class _BaseItemState extends State<BaseItem> {
   @override
   Widget build(BuildContext context) {
     final wiki = Provider.of<Wiki>(context);
-    final vitals = Provider.of<Map>(context);
 
     return FutureBuilder<WikiDoc>(
       future: wiki.fetchItem(widget.site),
       builder: (context, snap) {
-        if (snap.hasData)
-          return ListView(children: buildContent(snap.data, vitals));
+        if (snap.hasData) {
+          return FutureBuilder(
+            future: buildContent(snap.data),
+            builder: (context, c) => c.hasData ? c.data : LoadingWidget,
+          );
+        }
         // Error prevention
         if (snap.hasError) {
           // Send error over firebase
@@ -58,9 +62,10 @@ class _BaseItemState extends State<BaseItem> {
     );
   }
 
-  List<Widget> buildContent(WikiDoc doc, Map vitals) {
+  Future<Widget> buildContent(WikiDoc doc) async {
     final showImage = Provider.of<Storage>(context).settings.data['show_image'];
     // Get vitals row info for the site
+    final vitals = Provider.of<Map>(context);
     final info = vitals[widget.site] ?? {};
     // Check to see if any images were available
     Image image;
@@ -78,7 +83,7 @@ class _BaseItemState extends State<BaseItem> {
               fit: BoxFit.cover,
             );
 
-    return [
+    return ListView(children: [
       // * IMAGE
       if (showImage) widget.buildImage(image),
       Text(
@@ -90,7 +95,7 @@ class _BaseItemState extends State<BaseItem> {
       buildButtons(info),
       // * TEXT
       Container(padding: EdgeInsets.all(24), child: buildText(doc.content)),
-    ];
+    ]);
   }
 
   Widget buildButtons(Map info) {
@@ -121,7 +126,8 @@ class _BaseItemState extends State<BaseItem> {
   }
 
   Widget buildText(String content) {
-    final sections = parseContent(content);
+    final text = widget.buildText(content);
+    final sections = parseContent(text);
     return Text.rich(TextSpan(children: sections));
   }
 

@@ -23,50 +23,47 @@ class ProviderApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: readUserFile(), // ! THIS TAKES TOO LONG
-      builder: (_, userfile) => FutureBuilder(
-          future: Firebase.initializeApp(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done &&
-                userfile.hasData) {
-              // * PROVIDERS
-              return MultiProvider(
-                  providers: [
-                    // User
-                    StreamProvider<User>.value(
-                      value: FirebaseAuth.instance.authStateChanges(),
-                    ),
-                    // List<List>
-                    FutureProvider(
-                      create: (_) => loadVitals(),
-                      initialData: {},
-                      lazy: false,
-                    ),
-                    // Wiki
-                    Provider(create: (_) => Wiki()),
-                  ],
-                  // * SECONDARY PROVIDERS
-                  child: MultiProvider(
-                    providers: [
-                      // Storage
-                      ChangeNotifierProvider(
-                        create: (context) => Storage.fromMap(userfile.data),
-                      ),
-                    ],
-                    child: DataApp(),
-                  ));
-            } else
-              // ! Replace with splash page
-              return Material(
-                child: Center(child: Image.asset('assets/fruit.png')),
-              );
-          }),
+      future: Future.wait([readUserFile(), Firebase.initializeApp()]),
+      builder: (_, snap) {
+        if (snap.connectionState == ConnectionState.done && snap.hasData) {
+          // * PROVIDERS
+          return MultiProvider(
+              providers: [
+                // User
+                StreamProvider<User>.value(
+                  value: FirebaseAuth.instance.authStateChanges(),
+                ),
+                // List<List>
+                FutureProvider(
+                  create: (_) => loadVitals(),
+                  initialData: {},
+                  lazy: false,
+                ),
+                // Wiki
+                Provider(create: (_) => Wiki()),
+              ],
+              // * SECONDARY PROVIDERS
+              child: MultiProvider(
+                providers: [
+                  // Storage
+                  ChangeNotifierProvider(
+                    create: (context) => Storage.fromMap(snap.data[0]),
+                  ),
+                ],
+                child: DataApp(),
+              ));
+        } else
+          // ! Replace with splash page
+          return Material(
+            child: Center(child: Image.asset('assets/fruit.png')),
+          );
+      },
     );
   }
 }
 
 // Constant for enabling the device simulator
-const bool debugEnableDeviceSimulator = true;
+const bool debugEnableDeviceSimulator = false;
 
 // Configures local data and theme data
 class DataApp extends StatelessWidget {

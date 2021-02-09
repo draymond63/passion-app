@@ -40,6 +40,7 @@ Future<Map<String, dynamic>> loadVitals() async {
 }
 
 Future<List<List>> loadMap() async {
+  print("Loading map");
   final csvString = await rootBundle.loadString('assets/map.csv');
   return CsvToListConverter().convert(csvString);
 }

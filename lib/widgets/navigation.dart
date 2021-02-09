@@ -33,7 +33,6 @@ class _PageRouterState extends State<PageRouter> {
 
     Future.microtask(() {
       // Initial overview for new users
-      print(Provider.of<Storage>(context, listen: false).initUser);
       if (Provider.of<Storage>(context, listen: false).initUser) {
         OverlayEntry intro; // Page needs to reference itself
         intro = OverlayEntry(builder: (context) => IntroPage(intro.remove));

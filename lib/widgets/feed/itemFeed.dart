@@ -11,6 +11,7 @@ class FeedItem extends StatelessWidget {
       child: BaseItem(
         site: site,
         buildImage: buildImage,
+        buildText: buildText,
       ),
       // * FORMATTING
       margin: EdgeInsets.all(8),
@@ -37,5 +38,11 @@ class FeedItem extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String buildText(String content, {max = 5000}) {
+    print("$site: ${content.length}");
+    if (content.length > max) return content.substring(0, max) + "...";
+    return content;
   }
 }
