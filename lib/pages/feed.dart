@@ -33,7 +33,7 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   // * TIMING FUNCTIONS
-  timePage(context, index) async {
+  timePage(index) async {
     // Get the page in question
     final newSite = await sites[index];
     // If the page has switched, change the currentSite
@@ -48,20 +48,17 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   // Get the time when this page came into focus
-  List<DateTime> pageStamps() {
-    return Provider.of<Storage>(context, listen: false).getPageStamps(0);
-  }
+  DateTimeRange get pageStamps =>
+      Provider.of<Storage>(context, listen: false).getPageStamps(0);
 
   // Restart timer and calculate duration
   int getDuration() {
     final endTime = DateTime.now();
     int milli = endTime.difference(startTime).inMilliseconds;
     // If page lost focus, subtract the duration lost
-    final pageTimes = pageStamps();
-    final arrival = pageTimes[0];
-    final departure = pageTimes[1];
+    final arrival = pageStamps.start;
     if (startTime.difference(arrival).isNegative) {
-      final timeLost = arrival.difference(departure).inMilliseconds;
+      final timeLost = arrival.difference(pageStamps.end).inMilliseconds;
       milli -= timeLost;
     }
     // Reset item timestamp
@@ -88,7 +85,7 @@ class _FeedPageState extends State<FeedPage> {
     // ? https://pub.dev/packages/preload_page_view
     return PageView.builder(
       controller: _swiper,
-      onPageChanged: (i) => timePage(context, i),
+      onPageChanged: timePage,
       itemBuilder: (BuildContext context, int i) {
         if (sites.length - widget.loadBuffer <= i) sites.add(sg.suggest());
         // Get suggestion

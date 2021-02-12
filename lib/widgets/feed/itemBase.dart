@@ -43,10 +43,7 @@ class _BaseItemState extends State<BaseItem> {
       future: wiki.fetchItem(widget.site),
       builder: (context, snap) {
         if (snap.hasData) {
-          return FutureBuilder(
-            future: buildContent(snap.data),
-            builder: (context, c) => c.hasData ? c.data : LoadingWidget,
-          );
+          return buildContent(snap.data);
         }
         // Error prevention
         if (snap.hasError) {
@@ -62,30 +59,19 @@ class _BaseItemState extends State<BaseItem> {
     );
   }
 
-  Future<Widget> buildContent(WikiDoc doc) async {
+  Widget buildContent(WikiDoc doc) {
     final showImage = Provider.of<Storage>(context).settings.data['show_image'];
     // Get vitals row info for the site
     final vitals = Provider.of<Map>(context);
     final info = vitals[widget.site] ?? {};
     // Check to see if any images were available
     Image image;
-    if (showImage)
-      image = doc.imageUrl == ''
-          ? Image.asset('assets/fruit.png', fit: BoxFit.cover)
-          : Image(
-              image: CachedNetworkImageProvider(doc.imageUrl,
-                  // ! TEST IF THIS WORKS
-                  cacheManager: CacheManager(Config(
-                    DefaultCacheManager.key,
-                    maxNrOfCacheObjects: 20,
-                    stalePeriod: Duration(days: 1),
-                  ))),
-              fit: BoxFit.cover,
-            );
+    if (showImage) image = buildImage(doc.imageUrl, info['name']);
 
     return ListView(children: [
       // * IMAGE
       if (showImage) widget.buildImage(image),
+      // * HEADER
       Text(
         info['name'] ?? widget.site,
         textAlign: TextAlign.center,
@@ -96,6 +82,23 @@ class _BaseItemState extends State<BaseItem> {
       // * TEXT
       Container(padding: EdgeInsets.all(24), child: buildText(doc.content)),
     ]);
+  }
+
+  Image buildImage(String imageUrl, String name) {
+    if (imageUrl == '')
+      return Image.asset('assets/fruit.png', fit: BoxFit.cover);
+    else
+      return Image(
+        image: CachedNetworkImageProvider(imageUrl,
+            // ! TEST IF THIS WORKS
+            cacheManager: CacheManager(Config(
+              DefaultCacheManager.key,
+              maxNrOfCacheObjects: 20,
+              stalePeriod: Duration(days: 1),
+            ))),
+        fit: BoxFit.cover,
+        semanticLabel: name,
+      );
   }
 
   Widget buildButtons(Map info) {
@@ -126,6 +129,7 @@ class _BaseItemState extends State<BaseItem> {
   }
 
   Widget buildText(String content) {
+    // return Text(widget.buildText(content));
     final text = widget.buildText(content);
     final sections = parseContent(text);
     return Text.rich(TextSpan(children: sections));

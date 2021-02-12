@@ -52,8 +52,8 @@ class Storage extends ChangeNotifier {
     _update();
   }
 
-  List<DateTime> getPageStamps(int index) =>
-      [_pageStartTimes[index], _pageEndTimes[index]];
+  DateTimeRange getPageStamps(int index) =>
+      DateTimeRange(start: _pageStartTimes[index], end: _pageEndTimes[index]);
 
   // * FUNCTIONS
   void _update() {

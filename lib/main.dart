@@ -33,11 +33,16 @@ class ProviderApp extends StatelessWidget {
                 StreamProvider<User>.value(
                   value: FirebaseAuth.instance.authStateChanges(),
                 ),
-                // List<List>
+                // Map
                 FutureProvider(
                   create: (_) => loadVitals(),
                   initialData: {},
                   lazy: false,
+                ),
+                // List<List>
+                FutureProvider(
+                  create: (_) => loadMap(),
+                  initialData: [],
                 ),
                 // Wiki
                 Provider(create: (_) => Wiki()),

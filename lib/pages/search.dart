@@ -21,6 +21,7 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     final items = Provider.of<Storage>(context).items;
+    final map = Provider.of<List>(context);
     // Scaffold required for search bar positioning
     return Scaffold(
       // Only show home button if the user has
@@ -31,19 +32,27 @@ class _SearchPageState extends State<SearchPage> {
             )
           : null,
       body: Stack(children: [
-        FutureBuilder(
-          future: loadMap(),
-          builder: (context, AsyncSnapshot snap) {
-            if (snap.hasData) {
-              return Container(
-                width: MediaQuery.of(context).size.width,
-                child: Graph(snap.data, items, focusedSite, _isSearching),
-              );
-            }
-            if (snap.hasError) return Center(child: Text('${snap.error}'));
-            return LoadingWidget;
-          },
-        ),
+        if (map.length == 0)
+          LoadingWidget
+        else
+          Container(
+            width: MediaQuery.of(context).size.width,
+            child: Graph(map, items, focusedSite, _isSearching),
+          ),
+
+        // FutureBuilder(
+        //   future: loadMap(),
+        //   builder: (context, AsyncSnapshot snap) {
+        //     if (snap.hasData) {
+        //       return Container(
+        //         width: MediaQuery.of(context).size.width,
+        //         child: Graph(snap.data, items, focusedSite, _isSearching),
+        //       );
+        //     }
+        //     if (snap.hasError) return Center(child: Text('${snap.error}'));
+        //     return LoadingWidget;
+        //   },
+        // ),
         buildSearchBar(),
       ]),
     );

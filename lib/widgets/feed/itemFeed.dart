@@ -40,8 +40,7 @@ class FeedItem extends StatelessWidget {
     );
   }
 
-  String buildText(String content, {max = 5000}) {
-    print("$site: ${content.length}");
+  String buildText(String content, {max = 1500}) {
     if (content.length > max) return content.substring(0, max) + "...";
     return content;
   }
