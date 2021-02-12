@@ -106,17 +106,17 @@ class Storage extends ChangeNotifier {
   }
 
   // Settings
-  void updateCategory(String key, bool state) {
+  void updateCategorySetting(String key, bool state) {
     assert(_settings.category.containsKey(key),
         'Category setting not found: $key');
     _settings.category[key] = state;
     // If all are false, set them to true
     if (!settings.category.containsValue(true))
       _settings.category.updateAll((key, value) => true);
-    _update(quiet: false);
+    _update();
   }
 
-  void updateData(String key, bool state) {
+  void updateDataSetting(String key, bool state) {
     assert(_settings.data.containsKey(key), 'Setting not found: $key');
     _settings.data[key] = state;
     _update(quiet: false);

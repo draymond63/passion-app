@@ -10,12 +10,13 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  Settings settings;
+  Settings settings = Settings(category: {}, data: {});
 
   @override
   void initState() {
     super.initState();
-    settings = Provider.of<Storage>(context).settings;
+    Future.microtask(() => setState(() =>
+        settings = Provider.of<Storage>(context, listen: false).settings));
   }
 
   @override
@@ -41,62 +42,73 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   List<Widget> buildCategorySettings() {
-    final store = Provider.of<Storage>(context);
-    final settings = store.settings.category;
-    final opts = settings.keys.toList();
-    final states = settings.values.toList();
+    // Parsing of settings
+    final categories = settings.category;
+    final opts = categories.keys.toList();
+    final states = categories.values.toList();
+    // Render
     return List<Widget>.generate(
-      settings.length,
+      categories.length,
       (i) => SwitchListTile.adaptive(
         title: Text(
           opts[i].replaceAll('_', ' '),
           style: Theme.of(context).textTheme.headline2,
         ),
-        value: states[i],
-        onChanged: (newState) => store.updateCategorySetting(opts[i], newState),
+        value: states[i] ?? true,
+        onChanged: (newState) => updateCategory(opts[i], newState),
       ),
     );
   }
 
-  List<Widget> buildDataSettings() {
-    final store = Provider.of<Storage>(context);
-    return [
-      SwitchListTile.adaptive(
-        title: Text(
-          'Show Images',
-          style: Theme.of(context).textTheme.headline2,
+  List<Widget> buildDataSettings() => [
+        SwitchListTile.adaptive(
+          title: Text(
+            'Show Images',
+            style: Theme.of(context).textTheme.headline2,
+          ),
+          value: settings.data['show_image'] ?? true,
+          onChanged: (b) => updateData('show_image', b),
         ),
-        value: store.settings.data['show_image'],
-        onChanged: (newState) =>
-            store.updateDataSetting('show_image', newState),
-      ),
-      SwitchListTile.adaptive(
-        title: Text(
-          'Send data for app improvement',
-          style: Theme.of(context).textTheme.headline2,
+        SwitchListTile.adaptive(
+          title: Text(
+            'Send data for app improvement',
+            style: Theme.of(context).textTheme.headline2,
+          ),
+          value: settings.data['send_data'] ?? true,
+          onChanged: (b) => updateDataTransmission(b),
         ),
-        value: store.settings.data['send_data'],
-        onChanged: (newState) => updateDataTransmission(newState),
-      ),
-      TextButton(
-        onPressed: () => showDeletionWarning(),
-        child: Text('Delete User Profile'),
-        style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
-          foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-        ),
-      )
-    ];
+        TextButton(
+          onPressed: () => showDeletionWarning(),
+          child: Text('Delete User Profile'),
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+            foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+          ),
+        )
+      ];
+
+  updateCategory(String selection, bool state) {
+    final store = Provider.of<Storage>(context, listen: false);
+    store.updateCategorySetting(selection, state);
+    setState(() => settings.category[selection] = state); // Update widget
+  }
+
+  updateData(String selection, bool state) {
+    final store = Provider.of<Storage>(context, listen: false);
+    store.updateDataSetting(selection, state);
+    setState(() => settings.data[selection] = state); // Update widget
   }
 
   updateDataTransmission(bool state) {
+    // Local Settings
+    updateData('send_data', state);
+    // Delete data for a sync or to remove user
     final store = Provider.of<Storage>(context, listen: false);
-    store.db.deleteData(context); // Delete data for a sync or to remove user
-    store.updateData('send_data', state); // Update local settings
+    store.db.deleteData(context);
     if (state) store.db.syncData(context); // If statement for legability
   }
 
-  // Warning Screen
+  // * Warning Screen
   void showDeletionWarning() {
     pushNewScreen(
       context,
