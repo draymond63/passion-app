@@ -20,6 +20,8 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    print('build search');
+
     final items = Provider.of<Storage>(context).items;
     final map = Provider.of<List>(context);
     // Scaffold required for search bar positioning

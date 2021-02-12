@@ -14,12 +14,10 @@ class PreviewItem extends StatefulWidget {
 }
 
 class _PreviewItemState extends State<PreviewItem> {
-  Map info = {};
-
   @override
   Widget build(BuildContext context) {
     final vitals = Provider.of<Map>(context);
-    setState(() => info = vitals[widget.site] ?? {});
+    final info = vitals[widget.site] ?? {};
 
     return GestureDetector(
       onTap: () => widget.onClick == null
@@ -46,14 +44,14 @@ class _PreviewItemState extends State<PreviewItem> {
         child: info.length == VitCol.length
             ? Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                 FittedBox(child: Text(info['name'], style: ItemHeader)),
-                FittedBox(child: buildPath())
+                FittedBox(child: buildPath(info))
               ])
             : LoadingWidget,
       ),
     );
   }
 
-  Widget buildPath() {
+  Widget buildPath(Map info) {
     List<String> row = [
       info['l0'].replaceAll('_', ' '),
       info['l1'].replaceAll('_', ' '),

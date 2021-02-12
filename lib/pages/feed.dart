@@ -70,6 +70,8 @@ class _FeedPageState extends State<FeedPage> {
   // * Rendering
   @override
   Widget build(BuildContext context) {
+    print('build feed');
+
     return Scaffold(
       appBar: AppBar(title: Text('Your Feed'), actions: [
         IconButton(

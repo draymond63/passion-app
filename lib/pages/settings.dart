@@ -10,6 +10,14 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  Settings settings;
+
+  @override
+  void initState() {
+    super.initState();
+    settings = Provider.of<Storage>(context).settings;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,7 +53,7 @@ class _SettingsPageState extends State<SettingsPage> {
           style: Theme.of(context).textTheme.headline2,
         ),
         value: states[i],
-        onChanged: (newState) => store.updateCategory(opts[i], newState),
+        onChanged: (newState) => store.updateCategorySetting(opts[i], newState),
       ),
     );
   }
@@ -59,7 +67,8 @@ class _SettingsPageState extends State<SettingsPage> {
           style: Theme.of(context).textTheme.headline2,
         ),
         value: store.settings.data['show_image'],
-        onChanged: (newState) => store.updateData('show_image', newState),
+        onChanged: (newState) =>
+            store.updateDataSetting('show_image', newState),
       ),
       SwitchListTile.adaptive(
         title: Text(

@@ -28,7 +28,7 @@ class Storage extends ChangeNotifier {
       settings: Settings.fromMap(map),
       items: map['items'] ?? [], // 'LeBron_James'
       feed: map['feed'] ?? {},
-      initUser: map['initd'] ?? true,
+      initUser: map['initd'] ?? false,
     );
   }
 
@@ -56,8 +56,8 @@ class Storage extends ChangeNotifier {
       DateTimeRange(start: _pageStartTimes[index], end: _pageEndTimes[index]);
 
   // * FUNCTIONS
-  void _update() {
-    notifyListeners();
+  void _update({bool quiet = true}) {
+    if (!quiet) notifyListeners();
     _writeUserFile(toMap());
   }
 
@@ -72,7 +72,8 @@ class Storage extends ChangeNotifier {
     if (!items.contains(site)) {
       _items.add(site);
       db.addItem(context, site);
-      _update();
+      _update(quiet: false);
+      print(items);
       return true;
     }
     return false;
@@ -82,7 +83,8 @@ class Storage extends ChangeNotifier {
     final status = _items.remove(site);
     if (status) {
       db.removeItem(context, site);
-      _update();
+      _update(quiet: false);
+      print(items);
     }
     return status;
   }
@@ -111,13 +113,13 @@ class Storage extends ChangeNotifier {
     // If all are false, set them to true
     if (!settings.category.containsValue(true))
       _settings.category.updateAll((key, value) => true);
-    _update();
+    _update(quiet: false);
   }
 
   void updateData(String key, bool state) {
     assert(_settings.data.containsKey(key), 'Setting not found: $key');
     _settings.data[key] = state;
-    _update();
+    _update(quiet: false);
   }
 
   void deleteData(context) {
