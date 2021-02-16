@@ -104,6 +104,8 @@ class _BaseItemState extends State<BaseItem> {
   Widget buildButtons(Map info) {
     Color color = Color(SECOND_ACCENT_COLOR);
     final store = Provider.of<Storage>(context);
+    print(widget.site);
+    print(store.items);
     if (store.items.contains(widget.site)) color = Color(MAIN_COLOR);
 
     return Row(

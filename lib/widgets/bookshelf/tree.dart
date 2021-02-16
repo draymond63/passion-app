@@ -32,8 +32,11 @@ class _TreeViewerState extends State<TreeViewer> {
     // Strip vitals down to children of the parent (path.last)
     if (depth != 0)
       trim = trim.where((row) => row.value[_columns[depth - 1]] == path.last);
-    // Get the appriorate column
-    trim = trim.map((row) => row.value[_columns[depth]]);
+    // Get the appriorate column (site if we are at the end)
+    if (depth == _columns.length - 1)
+      trim = trim.map((row) => row.key);
+    else
+      trim = trim.map((row) => row.value[_columns[depth]]);
     // Count each entry
     final count = <String, int>{};
     trim.forEach(
@@ -53,11 +56,12 @@ class _TreeViewerState extends State<TreeViewer> {
       if (children.length == 1)
         selectBranch(children.keys.first, firstPress: false);
     } else if (firstPress == true) {
+      // If user clicks on a leaf tree node
       pushNewScreen(
         context,
         withNavBar: false,
         pageTransitionAnimation: PageTransitionAnimation.fade,
-        screen: ViewItem(selection),
+        screen: ViewItem(selection), // ! GIVEN NAME NOT SITE
       );
     }
   }

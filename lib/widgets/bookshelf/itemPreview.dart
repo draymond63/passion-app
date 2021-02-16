@@ -19,34 +19,36 @@ class _PreviewItemState extends State<PreviewItem> {
     final vitals = Provider.of<Map>(context);
     final info = vitals[widget.site] ?? {};
 
+    if (info.length != VitCol.length) return Container(width: 0);
+
     return GestureDetector(
-      onTap: () => widget.onClick == null
-          ? pushNewScreen(context,
-              withNavBar: false,
-              pageTransitionAnimation: PageTransitionAnimation.fade,
-              screen: ViewItem(widget.site))
-          : widget.onClick(),
+      onTap: onClick,
       child: Container(
         width: widget.width,
         margin: EdgeInsets.all(8),
         padding: EdgeInsets.all(8),
         decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                  color: Color(0xFFDDDDDD),
-                  spreadRadius: 1,
-                  offset: Offset(2, 2),
-                  blurRadius: 2)
-            ],
-            color: Colors.white,
-            borderRadius: BorderRadius.all(Radius.circular(16))),
+          boxShadow: [
+            BoxShadow(
+              color: Color(0xFFDDDDDD),
+              spreadRadius: 1,
+              offset: Offset(2, 2),
+              blurRadius: 2,
+            )
+          ],
+          color: Colors.white,
+          borderRadius: BorderRadius.all(
+            Radius.circular(16),
+          ),
+        ),
         // * ITEMS
-        child: info.length == VitCol.length
-            ? Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                FittedBox(child: Text(info['name'], style: ItemHeader)),
-                FittedBox(child: buildPath(info))
-              ])
-            : LoadingWidget,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FittedBox(child: Text(info['name'], style: ItemHeader)),
+            FittedBox(child: buildPath(info))
+          ],
+        ),
       ),
     );
   }
@@ -61,5 +63,17 @@ class _PreviewItemState extends State<PreviewItem> {
     ];
     row = row.toSet().toList(); // Remove duplicates
     return Text(row.join(' -> '));
+  }
+
+  void onClick() {
+    if (widget.onClick == null)
+      pushNewScreen(
+        context,
+        withNavBar: false,
+        pageTransitionAnimation: PageTransitionAnimation.fade,
+        screen: ViewItem(widget.site),
+      );
+    else
+      widget.onClick(); // Override click if set
   }
 }
