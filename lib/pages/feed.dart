@@ -1,8 +1,9 @@
+import 'package:PassionFruit/helpers/globals.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
-import 'package:PassionFruit/helpers/globals.dart';
+// import 'package:PassionFruit/helpers/globals.dart';
 import 'package:PassionFruit/helpers/storage.dart';
 import 'package:PassionFruit/helpers/suggestion.dart';
 import 'package:PassionFruit/widgets/feed/itemView.dart';
@@ -19,8 +20,9 @@ class FeedPage extends StatefulWidget {
 const NO_ITEM = '';
 
 class _FeedPageState extends State<FeedPage> {
+  final sg = Suggestor();
   final _swiper = PageController(viewportFraction: 0.9);
-  List<Future<String>> sites = []; // Store suggestion history
+  List<String> sites = []; // Store suggestion history
   // For timing
   String currentSite = NO_ITEM;
   DateTime startTime = DateTime.now();
@@ -33,9 +35,9 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   // * TIMING FUNCTIONS
-  timePage(index) async {
+  timePage(index) {
     // Get the page in question
-    final newSite = await sites[index];
+    final newSite = sites[index];
     // If the page has switched, change the currentSite
     if (currentSite != newSite) {
       final duration = getDuration();
@@ -70,43 +72,48 @@ class _FeedPageState extends State<FeedPage> {
   // * Rendering
   @override
   Widget build(BuildContext context) {
-    print('build feed');
-
     return Scaffold(
-      appBar: AppBar(title: Text('Your Feed'), actions: [
-        IconButton(
-            icon: Icon(Icons.settings),
-            onPressed: () => pushNewScreen(context, screen: SettingsPage())),
-      ]),
-      body: feedBuilder(),
+      appBar: AppBar(
+        title: Text('Your Feed', style: TextStyle(color: Color(MAIN_COLOR))),
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+        actions: [
+          IconButton(
+              icon: Icon(
+                Icons.settings,
+                color: Color(MAIN_COLOR),
+              ),
+              onPressed: () => pushNewScreen(context, screen: SettingsPage())),
+        ],
+      ),
+      body: buildFeed(),
     );
   }
 
-  Widget feedBuilder() {
-    final sg = Suggestor(context);
+  Widget buildFeed() {
     // ? https://pub.dev/packages/preload_page_view
     return PageView.builder(
       controller: _swiper,
       onPageChanged: timePage,
       itemBuilder: (BuildContext context, int i) {
-        if (sites.length - widget.loadBuffer <= i) sites.add(sg.suggest());
-        // Get suggestion
-        return FutureBuilder(
-          future: sites[i],
-          builder: (context, snap) {
-            if (snap.hasData)
-              return GestureDetector(
-                child: FeedItem(snap.data),
-                onTap: () => pushNewScreen(context,
-                    withNavBar: false,
-                    pageTransitionAnimation: PageTransitionAnimation.fade,
-                    screen: ViewItem(snap.data)),
-              );
-            else
-              return LoadingWidget;
-          },
+        // Get another suggestion if we are running low
+        if (sites.length - widget.loadBuffer <= i)
+          sites.add(sg.suggest(context));
+        // Render
+        return GestureDetector(
+          child: FeedItem(sites[i]),
+          onTap: () => itemClick(sites[i]),
         );
       },
+    );
+  }
+
+  void itemClick(String site) {
+    pushNewScreen(
+      context,
+      withNavBar: false,
+      pageTransitionAnimation: PageTransitionAnimation.fade,
+      screen: ViewItem(site),
     );
   }
 }
