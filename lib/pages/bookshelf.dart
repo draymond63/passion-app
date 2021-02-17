@@ -11,8 +11,6 @@ import 'package:PassionFruit/widgets/bookshelf/itemPreview.dart';
 class BookShelfPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    print('build bookshelf');
-
     final data = Provider.of<Storage>(context);
     if (data.items.length == 0) return buildEmptyPage();
 

@@ -104,8 +104,6 @@ class _BaseItemState extends State<BaseItem> {
   Widget buildButtons(Map info) {
     Color color = Color(SECOND_ACCENT_COLOR);
     final store = Provider.of<Storage>(context);
-    print(widget.site);
-    print(store.items);
     if (store.items.contains(widget.site)) color = Color(MAIN_COLOR);
 
     return Row(
@@ -123,7 +121,7 @@ class _BaseItemState extends State<BaseItem> {
         if (store.settings.data['send_data']) SizedBox(width: 50),
         // Like button
         IconButton(
-            icon: Icon(Icons.thumb_up_rounded),
+            icon: Icon(Icons.bookmark_rounded),
             color: color,
             onPressed: () => addLikedItem(info['name'], widget.site)),
       ],

@@ -73,7 +73,6 @@ class Storage extends ChangeNotifier {
       _items.add(site);
       db.addItem(context, site);
       _update(quiet: false);
-      print(items);
       return true;
     }
     return false;
@@ -84,7 +83,6 @@ class Storage extends ChangeNotifier {
     if (status) {
       db.removeItem(context, site);
       _update(quiet: false);
-      print(items);
     }
     return status;
   }
