@@ -88,7 +88,7 @@ class _TreeViewerState extends State<TreeViewer> {
     return [
       Align(
         alignment: Alignment.topLeft,
-        child: Text('Your Tree', style: ItemHeader),
+        child: Text('Interests', style: ItemHeader),
       ),
       // * ITEMS
       ...List.generate(
