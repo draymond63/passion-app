@@ -27,16 +27,17 @@ class _TreeViewerState extends State<TreeViewer> {
     data = csv.entries.where((row) => items.contains(row.key)).toList();
   }
 
-  Map<String, int> getItems() {
+  Map<String, int> getItems([iDepth]) {
+    if (iDepth == null) iDepth = depth;
     Iterable trim = data;
     // Strip vitals down to children of the parent (path.last)
-    if (depth != 0)
-      trim = trim.where((row) => row.value[_columns[depth - 1]] == path.last);
+    if (iDepth != 0)
+      trim = trim.where((row) => row.value[_columns[iDepth - 1]] == path.last);
     // Get the appriorate column (site if we are at the end)
-    if (depth == _columns.length - 1)
+    if (iDepth == _columns.length - 1)
       trim = trim.map((row) => row.key);
     else
-      trim = trim.map((row) => row.value[_columns[depth]]);
+      trim = trim.map((row) => row.value[_columns[iDepth]]);
     // Count each entry
     final count = <String, int>{};
     trim.forEach(
@@ -76,16 +77,16 @@ class _TreeViewerState extends State<TreeViewer> {
   }
 
   // * Builds the rendered tree
-  List<Widget> buildTree() {
+  Widget buildTree() {
     final items = getItems();
-    final sites = <String>[];
-    final counts = <int>[];
-    items.forEach((key, value) {
-      sites.add(key);
-      counts.add(value);
-    });
+    // sites & counts might not be in sync, but sorting them will make it right
+    final sites = items.keys.toList();
+    final counts = items.values.toList();
+    // Sort in descending order by value
+    counts.sort((a, b) => b - a);
+    sites.sort((k1, k2) => items[k2] - items[k1]);
 
-    return [
+    return Column(children: [
       Align(
         alignment: Alignment.topLeft,
         child: Text('Interests', style: ItemHeader),
@@ -112,7 +113,7 @@ class _TreeViewerState extends State<TreeViewer> {
               onPressed: popBranch,
             )
           : Container()
-    ];
+    ]);
   }
 
   // * Builds the data
@@ -124,9 +125,10 @@ class _TreeViewerState extends State<TreeViewer> {
 
     return Container(
       width: MediaQuery.of(context).size.width,
-      child: Column(
-        children: buildTree(),
-      ),
+      // Keep tree a constant size
+      // ! MEASURED CONSTANT
+      constraints: BoxConstraints(minHeight: getItems(0).length * 68.0),
+      child: buildTree(),
     );
   }
 }

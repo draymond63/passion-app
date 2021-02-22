@@ -35,14 +35,15 @@ class TreeNode extends StatelessWidget {
               style: ItemSubtitle,
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              // Right align arrow
-              Text('$count'),
-              if (showArrow) Icon(Icons.arrow_right_rounded),
-            ],
-          ),
+          if (showArrow)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                // Right align arrow
+                Text('$count'),
+                Icon(Icons.arrow_right_rounded),
+              ],
+            ),
         ],
       ),
     );
