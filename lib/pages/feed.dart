@@ -11,7 +11,7 @@ import 'package:PassionFruit/widgets/feed/itemFeed.dart';
 import 'package:PassionFruit/pages/settings.dart';
 
 class FeedPage extends StatefulWidget {
-  final loadBuffer = 3; // How many items to preload
+  final loadBuffer = 5; // How many items to preload
 
   @override
   _FeedPageState createState() => _FeedPageState();
@@ -22,7 +22,7 @@ const NO_ITEM = '';
 class _FeedPageState extends State<FeedPage> {
   final sg = Suggestor();
   final _swiper = PageController(viewportFraction: 0.9);
-  List<String> sites = []; // Store suggestion history
+  List<Future<String>> sites = []; // Store suggestion history
   // For timing
   String currentSite = NO_ITEM;
   DateTime startTime = DateTime.now();
@@ -35,9 +35,9 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   // * TIMING FUNCTIONS
-  timePage(index) {
+  timePage(index) async {
     // Get the page in question
-    final newSite = sites[index];
+    final newSite = await sites[index];
     // If the page has switched, change the currentSite
     if (currentSite != newSite) {
       final duration = getDuration();
@@ -97,12 +97,22 @@ class _FeedPageState extends State<FeedPage> {
       onPageChanged: timePage,
       itemBuilder: (BuildContext context, int i) {
         // Get another suggestion if we are running low
-        if (sites.length - widget.loadBuffer <= i)
-          sites.add(sg.suggest(context));
+        if (sites.length - widget.loadBuffer <= i) {
+          // Delay loading for better UX
+          sites.add(Future.delayed(
+            Duration(milliseconds: 300),
+            () => sg.suggest(context),
+          ));
+        }
         // Render
-        return GestureDetector(
-          child: FeedItem(sites[i]),
-          onTap: () => itemClick(sites[i]),
+        return FutureBuilder<String>(
+          future: sites[i],
+          builder: (_, snap) => snap.hasData
+              ? GestureDetector(
+                  child: FeedItem(snap.data),
+                  onTap: () => itemClick(snap.data),
+                )
+              : LoadingWidget,
         );
       },
     );

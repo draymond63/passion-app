@@ -10,10 +10,10 @@ class Suggestor {
 
   // ! SUPER SLOW
   String suggest(BuildContext context) {
-    vitals = Provider.of<Map>(context);
+    vitals = Provider.of<Map>(context, listen: false);
     if (vitals.length == 0) return ''; // ! Null safety
 
-    final store = Provider.of<Storage>(context);
+    final store = Provider.of<Storage>(context, listen: false);
     final settings = store.settings;
     // Remove all entries that don't want to be seen
     final userInfo = _trimData(store.feed, settings);
