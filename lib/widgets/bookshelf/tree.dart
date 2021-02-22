@@ -100,19 +100,17 @@ class _TreeViewerState extends State<TreeViewer> {
         ),
       ),
       // * PATH
-      FittedBox(
-        child: path.length > 0
-            // ! PATH ORDER NOT GUARANTEED WITH SET
-            ? Text(path.toSet().join(' -> ').replaceAll('_', ' '))
-            : Container(width: 1, height: 1),
-      ),
+      if (path.length > 0)
+        FittedBox(
+          // ! PATH ORDER NOT GUARANTEED WITH SET
+          child: Text(path.toSet().join(' -> ').replaceAll('_', ' ')),
+        ),
       // * Back button
-      depth != 0
-          ? IconButton(
-              icon: Icon(Icons.arrow_back_ios_rounded),
-              onPressed: popBranch,
-            )
-          : Container()
+      if (depth != 0)
+        IconButton(
+          icon: Icon(Icons.arrow_back_ios_rounded),
+          onPressed: popBranch,
+        )
     ]);
   }
 
