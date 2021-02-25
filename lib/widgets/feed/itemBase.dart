@@ -117,41 +117,28 @@ class _BaseItemState extends State<BaseItem> {
       children: [
         // Only give the option to flag if the user is willing to send data
         if (store.settings.data['send_data'])
-          raisedIconButton(
-            icon: Icons.flag,
+          RawMaterialButton(
             onPressed: () => pushNewScreen(
               context,
               screen: FlagItemPage(widget.site),
               pageTransitionAnimation: PageTransitionAnimation.fade,
             ),
+            elevation: 1.0,
+            fillColor: Colors.white,
+            child: Icon(Icons.flag, color: Color(SECOND_ACCENT_COLOR)),
+            padding: EdgeInsets.all(16.0),
+            shape: CircleBorder(),
           ),
         // Like button
-        raisedIconButton(
-          icon: Icons.bookmarks_rounded,
-          color: color,
+        RawMaterialButton(
           onPressed: () => addLikedItem(info['name'], widget.site),
+          elevation: 1.0,
+          fillColor: Colors.white,
+          child: Icon(Icons.bookmarks_rounded, color: color),
+          padding: EdgeInsets.all(16.0),
+          shape: CircleBorder(),
         ),
       ],
-    );
-  }
-
-  Widget raisedIconButton({
-    @required void Function() onPressed,
-    @required IconData icon,
-    Color color,
-  }) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 32),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(100),
-        color: Colors.white,
-        boxShadow: boxShadow,
-      ),
-      child: IconButton(
-        icon: Icon(icon, size: 32),
-        color: color ?? Color(SECOND_ACCENT_COLOR),
-        onPressed: onPressed,
-      ),
     );
   }
 

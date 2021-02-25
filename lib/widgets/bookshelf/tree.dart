@@ -107,9 +107,13 @@ class _TreeViewerState extends State<TreeViewer> {
         ),
       // * Back button
       if (depth != 0)
-        IconButton(
-          icon: Icon(Icons.arrow_back_ios_rounded),
+        RawMaterialButton(
           onPressed: popBranch,
+          elevation: 2.0,
+          fillColor: Colors.white,
+          child: Icon(Icons.arrow_back_ios_rounded),
+          padding: EdgeInsets.all(15.0),
+          shape: CircleBorder(),
         )
     ]);
   }
