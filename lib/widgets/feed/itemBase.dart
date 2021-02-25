@@ -72,15 +72,21 @@ class _BaseItemState extends State<BaseItem> {
       // * IMAGE
       if (showImage) widget.buildImage(image),
       // * HEADER
-      Text(
-        info['name'] ?? widget.site,
-        textAlign: TextAlign.center,
-        style: ItemHeader,
+      Container(
+        padding: EdgeInsets.all(8),
+        child: Text(
+          info['name'] ?? widget.site,
+          textAlign: TextAlign.center,
+          style: ItemHeader,
+        ),
       ),
       // * BUTTONS
       buildButtons(info),
       // * TEXT
-      Container(padding: EdgeInsets.all(24), child: buildText(doc.content)),
+      Container(
+        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+        child: buildText(doc.content),
+      ),
     ]);
   }
 
@@ -111,20 +117,41 @@ class _BaseItemState extends State<BaseItem> {
       children: [
         // Only give the option to flag if the user is willing to send data
         if (store.settings.data['send_data'])
-          IconButton(
-              icon: Icon(Icons.flag),
-              color: Color(SECOND_ACCENT_COLOR),
-              onPressed: () => pushNewScreen(context,
-                  screen: FlagItemPage(widget.site),
-                  pageTransitionAnimation: PageTransitionAnimation.fade)),
-        // Spacing for two icons
-        if (store.settings.data['send_data']) SizedBox(width: 50),
+          raisedIconButton(
+            icon: Icons.flag,
+            onPressed: () => pushNewScreen(
+              context,
+              screen: FlagItemPage(widget.site),
+              pageTransitionAnimation: PageTransitionAnimation.fade,
+            ),
+          ),
         // Like button
-        IconButton(
-            icon: Icon(Icons.bookmark_rounded),
-            color: color,
-            onPressed: () => addLikedItem(info['name'], widget.site)),
+        raisedIconButton(
+          icon: Icons.bookmarks_rounded,
+          color: color,
+          onPressed: () => addLikedItem(info['name'], widget.site),
+        ),
       ],
+    );
+  }
+
+  Widget raisedIconButton({
+    @required void Function() onPressed,
+    @required IconData icon,
+    Color color,
+  }) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 32),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(100),
+        color: Colors.white,
+        boxShadow: boxShadow,
+      ),
+      child: IconButton(
+        icon: Icon(icon, size: 32),
+        color: color ?? Color(SECOND_ACCENT_COLOR),
+        onPressed: onPressed,
+      ),
     );
   }
 

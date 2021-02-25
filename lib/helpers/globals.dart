@@ -24,6 +24,14 @@ const ItemSubtitle = const TextStyle(
   color: Color(MAIN_COLOR),
   fontWeight: FontWeight.w500,
 );
+const boxShadow = const [
+  BoxShadow(
+    color: Color(0xFFDDDDDD),
+    spreadRadius: 1,
+    offset: Offset(2, 2),
+    blurRadius: 2,
+  )
+];
 
 const LoadingWidget = Center(
   child: CircularProgressIndicator(

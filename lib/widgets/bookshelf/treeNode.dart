@@ -15,13 +15,7 @@ class TreeNode extends StatelessWidget {
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-              color: Color(0xFFDDDDDD),
-              spreadRadius: 1,
-              offset: Offset(2, 2),
-              blurRadius: 2)
-        ],
+        boxShadow: boxShadow,
         borderRadius: BorderRadius.all(Radius.circular(8)),
       ),
       child: Stack(

@@ -28,14 +28,7 @@ class _PreviewItemState extends State<PreviewItem> {
         margin: EdgeInsets.all(8),
         padding: EdgeInsets.all(8),
         decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Color(0xFFDDDDDD),
-              spreadRadius: 1,
-              offset: Offset(2, 2),
-              blurRadius: 2,
-            )
-          ],
+          boxShadow: boxShadow,
           color: Colors.white,
           borderRadius: BorderRadius.all(
             Radius.circular(16),
