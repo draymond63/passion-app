@@ -77,14 +77,14 @@ class _SettingsPageState extends State<SettingsPage> {
           value: settings.data['send_data'] ?? true,
           onChanged: (b) => updateDataTransmission(b),
         ),
-        TextButton(
-          onPressed: () => showDeletionWarning(),
-          child: Text('Delete User Profile'),
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
-            foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+        FlatButton(
+          child: Text(
+            'Delete User Profile',
+            style: TextStyle(color: Colors.red[700]),
           ),
-        )
+          shape: Border.all(color: Colors.red[700]),
+          onPressed: showDeletionWarning,
+        ),
       ];
 
   updateCategory(String selection, bool state) {
@@ -112,47 +112,59 @@ class _SettingsPageState extends State<SettingsPage> {
   void showDeletionWarning() {
     pushNewScreen(
       context,
+      // withNavBar: false, // Causes weird error
+      pageTransitionAnimation: PageTransitionAnimation.fade,
       screen: Material(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'Are you sure you want to delete all your data?',
-            style: ItemHeader,
-            textAlign: TextAlign.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Are you sure you want to delete all your data?',
+                style: ItemHeader,
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                'This will give you a fresh start',
+                style: ItemSubtitle,
+                textAlign: TextAlign.center,
+              ),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                FlatButton(
+                  child: Text(
+                    'Yes, I want to restart',
+                    style: TextStyle(color: Colors.red[700]),
+                  ),
+                  shape: Border.all(color: Colors.red[700]),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Provider.of<Storage>(context, listen: false)
+                        .deleteData(context);
+                  },
+                ),
+                Expanded(child: Container()),
+                FlatButton(
+                  child: Text('No, I want to keep my data'),
+                  color: Colors.green[100],
+                  onPressed: Navigator.of(context).pop,
+                ),
+              ]),
+            ],
           ),
-          Text(
-            'This will give you a fresh start',
-            style: ItemSubtitle,
-            textAlign: TextAlign.center,
-          ),
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            buildButton(
-              'Yes',
-              Colors.red,
-              () => Provider.of<Storage>(context, listen: false)
-                  .deleteData(context),
-            ),
-            buildButton('No', Colors.green),
-          ]),
-        ],
-      )),
+        ),
+      ),
     );
   }
 
   Widget buildButton(String text, Color color, [Function() onPressed]) {
-    return Expanded(
-      child: TextButton(
-        child: Text(text),
-        style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all<Color>(color),
-          foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-        ),
-        onPressed: () {
-          Navigator.of(context).pop();
-          if (onPressed != null) onPressed();
-        },
-      ),
+    return FlatButton(
+      child: Text(text),
+      shape: Border.all(color: color),
+      onPressed: () {
+        Navigator.of(context).pop();
+        if (onPressed != null) onPressed();
+      },
     );
   }
 }

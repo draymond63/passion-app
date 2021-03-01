@@ -11,7 +11,7 @@ class Storage extends ChangeNotifier {
   Settings _settings;
   Map<String, int> _feed;
   List<String> _items;
-  bool _initUser;
+  bool _initUser; // True if the user needs to be onboarded
   // ! ASSUMES 3 PAGES
   List<DateTime> _pageStartTimes = List.filled(3, DateTime.now());
   List<DateTime> _pageEndTimes = List.filled(3, DateTime.now());
@@ -124,7 +124,7 @@ class Storage extends ChangeNotifier {
     _feed = {};
     _items = [];
     db.deleteData(context);
-    _update();
+    _update(quiet: false);
   }
 }
 
