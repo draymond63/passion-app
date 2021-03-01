@@ -20,6 +20,7 @@ class BaseItem extends StatefulWidget {
 
 class _BaseItemState extends State<BaseItem> {
   void addLikedItem(String name, String site) {
+    final theme = Theme.of(context);
     String message = 'Added $name to your bookmarks!';
     // Add item to the list
     final db = Provider.of<Storage>(context, listen: false);
@@ -30,8 +31,8 @@ class _BaseItemState extends State<BaseItem> {
     }
     // Show feedback
     Scaffold.of(context).showSnackBar(SnackBar(
-      backgroundColor: Color(MAIN_ACCENT_COLOR),
-      content: Text(message, style: TextStyle(color: Color(MAIN_COLOR))),
+      backgroundColor: theme.secondaryHeaderColor,
+      content: Text(message, style: TextStyle(color: theme.primaryColor)),
     ));
   }
 
@@ -108,9 +109,10 @@ class _BaseItemState extends State<BaseItem> {
   }
 
   Widget buildButtons(Map info) {
-    Color color = Color(SECOND_ACCENT_COLOR);
+    final theme = Theme.of(context);
     final store = Provider.of<Storage>(context);
-    if (store.items.contains(widget.site)) color = Color(MAIN_COLOR);
+    Color color = theme.accentColor;
+    if (store.items.contains(widget.site)) color = theme.primaryColor;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -125,7 +127,7 @@ class _BaseItemState extends State<BaseItem> {
             ),
             elevation: 1.0,
             fillColor: Colors.white,
-            child: Icon(Icons.flag, color: Color(SECOND_ACCENT_COLOR)),
+            child: Icon(Icons.flag, color: theme.accentColor),
             padding: EdgeInsets.all(16.0),
             shape: CircleBorder(),
           ),

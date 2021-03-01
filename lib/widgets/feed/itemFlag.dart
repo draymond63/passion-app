@@ -59,8 +59,8 @@ class _FlagItemPageState extends State<FlagItemPage> {
           TextButton(
             child: Text('Notify Us!'),
             style: ButtonStyle(
-              backgroundColor:
-                  MaterialStateProperty.all<Color>(Color(MAIN_COLOR)),
+              backgroundColor: MaterialStateProperty.all<Color>(
+                  Theme.of(context).primaryColor),
               foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
             ),
             onPressed: () => sendError(context),

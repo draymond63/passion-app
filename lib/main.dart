@@ -78,6 +78,7 @@ class DataApp extends StatelessWidget {
       title: 'PassionFruit',
       theme: ThemeData(
           primaryColor: Color(MAIN_COLOR),
+          secondaryHeaderColor: Color(MAIN_ACCENT_COLOR),
           accentColor: Color(SECOND_ACCENT_COLOR),
           fontFamily: 'Roboto',
           textTheme: TextTheme(
@@ -90,7 +91,7 @@ class DataApp extends StatelessWidget {
                 color: Color(MAIN_COLOR),
                 fontWeight: FontWeight.w500),
             bodyText1: TextStyle(
-                fontSize: 14.0,
+                fontSize: 16.0,
                 color: Color(TEXT_COLOR),
                 fontWeight: FontWeight.w300),
           )),

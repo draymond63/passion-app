@@ -72,16 +72,18 @@ class _FeedPageState extends State<FeedPage> {
   // * Rendering
   @override
   Widget build(BuildContext context) {
+    final mainColor = Theme.of(context).primaryColor;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Your Feed', style: TextStyle(color: Color(MAIN_COLOR))),
+        title: Text('Your Feed', style: TextStyle(color: mainColor)),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
         actions: [
           IconButton(
               icon: Icon(
                 Icons.settings,
-                color: Color(MAIN_COLOR),
+                color: mainColor,
               ),
               onPressed: () => pushNewScreen(context, screen: SettingsPage())),
         ],

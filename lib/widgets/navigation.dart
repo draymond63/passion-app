@@ -57,7 +57,7 @@ class _PageRouterState extends State<PageRouter> {
       handleAndroidBackButtonPress: true,
       resizeToAvoidBottomInset: true,
       hideNavigationBarWhenKeyboardShows: true,
-      backgroundColor: Color(MAIN_COLOR),
+      backgroundColor: Theme.of(context).primaryColor,
       items: <PersistentBottomNavBarItem>[
         PersistentBottomNavBarItem(
           icon: Icon(Icons.home, size: _iconSize),
