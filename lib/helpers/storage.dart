@@ -28,7 +28,7 @@ class Storage extends ChangeNotifier {
       settings: Settings.fromMap(map),
       items: map['items'] ?? [], // 'LeBron_James'
       feed: map['feed'] ?? {},
-      initUser: map['initd'] ?? false,
+      initUser: map['initd'] ?? true,
     );
   }
 

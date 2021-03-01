@@ -37,11 +37,7 @@ class _IntroPageState extends State<IntroPage> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Text("${_pageIndex + 1}/${_pages.length}"),
-              if (_pageIndex != 0)
-                IconButton(
-                  icon: Icon(Icons.arrow_back),
-                  onPressed: prevPage,
-                )
+              if (_pageIndex != 0) BackButton(onPressed: prevPage)
             ],
           ),
         ),
