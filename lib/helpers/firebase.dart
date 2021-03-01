@@ -54,29 +54,13 @@ class DBService {
     return db.collection('users').doc(id);
   }
 
-  Stream<UserDoc> getUserData(BuildContext context) {
-    final user = Provider.of<User>(context, listen: false); // Assumes logged-in
-    // print('User ID: ${user.uid}');
-    final query = _getDoc(user.uid).snapshots();
-    return query.map((doc) => UserDoc.fromMap(doc.data()));
-  }
-
   // * WRITING
-  void addItem(BuildContext context, String newItem) async {
+  void syncData(BuildContext context) async {
+    final data = Provider.of<Storage>(context, listen: false);
     _updateData(context, {
-      'items': FieldValue.arrayUnion([newItem]),
-    });
-  }
-
-  void removeItem(BuildContext context, String newItem) async {
-    _updateData(context, {
-      'items': FieldValue.arrayRemove([newItem]),
-    });
-  }
-
-  void updateTime(BuildContext context, String item, int deciseconds) {
-    _updateData(context, {
-      'feed.$item': FieldValue.increment(deciseconds),
+      'feed': data.feed,
+      'items': data.items,
+      'settings': data.settings.toMap(),
     });
   }
 
@@ -100,12 +84,6 @@ class DBService {
 
   void _initUser(User user, Map<String, dynamic> initData) {
     db.collection('users').doc(user.uid).set(initData);
-  }
-
-  void syncData(BuildContext context) async {
-    final data = Provider.of<Storage>(context, listen: false).toMap();
-    data.remove('settings'); // Not keeping track of this
-    _updateData(context, data);
   }
 
   // * GENERAL

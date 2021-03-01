@@ -7,20 +7,29 @@ import 'package:PassionFruit/helpers/firebase.dart';
 // * Interface for user file
 class Storage extends ChangeNotifier {
   final db = DBService();
+  final changeMax = 10;
   // data
   Settings _settings;
   Map<String, int> _feed;
   List<String> _items;
   bool _initUser; // True if the user needs to be onboarded
+  int _changes = 0;
   // ! ASSUMES 3 PAGES
   List<DateTime> _pageStartTimes = List.filled(3, DateTime.now());
   List<DateTime> _pageEndTimes = List.filled(3, DateTime.now());
 
-  Storage({Settings settings, Map feed, List items, initUser}) {
+  Storage({
+    Settings settings,
+    Map feed,
+    List items,
+    bool initUser,
+    int changes,
+  }) {
     _settings = settings;
     _feed = feed.cast<String, int>();
     _items = items.cast<String>();
     _initUser = initUser;
+    _changes = _changes;
   }
 
   factory Storage.fromMap(Map map) {
@@ -29,6 +38,7 @@ class Storage extends ChangeNotifier {
       items: map['items'] ?? [], // 'LeBron_James'
       feed: map['feed'] ?? {},
       initUser: map['initd'] ?? true,
+      changes: map['changes'] ?? 0,
     );
   }
 
@@ -38,6 +48,7 @@ class Storage extends ChangeNotifier {
       'items': items,
       'feed': feed,
       'initd': initUser,
+      'changes': _changes,
     };
   }
 
@@ -56,8 +67,15 @@ class Storage extends ChangeNotifier {
       DateTimeRange(start: _pageStartTimes[index], end: _pageEndTimes[index]);
 
   // * FUNCTIONS
-  void _update({bool quiet = true}) {
+  // context: passed if value should be synced
+  // quiet: whether to trigger a rerender
+  void _update({BuildContext context, bool quiet = true}) {
     if (!quiet) notifyListeners();
+    // Update database is enough changes have accumulated
+    _changes++;
+    if (_changes >= changeMax && context != null) db.syncData(context);
+    _changes %= changeMax;
+    // Write to local storage
     _writeUserFile(toMap());
   }
 
@@ -71,8 +89,7 @@ class Storage extends ChangeNotifier {
   bool addItem(String site, BuildContext context) {
     if (!items.contains(site)) {
       _items.add(site);
-      db.addItem(context, site);
-      _update(quiet: false);
+      _update(context: context, quiet: false);
       return true;
     }
     return false;
@@ -81,8 +98,7 @@ class Storage extends ChangeNotifier {
   bool removeItem(String site, BuildContext context) {
     final status = _items.remove(site);
     if (status) {
-      db.removeItem(context, site);
-      _update(quiet: false);
+      _update(context: context, quiet: false);
     }
     return status;
   }
@@ -93,8 +109,7 @@ class Storage extends ChangeNotifier {
       _feed[site] += time;
     else
       _feed[site] = time;
-    db.updateTime(context, site, time);
-    _update();
+    _update(context: context);
   }
 
   void timeStampPage({int oldPage, int newPage}) {
