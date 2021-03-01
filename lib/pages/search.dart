@@ -39,11 +39,19 @@ class _SearchPageState extends State<SearchPage> {
           ? Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                FloatingActionButton(
-                  child: Icon(Icons.shuffle_rounded),
+                // Can't have 2 Floating Action Buttons wihtin the same widget
+                RawMaterialButton(
+                  child: Icon(
+                    Icons.shuffle_rounded,
+                    color: Theme.of(context).accentIconTheme.color,
+                  ),
                   onPressed: focusRandom,
-                  mini: true,
+                  elevation: 2.0,
+                  fillColor: Theme.of(context).accentColor,
+                  padding: EdgeInsets.all(8.0),
+                  shape: CircleBorder(),
                 ),
+
                 SizedBox(height: 24),
                 if (items.length > 0)
                   FloatingActionButton(
