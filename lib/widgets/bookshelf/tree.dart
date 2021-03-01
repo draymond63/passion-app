@@ -24,7 +24,13 @@ class _TreeViewerState extends State<TreeViewer> {
     // For future loading
     if (csv.length == 0) return;
     // Strip vitals down to liked items
-    data = csv.entries.where((row) => items.contains(row.key)).toList();
+    final temp = csv.entries.where((row) => items.contains(row.key)).toList();
+    // If a difference in length occurs, reset the tree
+    if (temp.length != data.length) {
+      data = temp;
+      path = [];
+      setState(() => depth = 0); // Trigger rerender
+    }
   }
 
   Map<String, int> getItems([iDepth]) {

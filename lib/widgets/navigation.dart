@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
-import 'package:PassionFruit/helpers/globals.dart';
+// import 'package:PassionFruit/helpers/globals.dart';
 import 'package:PassionFruit/helpers/storage.dart';
 import 'package:PassionFruit/pages/feed.dart';
 import 'package:PassionFruit/pages/bookshelf.dart';
