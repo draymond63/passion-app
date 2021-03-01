@@ -1,16 +1,15 @@
 # PassionFruit
+Find your passion!
 
-A new Flutter project.
+There are so many self-help books and online quizzes that try to help you find your passion. They typically do one of two things:
+- Provide a generic, one-time answer
+- Tell you that you need to find it yourself
 
-## Getting Started
+PassionFruit provides a middle ground between these options. We offer a guided exploration of your journey to find who you really are! Whether you are looking for a new hobby, career, or life-long passion, PassionFruit can help you learn what's possible.
 
-This project is a starting point for a Flutter application.
+The entire app is:
+- completely free
+- ad free
+And it allows you to store your data completely locally!
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+If you'd like certain features added, let me know!
