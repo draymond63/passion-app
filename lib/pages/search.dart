@@ -24,13 +24,6 @@ class _SearchPageState extends State<SearchPage> {
     final map = Provider.of<List>(context);
     // Scaffold required for search bar positioning
     return Scaffold(
-      // Only show home button if the user has
-      floatingActionButton: items.length > 0
-          ? FloatingActionButton(
-              child: Icon(Icons.home),
-              onPressed: () => focusSite(''),
-            )
-          : null,
       body: Stack(children: [
         if (map.length == 0)
           LoadingWidget
@@ -39,22 +32,27 @@ class _SearchPageState extends State<SearchPage> {
             width: MediaQuery.of(context).size.width,
             child: Graph(map, items, focusedSite, _isSearching),
           ),
-
-        // FutureBuilder(
-        //   future: loadMap(),
-        //   builder: (context, AsyncSnapshot snap) {
-        //     if (snap.hasData) {
-        //       return Container(
-        //         width: MediaQuery.of(context).size.width,
-        //         child: Graph(snap.data, items, focusedSite, _isSearching),
-        //       );
-        //     }
-        //     if (snap.hasError) return Center(child: Text('${snap.error}'));
-        //     return LoadingWidget;
-        //   },
-        // ),
         buildSearchBar(),
       ]),
+      // Only show home button if the user has
+      floatingActionButton: (!_isSearching)
+          ? Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                FloatingActionButton(
+                  child: Icon(Icons.shuffle_rounded),
+                  onPressed: focusRandom,
+                  mini: true,
+                ),
+                SizedBox(height: 24),
+                if (items.length > 0)
+                  FloatingActionButton(
+                    child: Icon(Icons.star),
+                    onPressed: () => focusSite(''),
+                  ),
+              ],
+            )
+          : null,
     );
   }
 
@@ -71,16 +69,7 @@ class _SearchPageState extends State<SearchPage> {
       transition: CircularFloatingSearchBarTransition(),
       onFocusChanged: (status) => setState(() => _isSearching = status),
       onQueryChanged: (query) => setState(() => _query = query.toLowerCase()),
-      actions: [
-        FloatingSearchBarAction(
-          showIfOpened: false,
-          child: CircularButton(
-            icon: const Icon(Icons.shuffle_rounded),
-            onPressed: () => focusRandom(),
-          ),
-        ),
-        FloatingSearchBarAction.searchToClear(showIfClosed: false),
-      ],
+      actions: [FloatingSearchBarAction.searchToClear()],
       builder: (context, anim) => ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: Material(
