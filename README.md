@@ -10,6 +10,6 @@ PassionFruit provides a middle ground between these options. We offer a guided e
 The entire app is:
 - completely free
 - ad free
-And it allows you to store your data completely locally!
+- allows you to store your data completely locally!
 
 If you'd like certain features added, let me know!
